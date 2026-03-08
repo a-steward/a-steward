@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A Steward - 你的个人AI生活管家</title>
+<title>A Steward - AI生活管家</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 :root{--primary-color:#2563eb;--bg-color:#f8fafc;--card-color:#fff;--text-primary:#0f172a;--text-secondary:#64748b;--border-color:#e2e8f0}
@@ -17,10 +17,9 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 .btn-primary:disabled{background:#93c5fd;cursor:not-allowed}
 .btn-secondary{background:transparent;color:var(--primary-color);border:1px solid var(--primary-color);padding:.5rem 1.25rem;border-radius:.5rem;cursor:pointer}
 .btn-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0}
-.btn-icon.active{background:var(--primary-color)}
-.btn-icon.active svg circle{fill:#fff}
-.btn-icon.active svg path{stroke:#2563eb;fill:#2563eb}
-.container{flex:1;max-width:1400px;width:100%;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 450px;gap:2rem}
+
+/* 聊天面板全屏 */
+.container{flex:1;max-width:1400px;width:100%;margin:0 auto;padding:2rem}
 .chat-panel{background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);display:flex;flex-direction:column;height:calc(100vh - 120px);overflow:hidden}
 .chat-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center}
 .header-right{display:flex;align-items:center;gap:0.5rem}
@@ -29,7 +28,7 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 .message.user{align-self:flex-end;flex-direction:row-reverse}
 .message.ai{cursor:pointer;transition:all .2s}
 .message.ai:hover .message-content{background:#e2e8f0}
-.message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.875rem}
+.message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600}
 .message.user .message-avatar{background:var(--primary-color);color:#fff}
 .message.ai .message-avatar{background:#f1f5f9;color:var(--primary-color)}
 .message-content{padding:.75rem 1rem;border-radius:.75rem;line-height:1.6;white-space:pre-wrap}
@@ -38,28 +37,29 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 .chat-input-area{padding:1rem 1.5rem;border-top:1px solid var(--border-color)}
 .chat-input-wrapper{display:flex;gap:.75rem;align-items:flex-end}
 .chat-input{flex:1;border:1px solid var(--border-color);border-radius:.75rem;padding:.75rem 1rem;resize:none;font-size:.9375rem;outline:0}
-.task-panel{display:flex;flex-direction:column;gap:1.5rem;height:calc(100vh - 120px);overflow:hidden}
-.task-card{background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);padding:1.5rem}
-.task-type-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1rem}
-.tab-btn{padding:.5rem;border-radius:.5rem;border:1px solid var(--border-color);background:transparent;font-weight:500;cursor:pointer}
-.tab-btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
-.task-input{width:100%;border:1px solid var(--border-color);border-radius:.75rem;padding:.75rem 1rem;margin-bottom:1rem;resize:none;font-size:.9375rem;outline:0}
-.task-result{flex:1;overflow-y:auto;background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);padding:1.5rem}
-.task-item{padding:.75rem 1rem;border-radius:.5rem;border:1px solid var(--border-color);line-height:1.6}
-.task-item.high{border-left:4px solid #ef4444}
-.task-item.medium{border-left:4px solid #f59e0b}
-.task-item.low{border-left:4px solid #10b981}
-.loading{display:inline-block;width:16px;height:16px;border:2px solid #f3f3f3;border-top:2px solid var(--primary-color);border-radius:50%;animation:spin 1s linear infinite}
+
+.loading{display:inline-block;width:16px;height:16px;border:2px solid #f3f3f3; border-top:2px solid var(--primary-color);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .page{display:none;width:100%;max-width:800px;margin:0 auto;padding:2rem}
 .page.active{display:block}
-.page h2{margin-bottom:1rem}
-.page p{line-height:1.8;margin-bottom:1rem}
 .form-group{margin-bottom:1rem}
 .form-group label{display:block;margin-bottom:.5rem}
 .form-group input{width:100%;border:1px solid var(--border-color);border-radius:.5rem;padding:.75rem;outline:0}
-@media(max-width:1024px){.container{grid-template-columns:1fr}.chat-panel,.task-panel{height:auto;min-height:500px}}
-@media(max-width:640px){nav{padding:1rem;flex-direction:column;gap:1rem}.container{padding:1rem}.header-right{gap:0.3rem}}
+.user-info{margin-bottom:1rem; padding:1rem; background:#fff; border-radius:.5rem; border:1px solid var(--border-color)}
+
+/* 悬浮球 */
+.fab{position:fixed;right:2rem;bottom:2rem;width:60px;height:60px;border-radius:50%;background:var(--primary-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999}
+
+/* 弹窗遮罩 */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-mask.show{display:flex}
+.modal-box{background:#fff;border-radius:1rem;width:90%;max-width:400px;padding:1.5rem;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+.modal-box h3{margin-bottom:1rem}
+.modal-btns{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}
+.modal-btns button{padding:.75rem;border-radius:.5rem;border:1px solid var(--border-color);background:#fff;cursor:pointer}
+.modal-btns button:hover{background:#f1f5f9}
+.modal-input{width:100%;border:1px solid var(--border-color);border-radius:.5rem;padding:.75rem;margin-bottom:1rem}
+.modal-footer{display:flex;justify-content:end;gap:.5rem}
 </style>
 </head>
 <body>
@@ -75,7 +75,7 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
   </div>
 </nav>
 
-<!-- 主界面 -->
+<!-- 主界面：只有聊天 -->
 <div id="page-home" class="page active">
   <div class="container">
     <div class="chat-panel">
@@ -114,64 +114,78 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="task-panel">
-      <div class="task-card">
-        <h2>生成专属任务</h2>
-        <div class="task-type-tabs">
-          <button class="tab-btn active" data-type="career">事业</button>
-          <button class="tab-btn" data-type="emotion">情感</button>
-          <button class="tab-btn" data-type="life">生活</button>
-        </div>
-        <textarea class="task-input" id="taskInput" rows="3" placeholder="描述你的情况..."></textarea>
-        <button class="btn-primary" id="generateTaskBtn" style="width:100%">生成专属任务</button>
-      </div>
-      <div class="task-result">
-        <h3>任务清单</h3>
-        <div id="taskList"></div>
-      </div>
+<!-- 悬浮球 -->
+<div class="fab" id="fabBtn">📋</div>
+
+<!-- 选择类型弹窗 -->
+<div class="modal-mask" id="typeModal">
+  <div class="modal-box">
+    <h3>选择任务类型</h3>
+    <div class="modal-btns">
+      <button data-type="career">事业</button>
+      <button data-type="emotion">情感</button>
+      <button data-type="life">生活</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeTypeModal()">取消</button>
     </div>
   </div>
 </div>
 
-<!-- 个人中心 -->
+<!-- 生成任务弹窗 -->
+<div class="modal-mask" id="taskModal">
+  <div class="modal-box">
+    <h3>生成 <span id="taskTypeName">事业</span> 任务</h3>
+    <input class="modal-input" id="taskInputModal" placeholder="描述你的情况...">
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeTaskModal()">取消</button>
+      <button class="btn-primary" id="doTaskBtn">生成</button>
+    </div>
+  </div>
+</div>
+
+<!-- 个人中心、登录、注册、关于 不变 -->
 <div id="page-profile" class="page">
   <h2>个人中心</h2>
-  <p>这里是你的个人信息、使用记录、设置等功能。</p>
+  <div id="profile-info" class="user-info" style="display:none;">
+    <p>欢迎回来，<strong id="current-username"></strong>！</p>
+  </div>
+  <p id="profile-tip">请先登录</p>
+  <button class="btn-primary" id="logout-btn" style="display:none;">退出登录</button>
   <button class="btn-primary" onclick="goPage('home')">返回对话</button>
 </div>
 
-<!-- 登录 -->
 <div id="page-login" class="page">
   <h2>登录</h2>
   <div class="form-group">
     <label>账号</label>
-    <input type="text" placeholder="请输入账号">
+    <input type="text" id="login-username" placeholder="请输入账号">
   </div>
   <div class="form-group">
     <label>密码</label>
-    <input type="password" placeholder="请输入密码">
+    <input type="password" id="login-pwd" placeholder="请输入密码">
   </div>
-  <button class="btn-primary" style="width:100%">登录</button>
+  <button class="btn-primary" style="width:100%" id="do-login">登录</button>
   <p style="margin-top:1rem">没有账号？<a onclick="goPage('register')" style="color:var(--primary-color);cursor:pointer">去注册</a></p>
 </div>
 
-<!-- 注册 -->
 <div id="page-register" class="page">
   <h2>注册</h2>
   <div class="form-group">
     <label>账号</label>
-    <input type="text" placeholder="请输入账号">
+    <input type="text" id="reg-username" placeholder="请输入账号">
   </div>
   <div class="form-group">
     <label>密码</label>
-    <input type="password" placeholder="请输入密码">
+    <input type="password" id="reg-pwd" placeholder="请输入密码">
   </div>
-  <button class="btn-primary" style="width:100%">注册</button>
+  <button class="btn-primary" style="width:100%" id="do-register">注册</button>
   <p style="margin-top:1rem">已有账号？<a onclick="goPage('login')" style="color:var(--primary-color);cursor:pointer">去登录</a></p>
 </div>
 
-<!-- 关于 -->
 <div id="page-about" class="page">
   <h2>关于 A Steward</h2>
   <p>A Steward 是你的AI生活管家，专注事业、情感、生活陪伴与建议。</p>
@@ -180,71 +194,108 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 </div>
 
 <script>
-// 页面切换核心逻辑
+// ==================== 页面切换 ====================
 function goPage(pageName) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + pageName).classList.add('active');
   document.querySelector('.nav-link[data-page="' + pageName + '"]').classList.add('active');
 }
-
 document.querySelectorAll('.nav-link').forEach(link => {
   link.addEventListener('click', () => {
     const page = link.dataset.page;
     goPage(page);
+    if(page === 'profile') updateProfileUI();
   });
 });
 
-// ===================== 以下是你原来的所有功能代码（完整保留）=====================
+// ==================== 登录注册 ====================
+const STORAGE_KEY = 'user_list';
+const LOGIN_KEY = 'current_login_user';
+function getUsers(){let s=localStorage.getItem(STORAGE_KEY);return s?JSON.parse(s):[]}
+function saveUsers(users){localStorage.setItem(STORAGE_KEY,JSON.stringify(users))}
+function getCurrentUser(){return localStorage.getItem(LOGIN_KEY)}
+function setCurrentUser(user){user?localStorage.setItem(LOGIN_KEY,user):localStorage.removeItem(LOGIN_KEY)}
+
+function updateProfileUI(){
+  const user=getCurrentUser();
+  const infoEl=document.getElementById('profile-info');
+  const tipEl=document.getElementById('profile-tip');
+  const logoutBtn=document.getElementById('logout-btn');
+  const nameEl=document.getElementById('current-username');
+  if(user){infoEl.style.display='block';tipEl.style.display='none';logoutBtn.style.display='inline-block';nameEl.textContent=user;}
+  else{infoEl.style.display='none';tipEl.style.display='block';logoutBtn.style.display='none';}
+}
+
+document.getElementById('do-register').addEventListener('click',()=>{
+  const username=document.getElementById('reg-username').value.trim();
+  const pwd=document.getElementById('reg-pwd').value.trim();
+  if(!username||!pwd){alert('账号和密码不能为空');return;}
+  let users=getUsers();
+  if(users.some(u=>u.username===username)){alert('账号已存在');return;}
+  users.push({username,pwd});saveUsers(users);alert('注册成功！请登录');goPage('login');
+});
+
+document.getElementById('do-login').addEventListener('click',()=>{
+  const username=document.getElementById('login-username').value.trim();
+  const pwd=document.getElementById('login-pwd').value.trim();
+  if(!username||!pwd){alert('账号和密码不能为空');return;}
+  let user=getUsers().find(u=>u.username===username&&u.pwd===pwd);
+  if(!user){alert('账号或密码错误');return;}
+  setCurrentUser(username);alert('登录成功');goPage('profile');updateProfileUI();
+});
+
+document.getElementById('logout-btn').addEventListener('click',()=>{
+  setCurrentUser(null);alert('已退出登录');updateProfileUI();
+});
+
+updateProfileUI();
+
+// ==================== 悬浮球弹窗逻辑 ====================
+let selectedType = 'career';
+const fabBtn = document.getElementById('fabBtn');
+const typeModal = document.getElementById('typeModal');
+const taskModal = document.getElementById('taskModal');
+const taskTypeName = document.getElementById('taskTypeName');
+const taskInputModal = document.getElementById('taskInputModal');
+const doTaskBtn = document.getElementById('doTaskBtn');
+
+fabBtn.addEventListener('click',()=>{
+  typeModal.classList.add('show');
+});
+
+function closeTypeModal(){
+  typeModal.classList.remove('show');
+}
+function closeTaskModal(){
+  taskModal.classList.remove('show');
+}
+
+document.querySelectorAll('#typeModal button[data-type]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    selectedType = btn.dataset.type;
+    taskTypeName.textContent = btn.textContent;
+    typeModal.classList.remove('show');
+    taskModal.classList.add('show');
+    taskInputModal.value = '';
+    taskInputModal.focus();
+  });
+});
+
+// ==================== 聊天 & 语音 ====================
 const API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
 const MODEL = "doubao-1-5-pro-32k-250115";
 const API_KEY = "384628c3-79f7-4849-9622-a828c4259213";
-
 const SYSTEM_PROMPT = "你是A Steward，你的个人AI生活管家，专注回答事业、情感、生活相关问题，给出实用、可落地的建议。";
 
-const PLAY_DUCK_SVG = `
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
-  <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
-  <circle cx="9" cy="10" r="1.5" fill="#000"/>
-  <circle cx="15" cy="10" r="1.5" fill="#000"/>
-  <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
-  <path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/>
-</svg>`;
-
-const PAUSE_DUCK_SVG = `
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
-  <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
-  <circle cx="9" cy="10" r="1.5" fill="#000"/>
-  <circle cx="15" cy="10" r="1.5" fill="#000"/>
-  <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
-  <rect x="8" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/>
-  <rect x="13" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/>
-</svg>`;
-
-const REPLAY_DUCK_SVG = `
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
-  <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
-  <circle cx="9" cy="10" r="1.5" fill="#000"/>
-  <circle cx="15" cy="10" r="1.5" fill="#000"/>
-  <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
-  <path d="M18 12 A6 6 0 1 0 12 18" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M15 18 L12 21 L9 18" fill="#000"/>
-</svg>`;
+const PLAY_DUCK_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/><path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/><circle cx="9" cy="10" r="1.5" fill="#000"/><circle cx="15" cy="10" r="1.5" fill="#000"/><path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/><path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/></svg>`;
+const PAUSE_DUCK_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/><path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/><circle cx="9" cy="10" r="1.5" fill="#000"/><circle cx="15" cy="10" r="1.5" fill="#000"/><path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/><rect x="8" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/><rect x="13" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/></svg>`;
 
 let currentUtterance = null;
 let currentPlayText = "你好！我是你的专属AI生活管家A Steward~";
 let isVoicePlaying = false;
 let isVoicePaused = false;
-
-let chatHistory = [
-  { role: "system", content: SYSTEM_PROMPT },
-  { role: "assistant", content: currentPlayText }
-];
-
-let currentTaskType = "career";
+let chatHistory = [{role:"system",content:SYSTEM_PROMPT},{role:"assistant",content:currentPlayText}];
 let isGenerating = false;
 
 const chatMessages = document.getElementById("chatMessages");
@@ -253,255 +304,102 @@ const sendChatBtn = document.getElementById("sendChatBtn");
 const clearChatBtn = document.getElementById("clearChatBtn");
 const toggleVoiceBtn = document.getElementById("toggleVoiceBtn");
 const replayVoiceBtn = document.getElementById("replayVoiceBtn");
-const taskInput = document.getElementById("taskInput");
-const generateTaskBtn = document.getElementById("generateTaskBtn");
-const taskList = document.getElementById("taskList");
-const tabBtns = document.querySelectorAll(".tab-btn");
 
-function stopAllVoice() {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-    currentUtterance = null;
-    isVoicePlaying = false;
-    isVoicePaused = false;
-    toggleVoiceBtn.classList.remove("active");
-    toggleVoiceBtn.innerHTML = PLAY_DUCK_SVG;
-    toggleVoiceBtn.title = "播放";
-  }
+function stopAllVoice(){
+  if("speechSynthesis"in window){window.speechSynthesis.cancel();currentUtterance=null;isVoicePlaying=false;isVoicePaused=false;toggleVoiceBtn.classList.remove("active");toggleVoiceBtn.innerHTML=PLAY_DUCK_SVG;}
 }
-
-function toggleVoice() {
-  if (!("speechSynthesis" in window)) {
-    alert("您的浏览器不支持语音播报功能");
-    return;
-  }
-  if (!currentPlayText.trim()) {
-    alert("暂无可播放的内容");
-    return;
-  }
-
-  if (isVoicePlaying && !isVoicePaused) {
-    window.speechSynthesis.pause();
-    isVoicePaused = true;
-    toggleVoiceBtn.classList.remove("active");
-    toggleVoiceBtn.innerHTML = PLAY_DUCK_SVG;
-    toggleVoiceBtn.title = "继续播放";
-    return;
-  }
-
-  if (isVoicePlaying && isVoicePaused) {
-    window.speechSynthesis.resume();
-    isVoicePaused = false;
-    toggleVoiceBtn.classList.add("active");
-    toggleVoiceBtn.innerHTML = PAUSE_DUCK_SVG;
-    toggleVoiceBtn.title = "暂停";
-    return;
-  }
-
+function toggleVoice(){
+  if(!("speechSynthesis"in window)){alert("浏览器不支持语音");return;}
+  if(isVoicePlaying&&!isVoicePaused){window.speechSynthesis.pause();isVoicePaused=true;toggleVoiceBtn.classList.remove("active");toggleVoiceBtn.innerHTML=PLAY_DUCK_SVG;return;}
+  if(isVoicePlaying&&isVoicePaused){window.speechSynthesis.resume();isVoicePaused=false;toggleVoiceBtn.classList.add("active");toggleVoiceBtn.innerHTML=PAUSE_DUCK_SVG;return;}
   stopAllVoice();
-  const utter = new SpeechSynthesisUtterance(currentPlayText);
-  utter.lang = "zh-CN";
-  utter.rate = 1.0;
-  utter.pitch = 1.0;
-
-  utter.onstart = () => {
-    isVoicePlaying = true;
-    isVoicePaused = false;
-    toggleVoiceBtn.classList.add("active");
-    toggleVoiceBtn.innerHTML = PAUSE_DUCK_SVG;
-    toggleVoiceBtn.title = "暂停";
-  };
-
-  utter.onend = () => {
-    isVoicePlaying = false;
-    isVoicePaused = false;
-    toggleVoiceBtn.classList.remove("active");
-    toggleVoiceBtn.innerHTML = PLAY_DUCK_SVG;
-    toggleVoiceBtn.title = "播放";
-    currentUtterance = null;
-  };
-
-  utter.onerror = () => {
-    isVoicePlaying = false;
-    isVoicePaused = false;
-    toggleVoiceBtn.classList.remove("active");
-    toggleVoiceBtn.innerHTML = PLAY_DUCK_SVG;
-    toggleVoiceBtn.title = "播放";
-    currentUtterance = null;
-  };
-
-  currentUtterance = utter;
-  window.speechSynthesis.speak(utter);
+  const u=new SpeechSynthesisUtterance(currentPlayText);
+  u.lang="zh-CN";u.rate=1.0;
+  u.onstart=()=>{isVoicePlaying=true;isVoicePaused=false;toggleVoiceBtn.classList.add("active");toggleVoiceBtn.innerHTML=PAUSE_DUCK_SVG;};
+  u.onend=()=>{isVoicePlaying=false;isVoicePaused=false;toggleVoiceBtn.classList.remove("active");toggleVoiceBtn.innerHTML=PLAY_DUCK_SVG;};
+  u.onerror=()=>stopAllVoice();
+  currentUtterance=u;window.speechSynthesis.speak(u);
 }
+function replayVoice(){stopAllVoice();toggleVoice();}
 
-function replayVoice() {
-  stopAllVoice();
-  toggleVoice();
-}
-
-function renderChat() {
-  chatMessages.innerHTML = "";
-  chatHistory.forEach((m, index) => {
-    if (m.role === "system") return;
-    const div = document.createElement("div");
-    div.className = `message ${m.role === "user" ? "user" : "ai"}`;
-    if (m.role === "assistant") {
-      div.onclick = () => {
-        currentPlayText = m.content;
-        stopAllVoice();
-        toggleVoice();
-      };
-      div.title = "点击播放这条消息";
-    }
-    div.innerHTML = `
-      <div class="message-avatar">${m.role === "user" ? "我" : "AI"}</div>
-      <div class="message-content">${m.content}</div>
-    `;
+function renderChat(){
+  chatMessages.innerHTML="";
+  chatHistory.forEach(m=>{
+    if(m.role==="system")return;
+    const div=document.createElement("div");
+    div.className=`message ${m.role==="user"?"user":"ai"}`;
+    if(m.role==="ai")div.onclick=()=>{currentPlayText=m.content;stopAllVoice();toggleVoice();};
+    div.innerHTML=`<div class="message-avatar">${m.role==="user"?"我":"AI"}</div><div class="message-content">${m.content}</div>`;
     chatMessages.appendChild(div);
   });
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  chatMessages.scrollTop=chatMessages.scrollHeight;
 }
 
-async function sendMessage() {
-  const text = chatInput.value.trim();
-  if (!text || isGenerating) return;
-  isGenerating = true;
-  sendChatBtn.disabled = true;
+async function sendMessage(){
+  const text=chatInput.value.trim();
+  if(!text||isGenerating)return;
+  isGenerating=true;sendChatBtn.disabled=true;
   stopAllVoice();
-
-  chatHistory.push({ role: "user", content: text });
-  chatInput.value = "";
-  renderChat();
-
-  const aiMsg = document.createElement("div");
-  aiMsg.className = "message ai";
-  aiMsg.innerHTML = `<div class="message-avatar">AI</div><div class="message-content"><span class="loading"></span> 思考中...</div>`;
+  chatHistory.push({role:"user",content:text});
+  chatInput.value="";renderChat();
+  const aiMsg=document.createElement("div");
+  aiMsg.className="message ai";
+  aiMsg.innerHTML=`<div class="message-avatar">AI</div><div class="message-content"><span class="loading"></span> 思考中...</div>`;
   chatMessages.appendChild(aiMsg);
-  const contentEl = aiMsg.querySelector(".message-content");
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + API_KEY
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: chatHistory,
-        temperature: 0.7,
-        stream: true
-      })
-    });
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let full = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value);
-      const lines = chunk.split("\n").filter(l => l.trim());
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        const data = line.slice(6);
-        if (data === "[DONE]") continue;
-        try {
-          const obj = JSON.parse(data);
-          const c = obj.choices[0]?.delta?.content || "";
-          full += c;
-          contentEl.innerHTML = full;
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        } catch (e) {}
+  const contentEl=aiMsg.querySelector(".message-content");
+  try{
+    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+API_KEY},body:JSON.stringify({model:MODEL,messages:chatHistory,temperature:0.7,stream:true})});
+    const reader=res.body.getReader();
+    const decoder=new TextDecoder();
+    let full="";
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      const chunk=decoder.decode(value);
+      const lines=chunk.split("\n").filter(i=>i.trim());
+      for(const line of lines){
+        if(!line.startsWith("data: "))continue;
+        const d=line.slice(6);
+        if(d==="[DONE]")continue;
+        try{
+          const obj=JSON.parse(d);
+          const c=obj.choices[0]?.delta?.content||"";
+          full+=c;contentEl.innerHTML=full;chatMessages.scrollTop=chatMessages.scrollHeight;
+        }catch(e){}
       }
     }
-
-    currentPlayText = full;
-    chatHistory.push({ role: "assistant", content: full });
-    renderChat();
-    toggleVoice(); // 自动播放
-
-  } catch (e) {
-    contentEl.textContent = "请求失败：" + e.message;
-  } finally {
-    isGenerating = false;
-    sendChatBtn.disabled = false;
-  }
+    currentPlayText=full;
+    chatHistory.push({role:"assistant",content:full});
+    renderChat();toggleVoice();
+  }catch(e){contentEl.textContent="请求失败："+e.message;}
+  finally{isGenerating=false;sendChatBtn.disabled=false;}
 }
 
-toggleVoiceBtn.addEventListener("click", toggleVoice);
-replayVoiceBtn.addEventListener("click", replayVoice);
-sendChatBtn.addEventListener("click", sendMessage);
-chatInput.addEventListener("keydown", e => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
+toggleVoiceBtn.addEventListener("click",toggleVoice);
+replayVoiceBtn.addEventListener("click",replayVoice);
+sendChatBtn.addEventListener("click",sendMessage);
+chatInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
+clearChatBtn.addEventListener("click",()=>{if(!confirm("确定清空？"))return;stopAllVoice();currentPlayText="你好！我是你的专属AI生活管家A Steward~";chatHistory=[{role:"system",content:SYSTEM_PROMPT},{role:"assistant",content:currentPlayText}];renderChat();});
 
-clearChatBtn.addEventListener("click", () => {
-  if (!confirm("确定清空所有对话？")) return;
-  stopAllVoice();
-  currentPlayText = "你好！我是你的专属AI生活管家A Steward~";
-  chatHistory = [
-    { role: "system", content: SYSTEM_PROMPT },
-    { role: "assistant", content: currentPlayText }
-  ];
-  renderChat();
-});
-
-tabBtns.forEach(btn => {
-  btn.addEventListener("click", () => {
-    tabBtns.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentTaskType = btn.dataset.type;
-  });
-});
-
-generateTaskBtn.addEventListener("click", async () => {
-  const desc = taskInput.value.trim();
-  if (!desc || isGenerating) return;
-  isGenerating = true;
-  generateTaskBtn.disabled = true;
-  generateTaskBtn.innerHTML = '<span class="loading"></span> 生成中...';
-  taskList.innerHTML = "<p style='text-align:center'>正在生成任务...</p>";
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + API_KEY
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: `请根据我的情况生成${currentTaskType}方面的可执行任务：${desc}` }
-        ],
-        temperature: 0.6,
-        stream: false
-      })
-    });
-
-    const data = await res.json();
-    const result = data.choices?.[0]?.message?.content || "生成失败";
-    taskList.innerHTML = `<pre style="white-space:pre-wrap;line-height:1.6">${result}</pre>`;
-  } catch (e) {
-    taskList.innerHTML = `<p style='color:red'>错误：${e.message}</p>`;
-  } finally {
-    isGenerating = false;
-    generateTaskBtn.disabled = false;
-    generateTaskBtn.innerHTML = "生成专属任务";
-  }
+// 弹窗生成任务
+doTaskBtn.addEventListener("click",async()=>{
+  const desc=taskInputModal.value.trim();
+  if(!desc||isGenerating)return;
+  isGenerating=true;doTaskBtn.disabled=true;
+  try{
+    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+API_KEY},body:JSON.stringify({model:MODEL,messages:[{role:"system",content:SYSTEM_PROMPT},{role:"user",content:`请生成${selectedType==='career'?'事业':selectedType==='emotion'?'情感':'生活'}方面的可执行任务：${desc}`}],temperature:0.6})});
+    const data=await res.json();
+    const ans=data.choices?.[0]?.message?.content||"生成失败";
+    chatHistory.push({role:"user",content:`我要生成${selectedType==='career'?'事业':selectedType==='emotion'?'情感':'生活'}任务：${desc}`});
+    chatHistory.push({role:"assistant",content:ans});
+    renderChat();
+    closeTaskModal();
+  }catch(e){alert("错误："+e.message);}
+  finally{isGenerating=false;doTaskBtn.disabled=false;}
 });
 
 renderChat();
-
-window.addEventListener("beforeunload", () => {
-  stopAllVoice();
-});
+window.addEventListener("beforeunload",()=>stopAllVoice());
 </script>
 </body>
 </html>
