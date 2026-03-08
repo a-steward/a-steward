@@ -16,12 +16,21 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 .btn-primary{background:var(--primary-color);color:#fff;border:none;padding:.5rem 1.25rem;border-radius:.5rem;font-weight:500;cursor:pointer}
 .btn-primary:disabled{background:#93c5fd;cursor:not-allowed}
 .btn-secondary{background:transparent;color:var(--primary-color);border:1px solid var(--primary-color);padding:.5rem 1.25rem;border-radius:.5rem;cursor:pointer}
+/* 顶部可达鸭语音图标按钮 */
+.btn-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0}
+.btn-icon.active{background:var(--primary-color)}
+.btn-icon.active svg circle{fill:#fff}
+.btn-icon.active svg path{stroke:#2563eb;fill:#2563eb}
 .container{flex:1;max-width:1400px;width:100%;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 450px;gap:2rem}
 .chat-panel{background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);display:flex;flex-direction:column;height:calc(100vh - 120px);overflow:hidden}
 .chat-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center}
+/* 顶部右侧按钮组：可达鸭语音控制+清空对话 */
+.header-right{display:flex;align-items:center;gap:0.5rem}
 .chat-messages{flex:1;padding:1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem}
 .message{display:flex;gap:.75rem;max-width:85%}
 .message.user{align-self:flex-end;flex-direction:row-reverse}
+.message.ai{cursor:pointer;transition:all .2s}
+.message.ai:hover .message-content{background:#e2e8f0}
 .message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.875rem}
 .message.user .message-avatar{background:var(--primary-color);color:#fff}
 .message.ai .message-avatar{background:#f1f5f9;color:var(--primary-color)}
@@ -45,10 +54,11 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 .loading{display:inline-block;width:16px;height:16px;border:2px solid #f3f3f3;border-top:2px solid var(--primary-color);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 @media(max-width:1024px){.container{grid-template-columns:1fr}.chat-panel,.task-panel{height:auto;min-height:500px}}
-@media(max-width:640px){nav{padding:1rem;flex-direction:column;gap:1rem}.container{padding:1rem}}
+@media(max-width:640px){nav{padding:1rem;flex-direction:column;gap:1rem}.container{padding:1rem}.header-right{gap:0.3rem}}
 </style>
 </head>
 <body>
+
 <nav>
   <div class="logo">👋 A Steward</div>
   <div class="nav-links">
@@ -64,7 +74,33 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
   <div class="chat-panel">
     <div class="chat-header">
       <h2>AI生活管家对话</h2>
-      <button class="btn-secondary" id="clearChatBtn">清空对话</button>
+      <!-- 顶部右侧按钮组：可达鸭语音控制 + 清空对话 -->
+      <div class="header-right">
+        <button class="btn-secondary btn-icon" id="toggleVoiceBtn" title="播放/暂停">
+          <!-- 可达鸭播放图标 -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
+            <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
+            <circle cx="9" cy="10" r="1.5" fill="#000"/>
+            <circle cx="15" cy="10" r="1.5" fill="#000"/>
+            <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
+            <path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/>
+          </svg>
+        </button>
+        <button class="btn-secondary btn-icon" id="replayVoiceBtn" title="重新播放">
+          <!-- 可达鸭重播图标 -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
+            <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
+            <circle cx="9" cy="10" r="1.5" fill="#000"/>
+            <circle cx="15" cy="10" r="1.5" fill="#000"/>
+            <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
+            <path d="M18 12 A6 6 0 1 0 12 18" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M15 18 L12 21 L9 18" fill="#000"/>
+          </svg>
+        </button>
+        <button class="btn-secondary" id="clearChatBtn">清空对话</button>
+      </div>
     </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-area">
@@ -100,31 +136,177 @@ const API_KEY = "384628c3-79f7-4849-9622-a828c4259213";
 
 const SYSTEM_PROMPT = "你是A Steward，你的个人AI生活管家，专注回答事业、情感、生活相关问题，给出实用、可落地的建议。";
 
+// 可达鸭图标SVG常量（播放/暂停/重播）
+const PLAY_DUCK_SVG = `
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
+  <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
+  <circle cx="9" cy="10" r="1.5" fill="#000"/>
+  <circle cx="15" cy="10" r="1.5" fill="#000"/>
+  <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
+  <path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/>
+</svg>`;
+
+const PAUSE_DUCK_SVG = `
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
+  <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
+  <circle cx="9" cy="10" r="1.5" fill="#000"/>
+  <circle cx="15" cy="10" r="1.5" fill="#000"/>
+  <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
+  <rect x="8" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/>
+  <rect x="13" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/>
+</svg>`;
+
+const REPLAY_DUCK_SVG = `
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
+  <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
+  <circle cx="9" cy="10" r="1.5" fill="#000"/>
+  <circle cx="15" cy="10" r="1.5" fill="#000"/>
+  <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
+  <path d="M18 12 A6 6 0 1 0 12 18" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M15 18 L12 21 L9 18" fill="#000"/>
+</svg>`;
+
+// 全局语音状态管理
+let currentUtterance = null;
+// 当前选中的待播放语音文本（默认最新AI回复）
+let currentPlayText = "你好！我是你的专属AI生活管家A Steward~";
+let isVoicePlaying = false;
+let isVoicePaused = false;
+
 let chatHistory = [
   { role: "system", content: SYSTEM_PROMPT },
-  { role: "assistant", content: "你好！我是你的专属AI生活管家A Steward~" }
+  { role: "assistant", content: currentPlayText }
 ];
 
 let currentTaskType = "career";
 let isGenerating = false;
 
+// DOM元素
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
 const sendChatBtn = document.getElementById("sendChatBtn");
 const clearChatBtn = document.getElementById("clearChatBtn");
+const toggleVoiceBtn = document.getElementById("toggleVoiceBtn");
+const replayVoiceBtn = document.getElementById("replayVoiceBtn");
 const taskInput = document.getElementById("taskInput");
 const generateTaskBtn = document.getElementById("generateTaskBtn");
 const taskList = document.getElementById("taskList");
 const tabBtns = document.querySelectorAll(".tab-btn");
 
-renderChat();
+// ========== 核心语音控制功能 ==========
+// 停止所有语音
+function stopAllVoice() {
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+    currentUtterance = null;
+    isVoicePlaying = false;
+    isVoicePaused = false;
+    // 重置按钮状态为可达鸭播放图标
+    toggleVoiceBtn.classList.remove("active");
+    toggleVoiceBtn.innerHTML = PLAY_DUCK_SVG;
+    toggleVoiceBtn.title = "播放";
+  }
+}
 
+// 播放/暂停切换（顶部按钮核心功能）
+function toggleVoice() {
+  if (!("speechSynthesis" in window)) {
+    alert("您的浏览器不支持语音播报功能");
+    return;
+  }
+  if (!currentPlayText.trim()) {
+    alert("暂无可播放的内容");
+    return;
+  }
+
+  // 正在播放：切换暂停
+  if (isVoicePlaying && !isVoicePaused) {
+    window.speechSynthesis.pause();
+    isVoicePaused = true;
+    toggleVoiceBtn.classList.remove("active");
+    toggleVoiceBtn.innerHTML = PLAY_DUCK_SVG;
+    toggleVoiceBtn.title = "继续播放";
+    return;
+  }
+
+  // 已暂停：继续播放
+  if (isVoicePlaying && isVoicePaused) {
+    window.speechSynthesis.resume();
+    isVoicePaused = false;
+    toggleVoiceBtn.classList.add("active");
+    toggleVoiceBtn.innerHTML = PAUSE_DUCK_SVG;
+    toggleVoiceBtn.title = "暂停";
+    return;
+  }
+
+  // 未播放：开始新播放
+  stopAllVoice();
+  const utter = new SpeechSynthesisUtterance(currentPlayText);
+  utter.lang = "zh-CN";
+  utter.rate = 1.0;
+  utter.pitch = 1.0;
+
+  // 播放开始
+  utter.onstart = () => {
+    isVoicePlaying = true;
+    isVoicePaused = false;
+    toggleVoiceBtn.classList.add("active");
+    toggleVoiceBtn.innerHTML = PAUSE_DUCK_SVG;
+    toggleVoiceBtn.title = "暂停";
+  };
+
+  // 播放结束
+  utter.onend = () => {
+    isVoicePlaying = false;
+    isVoicePaused = false;
+    toggleVoiceBtn.classList.remove("active");
+    toggleVoiceBtn.innerHTML = PLAY_DUCK_SVG;
+    toggleVoiceBtn.title = "播放";
+    currentUtterance = null;
+  };
+
+  // 播放出错
+  utter.onerror = () => {
+    isVoicePlaying = false;
+    isVoicePaused = false;
+    toggleVoiceBtn.classList.remove("active");
+    toggleVoiceBtn.innerHTML = PLAY_DUCK_SVG;
+    toggleVoiceBtn.title = "播放";
+    currentUtterance = null;
+  };
+
+  currentUtterance = utter;
+  window.speechSynthesis.speak(utter);
+}
+
+// 重新播放（顶部按钮功能）
+function replayVoice() {
+  stopAllVoice();
+  toggleVoice();
+}
+
+// ========== 聊天渲染与功能 ==========
 function renderChat() {
   chatMessages.innerHTML = "";
-  chatHistory.forEach(m => {
+  chatHistory.forEach((m, index) => {
     if (m.role === "system") return;
     const div = document.createElement("div");
     div.className = `message ${m.role === "user" ? "user" : "ai"}`;
+    
+    // AI消息可点击，点击切换为当前播放内容
+    if (m.role === "assistant") {
+      div.onclick = () => {
+        currentPlayText = m.content;
+        // 点击后自动播放
+        stopAllVoice();
+        toggleVoice();
+      };
+      div.title = "点击播放这条消息";
+    }
+
     div.innerHTML = `
       <div class="message-avatar">${m.role === "user" ? "我" : "AI"}</div>
       <div class="message-content">${m.content}</div>
@@ -134,12 +316,15 @@ function renderChat() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// 发送聊天
+// 发送聊天消息
 async function sendMessage() {
   const text = chatInput.value.trim();
   if (!text || isGenerating) return;
   isGenerating = true;
   sendChatBtn.disabled = true;
+
+  // 停止当前正在播放的语音
+  stopAllVoice();
 
   chatHistory.push({ role: "user", content: text });
   chatInput.value = "";
@@ -183,13 +368,17 @@ async function sendMessage() {
           const obj = JSON.parse(data);
           const c = obj.choices[0]?.delta?.content || "";
           full += c;
-          contentEl.textContent = full;
+          contentEl.innerHTML = full;
           chatMessages.scrollTop = chatMessages.scrollHeight;
         } catch (e) {}
       }
     }
 
+    // 回答生成完成，自动设为当前播放内容
+    currentPlayText = full;
     chatHistory.push({ role: "assistant", content: full });
+    renderChat();
+
   } catch (e) {
     contentEl.textContent = "请求失败：" + e.message;
   } finally {
@@ -198,6 +387,12 @@ async function sendMessage() {
   }
 }
 
+// ========== 事件绑定 ==========
+// 顶部语音按钮事件
+toggleVoiceBtn.addEventListener("click", toggleVoice);
+replayVoiceBtn.addEventListener("click", replayVoice);
+
+// 聊天发送事件
 sendChatBtn.addEventListener("click", sendMessage);
 chatInput.addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey) {
@@ -206,16 +401,20 @@ chatInput.addEventListener("keydown", e => {
   }
 });
 
+// 清空对话事件
 clearChatBtn.addEventListener("click", () => {
   if (!confirm("确定清空所有对话？")) return;
+  stopAllVoice();
+  // 重置对话和默认播放内容
+  currentPlayText = "你好！我是你的专属AI生活管家A Steward~";
   chatHistory = [
     { role: "system", content: SYSTEM_PROMPT },
-    { role: "assistant", content: "你好！我是你的专属AI生活管家A Steward~" }
+    { role: "assistant", content: currentPlayText }
   ];
   renderChat();
 });
 
-// 任务标签
+// 任务类型切换
 tabBtns.forEach(btn => {
   btn.addEventListener("click", () => {
     tabBtns.forEach(b => b.classList.remove("active"));
@@ -224,7 +423,7 @@ tabBtns.forEach(btn => {
   });
 });
 
-// 生成任务
+// 生成任务功能
 generateTaskBtn.addEventListener("click", async () => {
   const desc = taskInput.value.trim();
   if (!desc || isGenerating) return;
@@ -261,6 +460,14 @@ generateTaskBtn.addEventListener("click", async () => {
     generateTaskBtn.disabled = false;
     generateTaskBtn.innerHTML = "生成专属任务";
   }
+});
+
+// 页面初始化
+renderChat();
+
+// 页面关闭/刷新时停止语音
+window.addEventListener("beforeunload", () => {
+  stopAllVoice();
 });
 </script>
 </body>
