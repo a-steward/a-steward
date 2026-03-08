@@ -1,747 +1,268 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A Steward - 你的个人AI生活管家</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    :root {
-      --primary-color: #2563eb;
-      --bg-color: #f8fafc;
-      --card-color: #ffffff;
-      --text-primary: #0f172a;
-      --text-secondary: #64748b;
-      --border-color: #e2e8f0;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-primary);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* 导航栏 - 完全保留你原有的导航结构 */
-    nav {
-      background-color: var(--card-color);
-      border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-    }
-
-    .nav-links a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover, .nav-links a.active {
-      color: var(--primary-color);
-    }
-
-    .btn-primary {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 0.5rem 1.25rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .btn-primary:hover {
-      background-color: #1d4ed8;
-    }
-
-    .btn-primary:disabled {
-      background-color: #93c5fd;
-      cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      background-color: transparent;
-      color: var(--primary-color);
-      border: 1px solid var(--primary-color);
-      padding: 0.5rem 1.25rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-secondary:hover {
-      background-color: #eff6ff;
-    }
-
-    /* 主容器 */
-    .container {
-      flex: 1;
-      max-width: 1400px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 2rem;
-      display: grid;
-      grid-template-columns: 1fr 450px;
-      gap: 2rem;
-    }
-
-    /* 聊天面板 */
-    .chat-panel {
-      background-color: var(--card-color);
-      border-radius: 1rem;
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      height: calc(100vh - 120px);
-      overflow: hidden;
-    }
-
-    .chat-header {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .chat-header h2 {
-      font-size: 1.125rem;
-      font-weight: 600;
-    }
-
-    .chat-messages {
-      flex: 1;
-      padding: 1.5rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .message {
-      display: flex;
-      gap: 0.75rem;
-      max-width: 85%;
-    }
-
-    .message.user {
-      align-self: flex-end;
-      flex-direction: row-reverse;
-    }
-
-    .message-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.875rem;
-    }
-
-    .message.user .message-avatar {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    .message.ai .message-avatar {
-      background-color: #f1f5f9;
-      color: var(--primary-color);
-    }
-
-    .message-content {
-      padding: 0.75rem 1rem;
-      border-radius: 0.75rem;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .message.user .message-content {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    .message.ai .message-content {
-      background-color: #f1f5f9;
-      color: var(--text-primary);
-    }
-
-    .chat-input-area {
-      padding: 1rem 1.5rem;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .chat-input-wrapper {
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-end;
-    }
-
-    .chat-input {
-      flex: 1;
-      border: 1px solid var(--border-color);
-      border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
-      resize: none;
-      font-size: 0.9375rem;
-      line-height: 1.5;
-      max-height: 120px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .chat-input:focus {
-      border-color: var(--primary-color);
-    }
-
-    /* 任务生成面板 */
-    .task-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      height: calc(100vh - 120px);
-      overflow: hidden;
-    }
-
-    .task-card {
-      background-color: var(--card-color);
-      border-radius: 1rem;
-      border: 1px solid var(--border-color);
-      padding: 1.5rem;
-    }
-
-    .task-card h2 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    .task-type-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .tab-btn {
-      padding: 0.5rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--border-color);
-      background-color: transparent;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .tab-btn.active {
-      background-color: var(--primary-color);
-      color: white;
-      border-color: var(--primary-color);
-    }
-
-    .task-input {
-      width: 100%;
-      border: 1px solid var(--border-color);
-      border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1rem;
-      resize: none;
-      font-size: 0.9375rem;
-      line-height: 1.5;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .task-input:focus {
-      border-color: var(--primary-color);
-    }
-
-    .task-result {
-      flex: 1;
-      overflow-y: auto;
-      background-color: var(--card-color);
-      border-radius: 1rem;
-      border: 1px solid var(--border-color);
-      padding: 1.5rem;
-    }
-
-    .task-result h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    .task-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .task-item {
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--border-color);
-      line-height: 1.6;
-    }
-
-    .task-item.high {
-      border-left: 4px solid #ef4444;
-    }
-
-    .task-item.medium {
-      border-left: 4px solid #f59e0b;
-    }
-
-    .task-item.low {
-      border-left: 4px solid #10b981;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid var(--primary-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* 移动端适配 */
-    @media (max-width: 1024px) {
-      .container {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
-      .chat-panel, .task-panel {
-        height: auto;
-        min-height: 500px;
-      }
-      .nav-links {
-        gap: 1rem;
-      }
-    }
-
-    @media (max-width: 640px) {
-      nav {
-        padding: 1rem;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .container {
-        padding: 1rem;
-      }
-      .message {
-        max-width: 95%;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Steward - 你的个人AI生活管家</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+:root{--primary-color:#2563eb;--bg-color:#f8fafc;--card-color:#fff;--text-primary:#0f172a;--text-secondary:#64748b;--border-color:#e2e8f0}
+body{background:var(--bg-color);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column}
+nav{background:var(--card-color);border-bottom:1px solid var(--border-color);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:1.25rem;font-weight:700;color:var(--primary-color);display:flex;align-items:center;gap:.5rem}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-weight:500}
+.nav-links a:hover,.nav-links a.active{color:var(--primary-color)}
+.btn-primary{background:var(--primary-color);color:#fff;border:none;padding:.5rem 1.25rem;border-radius:.5rem;font-weight:500;cursor:pointer}
+.btn-primary:disabled{background:#93c5fd;cursor:not-allowed}
+.btn-secondary{background:transparent;color:var(--primary-color);border:1px solid var(--primary-color);padding:.5rem 1.25rem;border-radius:.5rem;cursor:pointer}
+.container{flex:1;max-width:1400px;width:100%;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 450px;gap:2rem}
+.chat-panel{background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);display:flex;flex-direction:column;height:calc(100vh - 120px);overflow:hidden}
+.chat-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center}
+.chat-messages{flex:1;padding:1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem}
+.message{display:flex;gap:.75rem;max-width:85%}
+.message.user{align-self:flex-end;flex-direction:row-reverse}
+.message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.875rem}
+.message.user .message-avatar{background:var(--primary-color);color:#fff}
+.message.ai .message-avatar{background:#f1f5f9;color:var(--primary-color)}
+.message-content{padding:.75rem 1rem;border-radius:.75rem;line-height:1.6;white-space:pre-wrap}
+.message.user .message-content{background:var(--primary-color);color:#fff}
+.message.ai .message-content{background:#f1f5f9;color:var(--text-primary)}
+.chat-input-area{padding:1rem 1.5rem;border-top:1px solid var(--border-color)}
+.chat-input-wrapper{display:flex;gap:.75rem;align-items:flex-end}
+.chat-input{flex:1;border:1px solid var(--border-color);border-radius:.75rem;padding:.75rem 1rem;resize:none;font-size:.9375rem;outline:0}
+.task-panel{display:flex;flex-direction:column;gap:1.5rem;height:calc(100vh - 120px);overflow:hidden}
+.task-card{background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);padding:1.5rem}
+.task-type-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1rem}
+.tab-btn{padding:.5rem;border-radius:.5rem;border:1px solid var(--border-color);background:transparent;font-weight:500;cursor:pointer}
+.tab-btn.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+.task-input{width:100%;border:1px solid var(--border-color);border-radius:.75rem;padding:.75rem 1rem;margin-bottom:1rem;resize:none;font-size:.9375rem;outline:0}
+.task-result{flex:1;overflow-y:auto;background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);padding:1.5rem}
+.task-item{padding:.75rem 1rem;border-radius:.5rem;border:1px solid var(--border-color);line-height:1.6}
+.task-item.high{border-left:4px solid #ef4444}
+.task-item.medium{border-left:4px solid #f59e0b}
+.task-item.low{border-left:4px solid #10b981}
+.loading{display:inline-block;width:16px;height:16px;border:2px solid #f3f3f3;border-top:2px solid var(--primary-color);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@media(max-width:1024px){.container{grid-template-columns:1fr}.chat-panel,.task-panel{height:auto;min-height:500px}}
+@media(max-width:640px){nav{padding:1rem;flex-direction:column;gap:1rem}.container{padding:1rem}}
+</style>
 </head>
 <body>
-  <!-- 导航栏 - 完全保留你原有的导航结构 -->
-  <nav>
-    <div class="logo">
-      👋 A Steward
-    </div>
-    <div class="nav-links">
-      <a href="#" class="active">立即开始</a>
-      <a href="#">个人中心</a>
-      <a href="#">登录</a>
-      <a href="#">注册</a>
-      <a href="#">关于</a>
-    </div>
-  </nav>
+<nav>
+  <div class="logo">👋 A Steward</div>
+  <div class="nav-links">
+    <a class="active">立即开始</a>
+    <a>个人中心</a>
+    <a>登录</a>
+    <a>注册</a>
+    <a>关于</a>
+  </div>
+</nav>
 
-  <!-- 主内容区 -->
-  <div class="container">
-    <!-- AI智能聊天面板 -->
-    <div class="chat-panel">
-      <div class="chat-header">
-        <h2>AI生活管家对话</h2>
-        <button class="btn-secondary" id="clearChatBtn">清空对话</button>
-      </div>
-      <div class="chat-messages" id="chatMessages">
-        <div class="message ai">
-          <div class="message-avatar">AI</div>
-          <div class="message-content">
-            你好！我是你的专属AI生活管家A Steward，你可以和我聊聊你的事业、情感、生活上的任何问题，我也可以为你生成专属的执行任务，随时为你服务~
-          </div>
-        </div>
-      </div>
-      <div class="chat-input-area">
-        <div class="chat-input-wrapper">
-          <textarea 
-            class="chat-input" 
-            id="chatInput" 
-            placeholder="输入你想和我说的话，按Enter发送，Shift+Enter换行..."
-            rows="1"
-          ></textarea>
-          <button class="btn-primary" id="sendChatBtn">发送</button>
-        </div>
-      </div>
+<div class="container">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <h2>AI生活管家对话</h2>
+      <button class="btn-secondary" id="clearChatBtn">清空对话</button>
     </div>
-
-    <!-- 专属任务生成面板 -->
-    <div class="task-panel">
-      <div class="task-card">
-        <h2>生成专属任务</h2>
-        <div class="task-type-tabs">
-          <button class="tab-btn active" data-type="career">事业</button>
-          <button class="tab-btn" data-type="emotion">情感</button>
-          <button class="tab-btn" data-type="life">生活</button>
-        </div>
-        <textarea 
-          class="task-input" 
-          id="taskInput" 
-          placeholder="描述你的具体情况，比如：30岁互联网运营，想3个月内提升业绩20%，我会为你生成可落地的专属任务清单..."
-          rows="3"
-        ></textarea>
-        <button class="btn-primary" id="generateTaskBtn" style="width: 100%;">生成专属任务</button>
-      </div>
-
-      <div class="task-result" id="taskResult">
-        <h3>任务清单</h3>
-        <div id="taskList">
-          <p style="color: var(--text-secondary); text-align: center; padding: 2rem 0;">
-            请选择任务类型，填写你的情况，点击生成按钮获取专属任务
-          </p>
-        </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-area">
+      <div class="chat-input-wrapper">
+        <textarea class="chat-input" id="chatInput" rows="1" placeholder="输入消息..."></textarea>
+        <button class="btn-primary" id="sendChatBtn">发送</button>
       </div>
     </div>
   </div>
 
-  <script>
-    // ========== 仅需修改这里：替换成你第一步部署的Cloudflare Worker访问地址 ==========
-    const TRANSIT_API_URL = '【你的Cloudflare Worker访问地址】'
-    // ==================================================================================
+  <div class="task-panel">
+    <div class="task-card">
+      <h2>生成专属任务</h2>
+      <div class="task-type-tabs">
+        <button class="tab-btn active" data-type="career">事业</button>
+        <button class="tab-btn" data-type="emotion">情感</button>
+        <button class="tab-btn" data-type="life">生活</button>
+      </div>
+      <textarea class="task-input" id="taskInput" rows="3" placeholder="描述你的情况..."></textarea>
+      <button class="btn-primary" id="generateTaskBtn" style="width:100%">生成专属任务</button>
+    </div>
+    <div class="task-result">
+      <h3>任务清单</h3>
+      <div id="taskList"></div>
+    </div>
+  </div>
+</div>
 
-    // AI管家固定人设提示词
-    const SYSTEM_PROMPT = `你是A Steward，用户的专属个人AI生活管家，专注于为用户解决事业、情感、生活三大领域的问题，提供专业、贴心、可落地的建议，同时可以为用户生成专属的执行任务。
-要求：
-1. 语气友好、真诚、有温度，像靠谱的私人管家，不要生硬机械
-2. 回答简洁明了，重点突出，避免冗长空洞的内容
-3. 涉及任务建议时，必须可落地、有明确的执行方向，不喊口号
-4. 只围绕用户的事业、情感、生活相关问题回答，不闲聊无关内容
-5. 禁止输出违法违规、低俗色情、违背公序良俗的内容`
+<script>
+const API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+const MODEL = "doubao-1-5-pro-32k-250115";
+const API_KEY = "384628c3-79f7-4849-9622-a828c4259213";
 
-    // 三大场景专属任务生成提示词模板
-    const TASK_PROMPT_TEMPLATE = {
-      career: `你是A Steward AI生活管家，现在为用户生成【事业职场】类专属执行任务。
-用户当前情况：{{user_desc}}
-要求：
-1. 任务分3个优先级：高优先级（紧急核心）、中优先级（长期提升）、低优先级（辅助优化）
-2. 每个任务必须可落地、有明确的执行动作、时间节点和验收标准，不能空洞
-3. 贴合用户的实际情况，符合职场逻辑，专业靠谱，不脱离现实
-4. 输出格式：
-【高优先级任务】
-1. 任务内容（执行动作+时间节点+验收标准）
-【中优先级任务】
-1. 任务内容（执行动作+时间节点+验收标准）
-【低优先级任务】
-1. 任务内容（执行动作+时间节点+验收标准）
-5. 只输出任务内容，不要多余的寒暄和解释`,
-      emotion: `你是A Steward AI生活管家，现在为用户生成【情感关系】类专属执行任务。
-用户当前情况：{{user_desc}}
-要求：
-1. 任务分3个优先级：高优先级（紧急核心）、中优先级（长期经营）、低优先级（自我提升）
-2. 每个任务必须可落地、有明确的执行动作、时间节点，尊重情感边界，不搞极端操作
-3. 贴合用户的实际情况，真诚温暖，符合健康的情感观
-4. 输出格式：
-【高优先级任务】
-1. 任务内容（执行动作+时间节点+预期效果）
-【中优先级任务】
-1. 任务内容（执行动作+时间节点+预期效果）
-【低优先级任务】
-1. 任务内容（执行动作+时间节点+预期效果）
-5. 只输出任务内容，不要多余的寒暄和解释`,
-      life: `你是A Steward AI生活管家，现在为用户生成【日常生活】类专属执行任务。
-用户当前情况：{{user_desc}}
-要求：
-1. 任务分3个优先级：高优先级（紧急核心）、中优先级（长期习惯）、低优先级（优化提升）
-2. 每个任务必须可落地、有明确的执行动作、时间节点，贴合普通人的生活节奏，不搞极端苛刻的要求
-3. 贴合用户的实际情况，科学健康，积极向上
-4. 输出格式：
-【高优先级任务】
-1. 任务内容（执行动作+时间节点+验收标准）
-【中优先级任务】
-1. 任务内容（执行动作+时间节点+验收标准）
-【低优先级任务】
-1. 任务内容（执行动作+时间节点+验收标准）
-5. 只输出任务内容，不要多余的寒暄和解释`
-    }
+const SYSTEM_PROMPT = "你是A Steward，你的个人AI生活管家，专注回答事业、情感、生活相关问题，给出实用、可落地的建议。";
 
-    // 全局变量
-    let currentTaskType = 'career'
-    let chatHistory = JSON.parse(localStorage.getItem('a-steward-chat')) || [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'assistant', content: '你好！我是你的专属AI生活管家A Steward，你可以和我聊聊你的事业、情感、生活上的任何问题，我也可以为你生成专属的执行任务，随时为你服务~' }
-    ]
-    let isGenerating = false
+let chatHistory = [
+  { role: "system", content: SYSTEM_PROMPT },
+  { role: "assistant", content: "你好！我是你的专属AI生活管家A Steward~" }
+];
 
-    // DOM元素
-    const chatMessages = document.getElementById('chatMessages')
-    const chatInput = document.getElementById('chatInput')
-    const sendChatBtn = document.getElementById('sendChatBtn')
-    const clearChatBtn = document.getElementById('clearChatBtn')
-    const tabBtns = document.querySelectorAll('.tab-btn')
-    const taskInput = document.getElementById('taskInput')
-    const generateTaskBtn = document.getElementById('generateTaskBtn')
-    const taskList = document.getElementById('taskList')
+let currentTaskType = "career";
+let isGenerating = false;
 
-    // 初始化：渲染历史对话
-    renderChatHistory()
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+const sendChatBtn = document.getElementById("sendChatBtn");
+const clearChatBtn = document.getElementById("clearChatBtn");
+const taskInput = document.getElementById("taskInput");
+const generateTaskBtn = document.getElementById("generateTaskBtn");
+const taskList = document.getElementById("taskList");
+const tabBtns = document.querySelectorAll(".tab-btn");
 
-    // ========== 聊天功能核心逻辑（新增流式打字机效果） ==========
-    // 渲染对话历史
-    function renderChatHistory() {
-      chatMessages.innerHTML = ''
-      chatHistory.forEach(msg => {
-        if (msg.role === 'system') return
-        const isUser = msg.role === 'user'
-        const messageEl = document.createElement('div')
-        messageEl.className = `message ${isUser ? 'user' : 'ai'}`
-        messageEl.innerHTML = `
-          <div class="message-avatar">${isUser ? '我' : 'AI'}</div>
-          <div class="message-content">${msg.content}</div>
-        `
-        chatMessages.appendChild(messageEl)
+renderChat();
+
+function renderChat() {
+  chatMessages.innerHTML = "";
+  chatHistory.forEach(m => {
+    if (m.role === "system") return;
+    const div = document.createElement("div");
+    div.className = `message ${m.role === "user" ? "user" : "ai"}`;
+    div.innerHTML = `
+      <div class="message-avatar">${m.role === "user" ? "我" : "AI"}</div>
+      <div class="message-content">${m.content}</div>
+    `;
+    chatMessages.appendChild(div);
+  });
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 发送聊天
+async function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text || isGenerating) return;
+  isGenerating = true;
+  sendChatBtn.disabled = true;
+
+  chatHistory.push({ role: "user", content: text });
+  chatInput.value = "";
+  renderChat();
+
+  const aiMsg = document.createElement("div");
+  aiMsg.className = "message ai";
+  aiMsg.innerHTML = `<div class="message-avatar">AI</div><div class="message-content"><span class="loading"></span> 思考中...</div>`;
+  chatMessages.appendChild(aiMsg);
+  const contentEl = aiMsg.querySelector(".message-content");
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + API_KEY
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: chatHistory,
+        temperature: 0.7,
+        stream: true
       })
-      chatMessages.scrollTop = chatMessages.scrollHeight
-    }
+    });
 
-    // 发送聊天消息（流式输出）
-    async function sendChatMessage() {
-      const content = chatInput.value.trim()
-      if (!content || isGenerating) return
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let full = "";
 
-      isGenerating = true
-      sendChatBtn.disabled = true
-
-      // 添加用户消息
-      chatHistory.push({ role: 'user', content })
-      chatInput.value = ''
-      renderChatHistory()
-
-      // 创建AI回复占位框
-      const aiMessageEl = document.createElement('div')
-      aiMessageEl.className = 'message ai'
-      aiMessageEl.innerHTML = `
-        <div class="message-avatar">AI</div>
-        <div class="message-content ai-reply-content"><span class="loading"></span> 正在思考中...</div>
-      `
-      chatMessages.appendChild(aiMessageEl)
-      chatMessages.scrollTop = chatMessages.scrollHeight
-      const replyContentEl = aiMessageEl.querySelector('.ai-reply-content')
-
-      try {
-        // 调用流式API
-        const response = await fetch(TRANSIT_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'doubao-32k-pro',
-            messages: chatHistory,
-            temperature: 0.7,
-            stream: true
-          })
-        })
-
-        if (!response.ok) throw new Error('AI服务调用失败')
-        const reader = response.body.getReader()
-        const decoder = new TextDecoder('utf-8')
-        let aiContent = ''
-        replyContentEl.innerHTML = ''
-
-        // 流式读取数据，实现打字机效果
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n').filter(line => line.trim() !== '')
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6)
-              if (data === '[DONE]') continue
-
-              try {
-                const parsed = JSON.parse(data)
-                const delta = parsed.choices[0]?.delta?.content || ''
-                if (delta) {
-                  aiContent += delta
-                  replyContentEl.textContent = aiContent
-                  chatMessages.scrollTop = chatMessages.scrollHeight
-                }
-              } catch (e) {}
-            }
-          }
-        }
-
-        // 保存完整回复到历史记录
-        chatHistory.push({ role: 'assistant', content: aiContent })
-        localStorage.setItem('a-steward-chat', JSON.stringify(chatHistory))
-
-      } catch (error) {
-        replyContentEl.textContent = '消息发送失败：' + error.message
-      } finally {
-        isGenerating = false
-        sendChatBtn.disabled = false
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      const lines = chunk.split("\n").filter(l => l.trim());
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        const data = line.slice(6);
+        if (data === "[DONE]") continue;
+        try {
+          const obj = JSON.parse(data);
+          const c = obj.choices[0]?.delta?.content || "";
+          full += c;
+          contentEl.textContent = full;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        } catch (e) {}
       }
     }
 
-    // 聊天输入框事件
-    chatInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        sendChatMessage()
-      }
-      // 自动调整输入框高度
-      chatInput.style.height = 'auto'
-      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px'
-    })
+    chatHistory.push({ role: "assistant", content: full });
+  } catch (e) {
+    contentEl.textContent = "请求失败：" + e.message;
+  } finally {
+    isGenerating = false;
+    sendChatBtn.disabled = false;
+  }
+}
 
-    sendChatBtn.addEventListener('click', sendChatMessage)
+sendChatBtn.addEventListener("click", sendMessage);
+chatInput.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
 
-    // 清空对话
-    clearChatBtn.addEventListener('click', () => {
-      if (confirm('确定要清空所有对话记录吗？')) {
-        chatHistory = [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'assistant', content: '你好！我是你的专属AI生活管家A Steward，你可以和我聊聊你的事业、情感、生活上的任何问题，我也可以为你生成专属的执行任务，随时为你服务~' }
-        ]
-        localStorage.removeItem('a-steward-chat')
-        renderChatHistory()
-      }
-    })
+clearChatBtn.addEventListener("click", () => {
+  if (!confirm("确定清空所有对话？")) return;
+  chatHistory = [
+    { role: "system", content: SYSTEM_PROMPT },
+    { role: "assistant", content: "你好！我是你的专属AI生活管家A Steward~" }
+  ];
+  renderChat();
+});
 
-    // ========== 任务生成功能核心逻辑 ==========
-    // 任务类型切换
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'))
-        btn.classList.add('active')
-        currentTaskType = btn.dataset.type
+// 任务标签
+tabBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    tabBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentTaskType = btn.dataset.type;
+  });
+});
+
+// 生成任务
+generateTaskBtn.addEventListener("click", async () => {
+  const desc = taskInput.value.trim();
+  if (!desc || isGenerating) return;
+  isGenerating = true;
+  generateTaskBtn.disabled = true;
+  generateTaskBtn.innerHTML = '<span class="loading"></span> 生成中...';
+  taskList.innerHTML = "<p style='text-align:center'>正在生成任务...</p>";
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + API_KEY
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: `请根据我的情况生成${currentTaskType}方面的可执行任务：${desc}` }
+        ],
+        temperature: 0.6,
+        stream: false
       })
-    })
+    });
 
-    // 生成任务
-    async function generateTask() {
-      const userDesc = taskInput.value.trim()
-      if (!userDesc || isGenerating) {
-        alert(userDesc ? '正在生成中，请稍候' : '请描述你的具体情况，才能为你生成专属任务')
-        return
-      }
-
-      isGenerating = true
-      generateTaskBtn.disabled = true
-      generateTaskBtn.innerHTML = '<span class="loading"></span> 正在生成任务...'
-      taskList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem 0;">正在为你生成专属任务清单，请稍候...</p>'
-
-      try {
-        // 拼接提示词
-        const prompt = TASK_PROMPT_TEMPLATE[currentTaskType].replace('{{user_desc}}', userDesc)
-        // 调用API
-        const response = await fetch(TRANSIT_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'doubao-32k-pro',
-            messages: [
-              { role: 'system', content: SYSTEM_PROMPT },
-              { role: 'user', content: prompt }
-            ],
-            temperature: 0.6,
-            stream: false
-          })
-        })
-
-        const result = await response.json()
-        if (result.choices && result.choices[0]) {
-          const taskContent = result.choices[0].message.content
-          renderTaskList(taskContent)
-        } else {
-          throw new Error(result.error?.message || '任务生成失败')
-        }
-      } catch (error) {
-        taskList.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem 0;">任务生成失败：${error.message}</p>`
-      } finally {
-        isGenerating = false
-        generateTaskBtn.disabled = false
-        generateTaskBtn.innerHTML = '生成专属任务'
-      }
-    }
-
-    // 渲染任务清单
-    function renderTaskList(content) {
-      let html = ''
-      const priorityMap = {
-        '高优先级任务': 'high',
-        '中优先级任务': 'medium',
-        '低优先级任务': 'low'
-      }
-
-      const sections = content.split(/【([^】]+)】/g).filter(item => item.trim())
-      
-      for (let i = 0; i < sections.length; i += 2) {
-        const title = sections[i]
-        const tasks = sections[i+1]?.trim()
-        if (!tasks) continue
-
-        const priorityClass = priorityMap[title] || 'medium'
-        html += `<h4 style="margin: 1rem 0 0.5rem 0; font-weight: 600;">【${title}】</h4>`
-        
-        const taskItems = tasks.split(/\d+\./).filter(item => item.trim())
-        taskItems.forEach(task => {
-          html += `
-            <div class="task-item ${priorityClass}">
-              ${task.trim()}
-            </div>
-          `
-        })
-      }
-
-      taskList.innerHTML = html || `<pre style="line-height: 1.6; white-space: pre-wrap;">${content}</pre>`
-    }
-
-    generateTaskBtn.addEventListener('click', generateTask)
-  </script>
+    const data = await res.json();
+    const result = data.choices?.[0]?.message?.content || "生成失败";
+    taskList.innerHTML = `<pre style="white-space:pre-wrap;line-height:1.6">${result}</pre>`;
+  } catch (e) {
+    taskList.innerHTML = `<p style='color:red'>错误：${e.message}</p>`;
+  } finally {
+    isGenerating = false;
+    generateTaskBtn.disabled = false;
+    generateTaskBtn.innerHTML = "生成专属任务";
+  }
+});
+</script>
 </body>
 </html>
+
