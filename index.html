@@ -379,6 +379,10 @@ async function sendMessage() {
     chatHistory.push({ role: "assistant", content: full });
     renderChat();
 
+    // ========== 核心新增：AI回答完成后自动播放语音 ==========
+    // 有用户交互（点击发送），浏览器不会拦截自动播放
+    toggleVoice();
+
   } catch (e) {
     contentEl.textContent = "请求失败：" + e.message;
   } finally {
@@ -472,4 +476,3 @@ window.addEventListener("beforeunload", () => {
 </script>
 </body>
 </html>
-
