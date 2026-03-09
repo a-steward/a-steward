@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="Yara,AI派单,订单管理">
+  <meta name="description" content="Yara 订单管理，一站式全场景智能派单服务">
+  <title>订单管理 - Yara</title>
+  <!-- CDN资源 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
+  <!-- 根目录公共资源 -->
+  <script src="./yara-config.js"></script>
+  <link rel="stylesheet" href="./yara-common.css">
+  <script src="./yara-common.js"></script>
+  <script src="./yara-stat.js"></script>
+</head>
+<body>
+  <div id="yara-order-list-app">
+    <div class="yara-layout-container">
+      <!-- 侧边栏导航 -->
+      <div class="yara-sidebar-container">
+        <div class="yara-logo">
+          <h2>{{ CONFIG.brand.name }}</h2>
+          <p>AI智能派单平台</p>
+        </div>
+        <el-menu
+          :default-active="activeMenu"
+          router
+          background-color="#304156"
+          text-color="#bfcbd9"
+          active-text-color="var(--yara-brand-color)"
+        >
+          <el-menu-item index="yara-index.html">
+            <el-icon><House /></el-icon>
+            <span>控制台</span>
+          </el-menu-item>
+          <el-menu-item index="yara-create-order.html">
+            <el-icon><Edit /></el-icon>
+            <span>我要派单</span>
+          </el-menu-item>
+          <el-menu-item index="yara-order-list.html">
+            <el-icon><Document /></el-icon>
+            <span>订单管理</span>
+          </el-menu-item>
+          <el-menu-item index="yara-price.html">
+            <el-icon><Medal /></el-icon>
+            <span>会员中心</span>
+          </el-menu-item>
+          <el-menu-item index="yara-user-center.html">
+            <el-icon><User /></el-icon>
+            <span>个人中心</span>
+          </el-menu-item>
+          <el-menu-item index="index.html" class="yara-back-home">
+            <el-icon><ArrowLeft /></el-icon>
+            <span>返回首页</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
+
+      <!-- 主内容区 -->
+      <div class="yara-main-content">
+        <!-- 顶部导航栏 -->
+        <div class="yara-header-container">
+          <div class="yara-header-left">
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item :to="{ path: 'yara-index.html' }">控制台</el-breadcrumb-item>
+              <el-breadcrumb-item>订单管理</el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+          <div class="yara-header-right yara-flex" style="gap: 20px;">
+            <el-dropdown @command="handleCommand">
+              <div class="yara-flex" style="align-items: center; cursor: pointer; gap: 8px;">
+                <el-avatar :size="36" :src="userInfo.avatar"></el-avatar>
+                <span style="font-size: 14px;">{{ userInfo.nickname || '用户' }}</span>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="center">个人中心</el-dropdown-item>
+                  <el-dropdown-item command="logout" divided class="yara-logout-btn">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="yara-page-wrapper">
+          <div class="yara-page-container">
+            <el-card shadow="never">
+              <template #header>
+                <div class="yara-flex-between">
+                  <div>
+                    <span class="yara-card-title" style="font-size: 20px;">订单管理</span>
+                    <p class="yara-card-subtitle">管理你的所有派单订单</p>
+                  </div>
+                  <el-button type="primary" @click="window.location.href = 'yara-create-order.html'">
+                    <el-icon><Plus /></el-icon>
+                    发布新派单
+                  </el-button>
+                </div>
+              </template>
+
+              <!-- 筛选条件 -->
+              <el-form :model="queryParams" inline class="yara-mb-20">
+                <el-form-item label="订单状态">
+                  <el-select v-model="queryParams.status" placeholder="全部状态" clearable style="width: 150px;">
+                    <el-option v-for="(item, key) in YARA_ORDER_STATUS" :key="key" :label="item.text" :value="Number(key)"></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="服务类型">
+                  <el-select v-model="queryParams.type" placeholder="全部类型" clearable style="width: 150px;">
+                    <el-option v-for="item in CONFIG.service.types" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="订单编号">
+                  <el-input v-model="queryParams.orderNo" placeholder="请输入订单编号" clearable style="width: 200px;"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="getOrderList">查询</el-button>
+                  <el-button @click="handleReset">重置</el-button>
+                </el-form-item>
+              </el-form>
+
+              <!-- 订单表格 -->
+              <el-table :data="orderList" v-loading="loading" style="width: 100%;" stripe>
+                <el-table-column prop="orderNo" label="订单编号" width="200"></el-table-column>
+                <el-table-column prop="title" label="需求标题" min-width="200" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="type" label="服务类型" width="100">
+                  <template #default="scope">
+                    {{ YARA_ORDER_TYPE[scope.row.type] || '-' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="finalPrice" label="订单金额" width="100">
+                  <template #default="scope">
+                    {{ YARA_UTILS.formatPrice(scope.row.finalPrice) }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="status" label="订单状态" width="100">
+                  <template #default="scope">
+                    <el-tag :type="YARA_ORDER_STATUS[scope.row.status].type" size="small">
+                      {{ YARA_ORDER_STATUS[scope.row.status].text }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="createTime" label="下单时间" width="180">
+                  <template #default="scope">
+                    {{ YARA_UTILS.formatTime(scope.row.createTime) }}
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="200" fixed="right">
+                  <template #default="scope">
+                    <el-button size="small" @click="window.location.href = `yara-order-detail.html?id=${scope.row.id}`">查看详情</el-button>
+                    <el-button
+                      v-if="YARA_ORDER_STATUS[scope.row.status].canPay"
+                      type="primary"
+                      size="small"
+                      @click="handlePay(scope.row)"
+                    >
+                      支付
+                    </el-button>
+                    <el-button
+                      v-if="YARA_ORDER_STATUS[scope.row.status].canCancel"
+                      type="danger"
+                      size="small"
+                      @click="handleCancel(scope.row.id)"
+                    >
+                      取消
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+
+              <!-- 分页 -->
+              <div class="yara-text-right yara-mt-20">
+                <el-pagination
+                  v-model:current-page="queryParams.pageNum"
+                  v-model:page-size="queryParams.pageSize"
+                  :page-sizes="[10, 20, 50, 100]"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="total"
+                  @size-change="getOrderList"
+                  @current-change="getOrderList"
+                ></el-pagination>
+              </div>
+
+              <!-- 空状态 -->
+              <el-empty v-if="orderList.length === 0 && !loading" description="暂无订单数据" class="yara-mt-30">
+                <el-button type="primary" @click="window.location.href = 'yara-create-order.html'">去发布派单</el-button>
+              </el-empty>
+            </el-card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+    const { ElMessage, ElMessageBox } = ElementPlus
+
+    createApp({
+      setup() {
+        const CONFIG =
+
