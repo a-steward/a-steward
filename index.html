@@ -29,10 +29,10 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 .message.ai:hover .message-content{background:#e2e8f0}
 .message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600}
 .message.user .message-avatar{background:var(--primary-color);color:#fff}
-.message.ai .message-avatar{background:#f1f5f9;color:var(--primary-color)}
+.message.ai .message-avatar{background:#f15f9;color:var(--primary-color)}
 .message-content{padding:.75rem 1rem;border-radius:.75rem;line-height:1.6;white-space:pre-wrap}
 .message.user .message-content{background:var(--primary-color);color:#fff}
-.message.ai .message-content{background:#f1f5f9;color:var(--text-primary)}
+.message.ai .message-content{background:#f15f9;color:var(--text-primary)}
 .chat-input-area{padding:1rem 1.5rem;border-top:1px solid var(--border-color)}
 .chat-input-wrapper{display:flex;gap:.75rem;align-items:flex-end}
 .chat-input{flex:1;border:1px solid var(--border-color);border-radius:.75rem;padding:.75rem 1rem;resize:none;font-size:.9375rem;outline:0}
@@ -48,24 +48,35 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 
 .fab{position:fixed;right:2rem;bottom:2rem;width:60px;height:60px;border-radius:50%;background:var(--primary-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999}
 
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
+.modal-content{background:#fff;border-radius:1rem;padding:2rem;max-width:400px;width:90%;position:relative}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary)}
+.modal-tabs{display:flex;gap:1rem;margin-bottom:1rem}
+.modal-tab{flex:1;text-align:center;padding:.5rem;border-bottom:2px solid transparent;cursor:pointer}
+.modal-tab.active{border-bottom:2px solid var(--primary-color);color:var(--primary-color)}
+.modal-panel{display:none}
+.modal-panel.active{display:block}
+
+.fab{position:fixed;right:2rem;bottom:2rem;width:60px;height:60px;border-radius:50%;background:var(--primary-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999}
+
 .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
 .modal-mask.show{display:flex}
 .modal-box{background:#fff;border-radius:1rem;width:90%;max-width:400px;padding:1.5rem;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
 .modal-box h3{margin-bottom:1rem}
 .modal-btns{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}
-.modal-btns button{padding:.75;border-radius:.5rem;border:1px solid var(--border-color);background:#fff;cursor:pointer}
-.modal-btns button:hover{background:#f1f5f9}
+.modal-btns button{padding:.75rem;border-radius:.5rem;border:1px solid var(--border-color);background:#fff;cursor:pointer}
+.modal-btns button:hover{background:#f15f9}
 .modal-input{width:100%;border:1px solid var(--border-color);border-radius:.5rem;padding:.75rem;margin-bottom:1rem}
 .modal-footer{display:flex;justify-content:end;gap:.5rem}
 </style>
 </head>
 <body>
 
-<!-- 顶部导航 仅保留：个人中心 -->
 <nav>
   <div class="logo">A Steward</div>
   <div class="nav-links">
-    <a class="nav-link active" data-page="profile">个人中心</a>
+    <a class="nav-link active" data-page="home">立即开始</a>
+    <a class="nav-link" onclick="checkLoginAndRedirect()">个人中心</a>
   </div>
 </nav>
 
@@ -73,7 +84,6 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
   <div class="container">
     <div class="chat-panel">
       <div class="chat-header">
-        <!-- 聊天标题：A Steward 为您解答 -->
         <h2>A Steward 为您解答</h2>
         <div class="header-right">
           <button class="btn-secondary btn-icon" id="toggleVoiceBtn" title="播放/暂停">
@@ -138,49 +148,43 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
   </div>
 </div>
 
-<div id="page-profile" class="page">
-  <h2>个人中心</h2>
-  <div id="profile-info" class="user-info" style="display:none;">
-    <p>欢迎回来，<strong id="current-username"></strong>！</p>
+<!-- 登录/注册模态框 -->
+<div class="modal" id="authModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchTab('login')">登录</div>
+      <div class="modal-tab" onclick="switchTab('register')">注册</div>
+    </div>
+    <div class="modal-panel active" id="loginPanel">
+      <div class="form-group">
+        <label>账号</label>
+        <input type="text" id="login-username" placeholder="请输入账号">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="login-pwd" placeholder="请输入密码">
+      </div>
+      <button class="btn-primary" style="width:100%" id="do-login" onclick="handleLogin()">登录</button>
+      <p style="margin-top:1rem;text-align:center">没有账号？<a onclick="switchTab('register')" style="color:var(--primary-color);cursor:pointer">去注册</a></p>
+    </div>
+    <div class="modal-panel" id="registerPanel">
+      <div class="form-group">
+        <label>账号</label>
+        <input type="text" id="reg-username" placeholder="请输入账号">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="reg-pwd" placeholder="请输入密码">
+      </div>
+      <div class="form-group">
+        <label>昵称</label>
+        <input type="text" id="reg-nickname" placeholder="请输入昵称">
+      </div>
+      <button class="btn-primary" style="width:100%" id="do-register" onclick="handleRegister()">注册</button>
+      <p style="margin-top:1rem;text-align:center">已有账号？<a onclick="switchTab('login')" style="color:var(--primary-color);cursor:pointer">去登录</a></p>
+    </div>
   </div>
-  <p id="profile-tip">请先登录</p>
-  <button class="btn-primary" id="logout-btn" style="display:none;">退出登录</button>
-  <button class="btn-primary" onclick="goPage('home')">返回对话</button>
-</div>
-
-<div id="page-login" class="page">
-  <h2>登录</h2>
-  <div class="form-group">
-    <label>账号</label>
-    <input type="text" id="login-username" placeholder="请输入账号">
-  </div>
-  <div class="form-group">
-    <label>密码</label>
-    <input type="password" id="login-pwd" placeholder="请输入密码">
-  </div>
-  <button class="btn-primary" style="width:100%" id="do-login">登录</button>
-  <p style="margin-top:1rem">没有账号？<a onclick="goPage('register')" style="color:var(--primary-color);cursor:pointer">去注册</a></p>
-</div>
-
-<div id="page-register" class="page">
-  <h2>注册</h2>
-  <div class="form-group">
-    <label>账号</label>
-    <input type="text" id="reg-username" placeholder="请输入账号">
-  </div>
-  <div class="form-group">
-    <label>密码</label>
-    <input type="password" id="reg-pwd" placeholder="请输入密码">
-  </div>
-  <button class="btn-primary" style="width:100%" id="do-register">注册</button>
-  <p style="margin-top:1rem">已有账号？<a onclick="goPage('login')" style="color:var(--primary-color);cursor:pointer">去登录</a></p>
-</div>
-
-<div id="page-about" class="page">
-  <h2>关于 A Steward</h2>
-  <p>A Steward 是你的AI生活管家，专注事业、情感、生活陪伴与建议。</p>
-  <p>版本：1.0.0</p>
-  <button class="btn-primary" onclick="goPage('home')">返回对话</button>
 </div>
 
 <script src="common.js"></script>
@@ -191,69 +195,77 @@ function goPage(pageName) {
   document.getElementById('page-' + pageName).classList.add('active');
   document.querySelector('.nav-link[data-page="' + pageName + '"]').classList.add('active');
 }
-document.querySelectorAll('.nav-link').forEach(link => {
-  link.addEventListener('click', () => {
-    const page = link.dataset.page;
-    goPage(page);
-    if(page === 'profile') updateProfileUI();
-  });
-});
 
-function updateProfileUI(){
-  const user = getUser();
-  const infoEl = document.getElementById('profile-info');
-  const tipEl = document.getElementById('profile-tip');
-  const logoutBtn = document.getElementById('logout-btn');
-  const nameEl = document.getElementById('current-username');
-  const isLogin = localStorage.getItem('token') === 'login';
-  
-  if(isLogin && user.name){
-    infoEl.style.display='block';
-    tipEl.style.display='none';
-    logoutBtn.style.display='inline-block';
-    nameEl.textContent = user.name;
-  }else{
-    infoEl.style.display='none';
-    tipEl.style.display='block';
-    logoutBtn.style.display='none';
+// 检查登录状态并跳转
+function checkLoginAndRedirect() {
+  if (localStorage.getItem('token') === 'login') {
+    window.location.href = 'user.html';
+  } else {
+    document.getElementById('authModal').style.display = 'flex';
   }
 }
 
-document.getElementById('do-register').addEventListener('click',()=>{
-  const username = document.getElementById('reg-username').value.trim();
-  const pwd = document.getElementById('reg-pwd').value.trim();
-  const name = username;
-  if(!username || !pwd) { alert('账号和密码不能为空'); return; }
-  
-  localStorage.setItem('user', JSON.stringify({
-    avatar: '', account: username, pwd: pwd, name: name, agreed: true
-  }));
-  alert('注册成功！请登录');
-  goPage('login');
-});
+// 关闭登录/注册模态框
+function closeAuthModal() {
+  document.getElementById('authModal').style.display = 'none';
+}
 
-document.getElementById('do-login').addEventListener('click',()=>{
+// 切换登录/注册标签
+function switchTab(tab) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.modal-panel').forEach(p => p.classList.remove('active'));
+  if (tab === 'login') {
+    document.querySelector('.modal-tab:nth-child(1)').classList.add('active');
+    document.getElementById('loginPanel').classList.add('active');
+  } else {
+    document.querySelector('.modal-tab:nth-child(2)').classList.add('active');
+    document.getElementById('registerPanel').classList.add('active');
+  }
+}
+
+// 处理登录
+function handleLogin() {
   const username = document.getElementById('login-username').value.trim();
   const pwd = document.getElementById('login-pwd').value.trim();
   const user = getUser();
   
-  if(!username || !pwd) { alert('账号和密码不能为空'); return; }
-  if(user.account === username && user.pwd === pwd){
-    localStorage.setItem('token','login');
+  if (!username || !pwd) {
+    alert('账号和密码不能为空');
+    return;
+  }
+  
+  if (user.account === username && user.pwd === pwd) {
+    localStorage.setItem('token', 'login');
     alert('登录成功！');
-    goPage('home');
-    updateProfileUI();
-    checkAutoBirthdayWish();
-  }else{
+    closeAuthModal();
+    window.location.href = 'user.html';
+  } else {
     alert('账号或密码错误');
   }
-});
+}
 
-document.getElementById('logout-btn').addEventListener('click',()=>{
-  logout();
-  updateProfileUI();
-  goPage('login');
-});
+// 处理注册
+function handleRegister() {
+  const username = document.getElementById('reg-username').value.trim();
+  const pwd = document.getElementById('reg-pwd').value.trim();
+  const nickname = document.getElementById('reg-nickname').value.trim();
+  
+  if (!username || !pwd || !nickname) {
+    alert('账号、密码和昵称不能为空');
+    return;
+  }
+  
+  localStorage.setItem('user', JSON.stringify({
+    avatar: '',
+    account: username,
+    pwd: pwd,
+    name: nickname,
+    agreed: true
+  }));
+  
+  alert('注册成功！请登录');
+  switchTab('login');
+}
 
 let selectedType = 'career';
 const fabBtn = document.getElementById('fabBtn');
@@ -424,7 +436,6 @@ doTaskBtn.addEventListener("click",async()=>{
 
 window.onload = function(){
   initDarkMode();
-  updateProfileUI();
   renderChat();
 }
 window.addEventListener("beforeunload",()=>stopAllVoice());
