@@ -6,7 +6,7 @@
 <meta name="keywords" content="Yara,AI派单,AI语音聊天,智能派单平台">
 <meta name="description" content="Yara AI智能生活管家，AI语音对话+全场景派单服务一站式解决">
 <title>Yara - AI智能生活管家</title>
-<!-- 全平台公共资源（与其他14个文件完全打通） -->
+<!-- 全平台公共资源（必须和其他文件同目录，确保路径正确） -->
 <script src="./yara-config.js"></script>
 <link rel="stylesheet" href="./yara-common.css">
 <script src="./yara-common.js"></script>
@@ -22,6 +22,7 @@
 .hero-section{background: linear-gradient(135deg, var(--yara-brand-color) 0%, #79bbff 100%); color: #fff; padding: 3rem 2rem; text-align: center;}
 .hero-title{font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;}
 .hero-desc{font-size: 1.1rem; opacity: 0.9; max-width: 800px; margin: 0 auto 1.5rem;}
+.hero-btns{display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;}
 .main-tab-container{max-width: 1400px; margin: 0 auto; padding: 0 2rem;}
 .chat-panel{background: var(--yara-white); border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; height: calc(100vh - 320px); min-height: 500px; display: flex; flex-direction: column;}
 .chat-header{padding: 1rem 1.5rem; border-bottom: 1px solid var(--yara-border-color); display: flex; justify-content: space-between; align-items: center;}
@@ -47,7 +48,7 @@
 .voice-tip{text-align: center; color: var(--yara-text-secondary); font-size: .875rem; margin-top: .5rem}
 .order-form-container{background: var(--yara-white); border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 2rem;}
 nav{background: var(--yara-white); border-bottom: 1px solid var(--yara-border-color); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100;}
-.logo{font-size: 1.5rem; font-weight: 700; color: var(--yara-brand-color);}
+.logo{font-size: 1.5rem; font-weight: 700; color: var(--yara-brand-color); cursor: pointer;}
 .nav-links{display: flex; gap: 2rem; align-items: center}
 .nav-links a{color: var(--yara-text-secondary); text-decoration: none; font-weight: 500; cursor: pointer}
 .nav-links a:hover,.nav-links a.active{color: var(--yara-brand-color)}
@@ -58,23 +59,27 @@ nav{background: var(--yara-white); border-bottom: 1px solid var(--yara-border-co
 </head>
 <body>
 <div id="yara-app">
-  <!-- 顶部导航栏（与全平台打通） -->
+  <!-- 顶部导航栏（全跳转修复+权限拦截） -->
   <nav>
-    <div class="logo">{{ CONFIG.brand.name }}</div>
+    <div class="logo" @click="window.location.href = './index.html'">{{ CONFIG.brand.name }}</div>
     <div class="nav-links">
-      <a href="index.html" class="active">首页</a>
-      <a href="yara-index.html">控制台</a>
-      <a href="yara-order-list.html">订单管理</a>
-      <a href="yara-price.html">会员中心</a>
-      <a v-if="isLogin" href="yara-user-center.html">个人中心</a>
+      <a href="./index.html" class="active">首页</a>
+      <a @click="checkAuthJump('./yara-index.html')">控制台</a>
+      <a @click="checkAuthJump('./yara-order-list.html')">订单管理</a>
+      <a href="./yara-price.html">会员中心</a>
+      <a v-if="isLogin" @click="checkAuthJump('./yara-user-center.html')">个人中心</a>
       <a v-else @click="showLoginModal = true" style="cursor: pointer;">登录/注册</a>
     </div>
   </nav>
 
-  <!-- 头部banner -->
+  <!-- 头部banner（跳转按钮修复） -->
   <div class="hero-section">
     <h1 class="hero-title">{{ CONFIG.brand.fullName }}</h1>
     <p class="hero-desc">{{ CONFIG.brand.slogan }}，AI智能对话+全场景派单服务，一站式解决你的事业、情感、生活需求</p>
+    <div class="hero-btns">
+      <el-button type="primary" size="large" @click="scrollToChat">立即开始AI对话</el-button>
+      <el-button type="info" size="large" @click="activeTab = 'order'">发布派单需求</el-button>
+    </div>
   </div>
 
   <!-- 核心功能tab切换 -->
@@ -280,6 +285,9 @@ nav{background: var(--yara-white); border-bottom: 1px solid var(--yara-border-co
               <el-button size="large" @click="handleReset" style="margin-left: 20px;">
                 重置表单
               </el-button>
+              <el-button size="large" @click="checkAuthJump('./yara-order-list.html')" style="margin-left: 20px;">
+                查看我的订单
+              </el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -287,15 +295,15 @@ nav{background: var(--yara-white); border-bottom: 1px solid var(--yara-border-co
     </el-tabs>
   </div>
 
-  <!-- 页脚（合规必备，与全平台打通） -->
+  <!-- 页脚（全链接修复，合规跳转正常） -->
   <div class="yara-footer">
     <div class="yara-footer-content">
       <div class="yara-footer-links">
-        <a href="yara-index.html">控制台</a>
-        <a href="agreement.html" target="_blank">用户服务协议</a>
-        <a href="privacy.html" target="_blank">隐私政策</a>
-        <a href="yara-refund.html" target="_blank">退款规则</a>
-        <a href="yara-help.html" target="_blank">帮助中心</a>
+        <a href="./yara-index.html">控制台</a>
+        <a href="./agreement.html" target="_blank">用户服务协议</a>
+        <a href="./privacy.html" target="_blank">隐私政策</a>
+        <a href="./yara-refund.html" target="_blank">退款规则</a>
+        <a href="./yara-help.html" target="_blank">帮助中心</a>
       </div>
       <div class="yara-footer-copyright">
         <p>© {{ new Date().getFullYear() }} {{ CONFIG.brand.fullName }} 版权所有</p>
@@ -309,8 +317,8 @@ nav{background: var(--yara-white); border-bottom: 1px solid var(--yara-border-co
     </div>
   </div>
 
-  <!-- 登录/注册模态框 -->
-  <el-dialog v-model="showLoginModal" title="账号登录" width="420px" :close-on-click-modal="false">
+  <!-- 登录/注册模态框（跳转逻辑修复，登录后自动回跳） -->
+  <el-dialog v-model="showLoginModal" title="账号登录" width="420px" :close-on-click-modal="false" @close="resetLoginForm">
     <el-tabs v-model="loginActiveTab" type="card">
       <el-tab-pane label="登录" name="login">
         <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
@@ -320,6 +328,9 @@ nav{background: var(--yara-white); border-bottom: 1px solid var(--yara-border-co
           <el-form-item prop="password">
             <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" prefix-icon="Lock" show-password></el-input>
           </el-form-item>
+          <div class="yara-text-right yara-mb-10">
+            <a href="./yara-login.html?type=forget" style="color: var(--yara-brand-color); font-size: 14px;">忘记密码？</a>
+          </div>
         </el-form>
         <el-button type="primary" style="width: 100%;" size="large" :loading="loginLoading" @click="handleLogin">立即登录</el-button>
         <p style="text-align: center; margin-top: 1rem;">
@@ -344,6 +355,11 @@ nav{background: var(--yara-white); border-bottom: 1px solid var(--yara-border-co
           </el-form-item>
           <el-form-item prop="nickname">
             <el-input v-model="registerForm.nickname" placeholder="请输入昵称" prefix-icon="User"></el-input>
+          </el-form-item>
+          <el-form-item prop="agree">
+            <el-checkbox v-model="registerForm.agree">
+              我已阅读并同意<a href="./agreement.html" target="_blank" style="color: var(--yara-brand-color);">《用户服务协议》</a>和<a href="./privacy.html" target="_blank" style="color: var(--yara-brand-color);">《隐私政策》</a>
+            </el-checkbox>
           </el-form-item>
         </el-form>
         <el-button type="primary" style="width: 100%;" size="large" :loading="registerLoading" @click="handleRegister">立即注册</el-button>
@@ -371,6 +387,7 @@ createApp({
     const showLoginModal = Vue.ref(false)
     const loginActiveTab = Vue.ref('login')
     const countDown = Vue.ref(0)
+    const redirectUrl = Vue.ref('') // 登录后回跳地址
 
     // ===================== AI语音聊天核心状态 =====================
     const chatInput = Vue.ref('')
@@ -431,7 +448,7 @@ createApp({
     const loginLoading = Vue.ref(false)
     const registerLoading = Vue.ref(false)
     const loginForm = Vue.reactive({ phone: '', password: '' })
-    const registerForm = Vue.reactive({ phone: '', code: '', password: '', nickname: '' })
+    const registerForm = Vue.reactive({ phone: '', code: '', password: '', nickname: '', agree: false })
     const loginRules = {
       phone: [
         { required: true, message: '请输入手机号', trigger: 'blur' },
@@ -455,7 +472,23 @@ createApp({
         { required: true, message: '请设置密码', trigger: 'blur' },
         { min: 6, max: 16, message: '密码长度为6-16位', trigger: 'blur' }
       ],
-      nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }]
+      nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
+      agree: [
+        { validator: (rule, value, callback) => value ? callback() : callback(new Error('请阅读并同意用户协议和隐私政策')), trigger: 'change' }
+      ]
+    }
+
+    // ===================== 核心修复：权限拦截跳转方法 =====================
+    const checkAuthJump = (targetUrl) => {
+      // 已登录直接跳转
+      if (isLogin.value) {
+        window.location.href = targetUrl
+        return
+      }
+      // 未登录，记录回跳地址，弹出登录框
+      redirectUrl.value = targetUrl
+      showLoginModal.value = true
+      ElMessage.warning('请先登录后再访问该页面')
     }
 
     // ===================== 核心联动：AI内容一键填充到派单表单 =====================
@@ -479,10 +512,16 @@ createApp({
       activeTab.value = 'order'
       ElMessage.success('已自动填充到派单表单，请完善剩余信息')
       // 滚动到表单顶部
-      window.scrollTo({ top: 300, behavior: 'smooth' })
+      setTimeout(() => {
+        window.scrollTo({ top: 300, behavior: 'smooth' })
+      }, 100)
     }
 
     // ===================== AI聊天核心方法 =====================
+    // 滚动到聊天面板
+    const scrollToChat = () => {
+      document.getElementById('chatMessages').scrollIntoView({ behavior: 'smooth' })
+    }
     // 发送消息
     const sendMessage = async () => {
       const text = chatInput.value.trim()
@@ -503,7 +542,9 @@ createApp({
       chatHistory.value.push({ id: tempId, role: 'assistant', content: '' })
       // 滚动到底部
       const chatMessages = document.getElementById('chatMessages')
-      chatMessages.scrollTop = chatMessages.scrollHeight
+      setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight
+      }, 100)
 
       try {
         const res = await fetch(API_URL, {
@@ -725,6 +766,7 @@ createApp({
     const handleSubmit = async () => {
       // 未登录拦截
       if (!isLogin.value) {
+        redirectUrl.value = './index.html'
         showLoginModal.value = true
         ElMessage.warning('请先登录后再提交订单')
         return
@@ -756,11 +798,18 @@ createApp({
               finalPrice: finalPrice.value
             }
             const res = await YARA_API_LIST.createOrder(orderData)
-            const { orderNo } = res.data
+            const { orderNo, orderId } = res.data
             ElMessage.success('订单创建成功，即将跳转到支付')
-            // 发起支付
+            // 发起支付，支付成功后跳转到订单详情页
             setTimeout(() => {
               YARA_PAY.createPay(orderNo, 'wechat', 'qr')
+              // 支付轮询，成功后跳转
+              YARA_PAY.loopQueryPayStatus(orderNo, (success) => {
+                if (success) {
+                  ElMessage.success('支付成功，即将跳转到订单详情')
+                  window.location.href = `./yara-order-detail.html?id=${orderId}`
+                }
+              })
             }, 1000)
           } catch (error) {
             console.error('订单创建失败', error)
@@ -772,6 +821,18 @@ createApp({
     }
 
     // ===================== 登录/注册核心方法 =====================
+    // 重置登录表单
+    const resetLoginForm = () => {
+      loginForm.phone = ''
+      loginForm.password = ''
+      registerForm.phone = ''
+      registerForm.code = ''
+      registerForm.password = ''
+      registerForm.nickname = ''
+      registerForm.agree = false
+      loginActiveTab.value = 'login'
+      redirectUrl.value = ''
+    }
     // 登录处理
     const handleLogin = async () => {
       if (!loginFormRef.value) return
@@ -782,6 +843,7 @@ createApp({
             const res = await YARA_API_LIST.login(loginForm)
             YARA_STORAGE.setToken(res.data.token)
             YARA_STORAGE.setUserInfo(res.data.userInfo)
+            // 更新全局状态
             isLogin.value = true
             userInfo.value = res.data.userInfo
             // 更新会员状态
@@ -791,8 +853,13 @@ createApp({
             vipDiscount.value = vipRes.data.discount || 10
             // 刷新优惠券
             getCouponList()
+            // 关闭登录框
             showLoginModal.value = false
             ElMessage.success('登录成功')
+            // 有回跳地址则跳转，否则留在当前页
+            if (redirectUrl.value) {
+              window.location.href = redirectUrl.value
+            }
           } catch (error) {
             console.error('登录失败', error)
           } finally {
@@ -811,6 +878,8 @@ createApp({
             await YARA_API_LIST.register(registerForm)
             ElMessage.success('注册成功，请登录')
             loginActiveTab.value = 'login'
+            // 填充手机号到登录表单
+            loginForm.phone = registerForm.phone
           } catch (error) {
             console.error('注册失败', error)
           } finally {
@@ -842,7 +911,7 @@ createApp({
     Vue.onMounted(() => {
       initSpeechRecognition()
       getCouponList()
-      YARA_STAT.pageView('整合版首页')
+      YARA_STAT.pageView('修复版首页')
     })
 
     return {
@@ -855,6 +924,9 @@ createApp({
       showLoginModal,
       loginActiveTab,
       countDown,
+      // 跳转修复核心方法
+      checkAuthJump,
+      resetLoginForm,
       // AI聊天相关
       chatInput,
       isGenerating,
@@ -862,6 +934,7 @@ createApp({
       isRecording,
       voiceTip,
       fillToOrderForm,
+      scrollToChat,
       sendMessage,
       playVoice,
       toggleVoice,
