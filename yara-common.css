@@ -1,0 +1,422 @@
+/* 全局品牌色变量，自动同步配置文件 */
+:root {
+  --yara-brand-color: #409EFF;
+  --yara-brand-light: #ecf5ff;
+  --yara-text-main: #303133;
+  --yara-text-regular: #606266;
+  --yara-text-secondary: #909399;
+  --yara-bg-light: #f5f7fa;
+  --yara-border-color: #dcdfe6;
+  --yara-white: #ffffff;
+  --yara-success: #67C23A;
+  --yara-warning: #E6A23C;
+  --yara-danger: #F56C6C;
+  --yara-info: #909399;
+}
+
+/* 全局样式重置，仅作用于yara前缀的容器，100%不影响原有项目样式 */
+[class*="yara-"] * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+[class*="yara-"] body {
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background-color: var(--yara-bg-light);
+  color: var(--yara-text-main);
+  line-height: 1.5;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+/* 通用布局容器 */
+.yara-layout-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.yara-sidebar-container {
+  width: 220px;
+  height: 100vh;
+  background-color: #304156;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.yara-sidebar-container .yara-logo {
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--yara-white);
+  border-bottom: 1px solid #2d3a4b;
+}
+
+.yara-sidebar-container .yara-logo h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--yara-white);
+}
+
+.yara-sidebar-container .yara-logo p {
+  font-size: 12px;
+  margin: 2px 0 0 0;
+  opacity: 0.8;
+}
+
+.yara-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.yara-header-container {
+  height: 64px;
+  padding: 0 24px;
+  background-color: var(--yara-white);
+  border-bottom: 1px solid var(--yara-border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.yara-page-wrapper {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background-color: var(--yara-bg-light);
+}
+
+.yara-page-container {
+  padding: 24px;
+  background-color: var(--yara-white);
+  border-radius: 8px;
+  min-height: calc(100vh - 112px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+}
+
+/* 通用工具类 */
+.yara-mt-10 { margin-top: 10px; }
+.yara-mt-20 { margin-top: 20px; }
+.yara-mt-30 { margin-top: 30px; }
+.yara-mb-10 { margin-bottom: 10px; }
+.yara-mb-20 { margin-bottom: 20px; }
+.yara-mb-30 { margin-bottom: 30px; }
+.yara-flex { display: flex; }
+.yara-flex-between { display: flex; justify-content: space-between; align-items: center; }
+.yara-flex-center { display: flex; justify-content: center; align-items: center; }
+.yara-flex-column { display: flex; flex-direction: column; }
+.yara-w-full { width: 100%; }
+.yara-text-center { text-align: center; }
+.yara-text-right { text-align: right; }
+
+/* 卡片通用样式 */
+.yara-card-title {
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--yara-text-main);
+}
+
+.yara-card-subtitle {
+  font-size: 14px;
+  color: var(--yara-text-secondary);
+  margin-top: 4px;
+}
+
+/* 订单卡片样式 */
+.yara-order-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--yara-border-color);
+  transition: all 0.3s ease;
+}
+
+.yara-order-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.yara-order-card .yara-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.yara-order-card .yara-order-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--yara-text-main);
+}
+
+.yara-order-card .yara-order-content {
+  padding: 16px 20px;
+}
+
+.yara-order-card .yara-order-desc {
+  color: var(--yara-text-regular);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.yara-order-card .yara-order-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--yara-text-secondary);
+}
+
+.yara-order-card .yara-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px;
+  border-top: 1px solid #f0f0f0;
+  background-color: #fafafa;
+  border-radius: 0 0 8px 8px;
+}
+
+/* 统计卡片样式 */
+.yara-stat-card {
+  height: 120px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
+}
+
+.yara-stat-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.yara-stat-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+}
+
+.yara-stat-label {
+  font-size: 14px;
+  color: var(--yara-text-secondary);
+  margin: 0 0 8px 0;
+}
+
+.yara-stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--yara-text-main);
+  margin: 0;
+}
+
+.yara-stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  color: var(--yara-white);
+}
+
+.yara-stat-icon.order { background-color: var(--yara-brand-color); }
+.yara-stat-icon.waiting { background-color: var(--yara-warning); }
+.yara-stat-icon.processing { background-color: var(--yara-danger); }
+.yara-stat-icon.completed { background-color: var(--yara-success); }
+
+/* 快捷功能样式 */
+.yara-quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 20px 10px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.yara-quick-item:hover {
+  background-color: var(--yara-brand-light);
+  border-color: var(--yara-brand-color);
+  transform: translateY(-3px);
+}
+
+.yara-quick-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--yara-white);
+  margin-bottom: 12px;
+  font-size: 26px;
+}
+
+.yara-quick-name {
+  font-size: 15px;
+  color: var(--yara-text-main);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* 会员卡片样式 */
+.yara-vip-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.yara-vip-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.yara-vip-card.active {
+  border-color: var(--yara-brand-color);
+}
+
+.yara-vip-header {
+  padding: 24px 20px;
+  text-align: center;
+  color: var(--yara-white);
+  background: linear-gradient(135deg, var(--yara-brand-color) 0%, #79bbff 100%);
+}
+
+.yara-vip-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.yara-vip-price {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.yara-vip-price del {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.7;
+  margin-left: 8px;
+}
+
+.yara-vip-content {
+  padding: 20px;
+  background-color: var(--yara-white);
+}
+
+.yara-vip-rights {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.yara-vip-rights li {
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--yara-text-regular);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.yara-vip-rights li::before {
+  content: '✓';
+  color: var(--yara-success);
+  font-weight: 700;
+}
+
+/* 页脚样式（合规必备） */
+.yara-footer {
+  background-color: var(--yara-white);
+  padding: 30px 0;
+  border-top: 1px solid var(--yara-border-color);
+  margin-top: 40px;
+}
+
+.yara-footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.yara-footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.yara-footer-links a {
+  color: var(--yara-text-regular);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.yara-footer-links a:hover {
+  color: var(--yara-brand-color);
+}
+
+.yara-footer-copyright {
+  font-size: 13px;
+  color: var(--yara-text-secondary);
+  line-height: 1.8;
+}
+
+.yara-footer-copyright a {
+  color: var(--yara-text-secondary);
+  text-decoration: none;
+}
+
+.yara-footer-copyright a:hover {
+  color: var(--yara-brand-color);
+}
+
+/* 按钮品牌色覆盖 */
+.el-button--primary {
+  background-color: var(--yara-brand-color);
+  border-color: var(--yara-brand-color);
+}
+
+.el-button--primary:hover {
+  background-color: var(--yara-brand-color);
+  border-color: var(--yara-brand-color);
+  opacity: 0.8;
+}
+
+.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+  background-color: var(--yara-brand-color);
+  border-color: var(--yara-brand-color);
+}
+
+.el-tag--primary {
+  background-color: var(--yara-brand-light);
+  border-color: var(--yara-brand-color);
+  color: var(--yara-brand-color);
+}
+
