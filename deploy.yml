@@ -1,0 +1,38 @@
+# GitHub Pages 部署工作流（适配 A Steward 纯前端项目）
+name: Deploy A Steward to GitHub Pages
+
+# 触发条件：main 分支推送或手动触发
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # 支持手动触发，便于排查
+
+# 权限配置（部署 GitHub Pages 必需）
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传静态文件
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # 关键：根目录作为部署源
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          timeout: 60 # 延长超时，避免部署被取消
