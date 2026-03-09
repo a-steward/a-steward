@@ -3,37 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>登录</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen" onload="initDarkMode()">
-<div class="max-w-md mx-auto px-4 py-3">
-  <a href="index.html" class="inline-block px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-lg text-xs dark:text-white">← 返回主页</a>
-</div>
-<div class="max-w-md mx-auto p-6 pt-2">
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
-    <h2 class="text-xl font-bold text-center dark:text-white mb-6">登录</h2>
-    <div class="space-y-4">
-      <div><label class="block text-sm dark:text-white mb-1">账号</label><input id="account" class="w-full border rounded-lg p-2.5 dark:bg-gray-700 dark:text-white"></div>
-      <div><label class="block text-sm dark:text-white mb-1">密码</label><input id="pwd" type="password" class="w-full border rounded-lg p-2.5 dark:bg-gray-700 dark:text-white"></div>
-      <button onclick="login()" class="w-full bg-blue-500 text-white p-2.5 rounded-lg">登录</button>
-      <p class="text-center text-sm dark:text-gray-300">没有账号？<a href="register.html" class="text-blue-500">注册</a></p>
-    </div>
-  </div>
-</div>
-<script src="common.js"></script>
-<script>
-function login() {
-  let account = document.getElementById('account').value.trim();
-  let pwd = document.getElementById('pwd').value.trim();
-  let user = getUser();
-  if (user.account === account && user.pwd === pwd) {
-    localStorage.setItem('token', 'login');
-    location.href = 'index.html';
-  } else {
-    alert('账号或密码错误');
-  }
-}
-</script>
-</body>
-</html>
+  <meta name="keywords" content="Yara,AI派单,账号登录">
+  <meta name="description" content="Yara 账号登录，一站式全场景智能派单服务">
+  <title>账号登录 - Yara</title>
+  <!-- CDN资源 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
+  <!-- 根目录公共资源 -->
+  <script src="./yara-config.js"></script>
+  <link rel="stylesheet" href="./yara-common.css">
+  <script src="./yara-common.js"></script>
+  <style>
+    .yara-login-container {
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .yara-login
