@@ -1,124 +1,37 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - A Steward</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 400px;
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            opacity: 0.9;
-        }
-        input {
-            width: 100%;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            font-size: 1rem;
-        }
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        .btn {
-            width: 100%;
-            padding: 1rem;
-            background: #fff;
-            color: #667eea;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        .link {
-            text-align: center;
-            margin-top: 1rem;
-        }
-        .link a {
-            color: #fff;
-            text-decoration: none;
-            opacity: 0.8;
-        }
-        .link a:hover {
-            opacity: 1;
-        }
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 1rem;
-            color: #fff;
-            text-decoration: none;
-            opacity: 0.8;
-        }
-        .back-btn:hover {
-            opacity: 1;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <a href="index.html" class="back-btn">← 返回首页</a>
-        <h1>🔐 Login</h1>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">邮箱 / 用户名</label>
-                <input type="text" id="email" placeholder="your@email.com">
-            </div>
-            <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" id="password" placeholder="••••••••">
-            </div>
-            <button type="submit" class="btn">登录</button>
-        </form>
-        <div class="link">
-            <p>还没有账号？<a href="register.html">立即注册</a></p>
-        </div>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen" onload="initDarkMode()">
+<div class="max-w-md mx-auto p-6 pt-16">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+    <h2 class="text-xl font-bold text-center dark:text-white mb-6">登录</h2>
+    <div class="space-y-4">
+      <div><label class="block text-sm dark:text-white mb-1">账号</label><input id="account" class="w-full border rounded-lg p-2.5 dark:bg-gray-700 dark:text-white"></div>
+      <div><label class="block text-sm dark:text-white mb-1">密码</label><input id="pwd" type="password" class="w-full border rounded-lg p-2.5 dark:bg-gray-700 dark:text-white"></div>
+      <button onclick="login()" class="w-full bg-blue-500 text-white p-2.5 rounded-lg">登录</button>
+      <p class="text-center text-sm dark:text-gray-300">没有账号？<a href="register.html" class="text-blue-500">注册</a></p>
     </div>
-
-    <script>
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('登录成功！欢迎回来，A Steward。');
-            window.location.href = 'index.html';
-        });
-    </script>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+function login() {
+  let account = document.getElementById('account').value.trim();
+  let pwd = document.getElementById('pwd').value.trim();
+  let user = getUser();
+  if (user.account === account && user.pwd === pwd) {
+    if(!user.agreed) { alert('请先注册并同意用户协议与隐私政策！'); return; }
+    localStorage.setItem('token', 'login');
+    location.href = 'user.html';
+  } else {
+    alert('账号或密码错误');
+  }
+}
+</script>
 </body>
 </html>
-
