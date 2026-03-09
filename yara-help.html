@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="Yara,AI派单,帮助中心,常见问题,工单提交">
+  <meta name="description" content="Yara 帮助中心，常见问题解答与工单提交">
+  <title>帮助中心 - Yara</title>
+  <!-- CDN资源 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
+  <!-- 根目录公共资源 -->
+  <script src="./yara-config.js"></script>
+  <link rel="stylesheet" href="./yara-common.css">
+  <script src="./yara-common.js"></script>
+  <script src="./yara-stat.js"></script>
+</head>
+<body>
+  <div id="yara-help-app">
+    <div class="yara-layout-container">
+      <!-- 侧边栏导航 -->
+      <div class="yara-sidebar-container">
+        <div class="yara-logo">
+          <h2>{{ CONFIG.brand.name }}</h2>
+          <p>AI智能派单平台</p>
+        </div>
+        <el-menu
+          :default-active="activeMenu"
+          router
+          background-color="#304156"
+          text-color="#bfcbd9"
+          active-text-color="var(--yara-brand-color)"
+        >
+          <el-menu-item index="yara-index.html">
+            <el-icon><House /></el-icon>
+            <span>控制台</span>
+          </el-menu-item>
+          <el-menu-item index="yara-help.html">
+            <el-icon><QuestionFilled /></el-icon>
+            <span>帮助中心</span>
+          </el-menu-item>
+          <el-menu-item index="index.html" class="yara-back-home">
+            <el-icon><ArrowLeft /></el-icon>
+            <span>返回首页</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
+
+      <!-- 主内容区 -->
+      <div class="yara-main-content">
+        <!-- 顶部导航栏 -->
+        <div class="yara-header-container">
+          <div class="yara-header-left">
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item :to="{ path: 'yara-index.html' }">控制台</el-breadcrumb-item>
+              <el-breadcrumb-item>帮助中心</el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="yara-page-wrapper">
+          <!-- 搜索栏 -->
+          <el-card shadow="never" class="yara-mb-30">
+            <div class="yara-flex-center" style="flex-direction: column; padding: 20px 0;">
+              <h2 style="font-size: 28px; margin: 0 0 20px 0;">有什么可以帮你的吗？</h2>
+              <el-input
+                v-model="searchKeyword"
+                placeholder="请输入你想咨询的问题"
+                size="large"
+                style="width: 600px;"
+                clearable
+                @keyup.enter="handleSearch"
+              >
+                <template #append>
+                  <el-button @click="handleSearch" type="primary">搜索</el-button>
+                </template>
+              </el-input>
+            </div>
+          </el-card>
+
+          <!-- 常见问题分类 -->
+          <el-row :gutter="20" class="yara-mb-30">
+            <el-col :span="6" v-for="category in faqCategory" :key="category.id">
+              <el-card shadow="hover" class="yara-flex-center" style="flex-direction: column; height: 120px; cursor: pointer;" @click="activeTab = category.id">
+                <el-icon :size="40" color="var(--yara-brand-color)" style="margin-bottom: 10px;">
+                  <component :is="category.icon"></component>
+                </el-icon>
+                <h3 style="margin: 0; font-size: 18px;">{{ category.name }}</h3>
+              </el-card>
+            </el-col>
+          </el-row>
+
+          <!-- 常见问题列表 -->
+          <el-card shadow="never" class="yara-mb-30">
+            <template #header>
+              <span class="yara-card-title" style="font-size: 20px;">常见问题</span>
+            </template>
+            <el-tabs v-model="activeTab" type="card">
+              <el-tab-pane v-for="category in faqCategory" :key="category.id" :label="category.name" :name="category.id">
+                <el-collapse v-model="activeFaqNames" accordion>
+                  <el-collapse-item v-for="faq in category.list" :key="faq.id" :title="faq.question" :name="faq.id">
+                    <div style="color: var(--yara-text-regular); line-height: 1.8;">
+                      {{ faq.answer }}
+                    </div>
+                  </el-collapse-item>
+                </el-collapse>
+              </el-tab-pane>
+            </el-tabs>
+          </el-card>
+
+          <!-- 工单提交 -->
+          <el-card shadow="never">
+            <template #header>
+              <div>
+                <span class="yara-card-title" style="font-size: 20px;">提交工单</span>
+                <p class="yara-card-subtitle">如果没有找到你想要的答案，可以提交工单联系我们</p>
+              </div>
+            </template>
+            <el-form
+              ref="ticketFormRef"
+              :model="ticketForm"
+              :rules="ticketRules"
+              label-width="100px"
+              size="large"
+              style="max-width: 700px; margin: 0 auto;"
+            >
+              <el-form-item label="问题类型" prop="type">
+                <el-select v-model="ticketForm.type" placeholder="请选择问题类型" style="width: 100%;">
+                  <el-option label="账号问题" value="账号问题"></el-option>
+                  <el-option label="订单问题" value="订单问题"></el-option>
+                  <el-option label="支付问题" value="支付问题"></el-option>
+                  <el-option label="会员问题" value="会员问题"></el-option>
+                  <el-option label="退款问题" value="退款问题"></el-option>
+                  <el-option label="其他问题" value="其他问题"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="问题标题" prop="title">
+                <el-input v-model="ticketForm.title" placeholder="请简要描述你的问题" clearable></el-input>
+              </el-form-item>
+              <el-form-item label="问题详情" prop="content">
+                <el-input
+                  v-model="ticketForm.content"
+                  type="textarea"
+                  :rows="5"
+                  placeholder="请详细描述你的问题，我们将在1个工作日内为你处理"
+                  maxlength="1000"
+                  show-word-limit
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="联系方式" prop="contact">
+                <el-input v-model="ticketForm.contact" placeholder="请输入你的手机号/微信，方便我们联系你" clearable></el-input>
+              </el-form-item>
+              <el-form-item label="附件上传">
+                <el-upload
+                  action="#"
+                  :auto-upload="false"
+                  :on-change="handleFileChange"
+                  :on-remove="handleFileRemove"
+                  :limit="3"
+                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                >
+                  <el-button type="primary">选择文件</el-button>
+                  <template #tip>
+                    <div class="el-upload__tip">
+                      支持jpg/png/pdf/word格式，单个文件不超过10MB，最多上传3个文件
+                    </div>
+                  </template>
+                </el-upload>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" size="large" :loading="submitLoading" @click="handleSubmit" style="width: 200px;">
+                  提交工单
+                </el-button>
+                <el-button size="large" @click="handleReset" style="margin-left: 20px;">
+                  重置表单
+                </el-button>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+    const { ElMessage } = ElementPlus
+
+    createApp({
+      setup() {
+        const CONFIG = window.YARA_CONFIG
+        const activeMenu = Vue.ref('yara-help.html')
+        const searchKeyword = Vue.ref('')
+        const activeTab = Vue.ref(1)
+        const activeFaqNames = Vue.ref([])
+        const ticketFormRef = Vue.ref()
+        const submitLoading = Vue.ref(false)
+        const fileList = Vue.ref([])
+
+        // 常见问题分类
+        const faqCategory = [
+          {
+            id: 1,
+            name: '账号问题',
+            icon: 'User',
+            list: [
+              {
+                id: 101,
+                question: '如何注册Yara平台账号？',
+                answer: '您可以点击平台首页右上角的登录/注册按钮，选择注册页签，输入手机号、验证码、密码和昵称，完成注册即可。一个手机号仅可注册一个账号，注册成功后即可使用平台全部功能。'
+              },
+              {
+                id: 102,
+                question: '忘记登录密码怎么办？',
+                answer: '您可以在登录页面点击「忘记密码」，输入注册手机号，接收验证码后即可重置新的登录密码。重置成功后即可使用新密码登录。'
+              },
+              {
+                id: 103,
+                question: '如何更换绑定的手机号？',
+                answer: '您可以进入个人中心-账号安全页面，点击「更换手机号」，先验证原手机号的验证码，再输入新手机号和对应的验证码，即可完成手机号更换。更换成功后需要重新登录。'
+              },
+              {
+                id: 104,
+                question: '账号可以注销吗？',
+                answer: '可以。您可以进入个人中心-账号安全页面，提交账号注销申请。注销申请提交后，将有7天的冷静期，冷静期过后账号将正式注销，所有数据将被清空且无法恢复，请谨慎操作。'
+              }
+            ]
+          },
+          {
+            id: 2,
+            name: '订单问题',
+            icon: 'Document',
+            list: [
+              {
+                id: 201,
+                question: '如何发布派单需求？',
+                answer: '您可以点击控制台的「我要派单」，选择服务类型，填写需求标题、详情、服务时长、联系方式等信息，确认价格后提交订单并支付，支付成功后订单将正式发布，平台会为您匹配对应的服务人员。'
+              },
+              {
+                id: 202,
+                question: '订单提交后可以修改需求吗？',
+                answer: '订单未被接单前，您可以联系客服修改需求内容；订单已被接单后，如需修改需求，需与服务人员协商一致，若产生价格变动，需补充差价或申请部分退款。'
+              },
+              {
+                id: 203,
+                question: '订单长时间无人接单怎么办？',
+                answer: '若订单发布后24小时内无人接单，您可以选择取消订单，系统将全额退款至您的支付账户；也可以联系客服加急匹配服务人员，或补充需求详情、提高预算来提升接单率。'
+              },
+              {
+                id: 204,
+                question: '如何确认订单完成？',
+                answer: '服务人员完成服务后，会提交完成申请，您可以在订单详情页查看服务成果，确认无误后点击「确认完成」，订单将正式完结；若您7天内未操作，系统将自动确认订单完成。'
+              }
+            ]
+          },
+          {
+            id: 3,
+            name: '支付问题',
+            icon: 'Money',
+            list: [
+              {
+                id: 301,
+                question: '平台支持哪些支付方式？',
+                answer: '平台目前支持微信支付、支付宝支付两种方式，后续将陆续开通更多支付渠道，敬请期待。'
+              },
+              {
+                id: 302,
+                question: '支付成功但订单状态未更新怎么办？',
+                answer: '由于网络延迟，可能会出现支付状态同步延迟的情况，您可以等待1-3分钟后刷新页面查看；若仍未更新，请联系客服并提供支付截图，我们将为您手动同步状态。'
+              },
+              {
+                id: 303,
+                question: '支付后可以开发票吗？',
+                answer: '可以。您可以在订单完成后，联系客服提供发票抬头、税号、收件地址等信息，我们将在3-7个工作日内为您开具电子发票或纸质发票并寄出。'
+              }
+            ]
+          },
+          {
+            id: 4,
+            name: '会员问题',
+            icon: 'Medal',
+            list: [
+              {
+                id: 401,
+                question: '开通会员有哪些特权？',
+                answer: '开通会员后，您可享受下单折扣、每月专属优惠券、订单优先接单、专属客服、加急通道等特权，不同会员套餐对应的特权不同，年卡会员可享受最高等级的全部特权。'
+              },
+              {
+                id: 402,
+                question: '会员可以自动续费吗？',
+                answer: '目前平台暂不支持自动续费，会员到期前7天，系统会通过站内信提醒您续费，您可以手动选择对应套餐续费，续费后会员有效期将自动顺延。'
+              },
+              {
+                id: 403,
+                question: '开通会员后可以退款吗？',
+                answer: '会员开通后，若未使用任何会员特权，可在开通后24小时内联系客服申请全额退款；若已使用会员特权，或开通超过24小时，将不予退款，敬请谅解。'
+              },
+              {
+                id: 404,
+                question: '会员优惠券在哪里领取？',
+                answer: '会员开通后，系统将自动发放当月优惠券到您的账户，您可以进入个人中心-我的优惠券页面查看；每月1号系统将自动发放当月的会员专属优惠券，请注意查收。'
+              }
+            ]
+          },
+          {
+            id: 5,
+            name: '退款问题',
+            icon: 'Refund',
+            list: [
+              {
+                id: 501,
+                question: '哪些情况可以申请全额退款？',
+                answer: '符合以下任一情况的订单，用户可申请全额退款：1.订单支付成功后，24小时内无服务人员接单；2.订单被接单后，服务人员明确表示无法提供服务，且无其他合适服务人员可匹配；3.因平台系统故障、支付异常等平台原因导致订单无法正常履行；4.服务人员未在约定时间内提供服务，且未提前与用户协商一致的。'
+              },
+              {
+                id: 502,
+                question: '退款申请提交后多久到账？',
+                answer: '退款申请审核通过后，平台将在1-3个工作日内将退款金额原路退回至您的支付账户。退款到账时间取决于支付渠道和银行处理时效，通常微信/支付宝支付退款实时到账，银行卡支付退款1-7个工作日到账，若超时未到账，请联系支付渠道客服或平台客服查询。'
+              },
+              {
+                id: 503,
+                question: '订单完成后还能申请退款吗？',
+                answer: '订单确认完成后，若无证据证明服务存在严重质量问题，平台将不予退款。若您有明确证据证明服务未达到约定标准，可在订单完成后7天内提交退款申请，平台将介入核实处理。'
+              }
+            ]
+          }
+        ]
+
+        // 工单表单
+        const ticketForm = Vue.reactive({
+          type: '',
+          title: '',
+          content: '',
+          contact: ''
+        })
+
+        // 工单校验规则
+        const ticketRules = {
+          type: [
+            { required: true, message: '请选择问题类型', trigger: 'change' }
+          ],
+          title: [
+            { required: true, message: '请输入问题标题', trigger: 'blur' },
+            { min: 5, max: 50, message: '问题标题长度为5-50字', trigger: 'blur' }
+          ],
+          content: [
+            { required: true, message: '请输入问题详情', trigger: 'blur' },
+            { min: 10, message: '问题详情不能少于10字', trigger: 'blur' }
+          ],
+          contact: [
+            { required: true, message: '请输入你的联系方式', trigger: 'blur' }
+          ]
+        }
+
+        // 搜索功能
+        const handleSearch = () => {
+          if (!searchKeyword.value.trim()) {
+            ElMessage.warning('请输入搜索关键词')
+            return
+          }
+          // 遍历所有问题，匹配关键词
+          let findResult = false
+          for (let category of faqCategory) {
+            for (let faq of category.list) {
+              if (faq.question.includes(searchKeyword.value) || faq.answer.includes(searchKeyword.value)) {
+                activeTab.value = category.id
+                activeFaqNames.value = [faq.id]
+                findResult = true
+                break
+              }
+            }
+            if (findResult) break
+          }
+          if (!findResult) {
+            ElMessage.info('未找到相关问题
+
