@@ -1,16 +1,16 @@
-// ===================== A Steward 全平台统一配置 =====================
+// ===================== Yara 全平台统一配置 =====================
 // 上线前仅需修改此处，全平台自动同步，其他代码无需改动
 // 100%不影响你的原有项目代码
-window.STEWARD_CONFIG = {
+window.YARA_CONFIG = {
   // ========== 1. 品牌基础配置 ==========
   brand: {
-    name: 'A Steward',
-    fullName: 'A Steward AI智能派单平台',
+    name: 'Yara',
+    fullName: 'Yara AI智能派单平台',
     slogan: '一站式全场景智能派单服务，精准匹配你的需求',
     logo: '', // 替换为你的品牌logo图片路径
     brandColor: '#409EFF', // 主品牌色，一键修改全平台主题
     customerService: {
-      wechat: 'ASteward001', // 客服微信
+      wechat: 'Yara001', // 客服微信
       phone: '400-123-4567', // 客服电话
       workTime: '周一至周日 9:00-22:00',
       onlineUrl: '#' // 在线客服链接
@@ -57,9 +57,9 @@ window.STEWARD_CONFIG = {
   // ========== 5. 运营配置 ==========
   operation: {
     banners: [
-      { img: 'https://picsum.photos/1200/180?random=1', title: '新人首单立减50元', url: 'steward-price.html' },
-      { img: 'https://picsum.photos/1200/180?random=2', title: '会员年卡限时299元', url: 'steward-price.html' },
-      { img: 'https://picsum.photos/1200/180?random=3', title: '情感咨询专属优惠', url: 'steward-create-order.html?type=emotion' }
+      { img: 'https://picsum.photos/1200/180?random=1', title: '新人首单立减50元', url: 'yara-price.html' },
+      { img: 'https://picsum.photos/1200/180?random=2', title: '会员年卡限时299元', url: 'yara-price.html' },
+      { img: 'https://picsum.photos/1200/180?random=3', title: '情感咨询专属优惠', url: 'yara-create-order.html?type=emotion' }
     ],
     notice: '【重要通知】平台全新升级，新增会员体系，下单享更低价格！',
     stat: {
@@ -70,4 +70,4 @@ window.STEWARD_CONFIG = {
 }
 
 // 品牌色全局注入，一键修改全平台主题
-document.documentElement.style.setProperty('--steward-brand-color', window.STEWARD_CONFIG.brand.brandColor)
+document.documentElement.style.setProperty('--yara-brand-color', window.YARA_CONFIG.brand.brandColor)
