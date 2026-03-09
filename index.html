@@ -3,20 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A Steward</title>
+<title>Yara</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-:root{--primary-color:#2563eb;--bg-color:#f8fafc;--card-color:#fff;--text-primary:#0f172a;--text-secondary:#64748b;--border-color:#e2e8f0}
+:root{
+  --primary-color:#2563eb;
+  --bg-color:#f8fafc;
+  --card-color:#fff;
+  --text-primary:#0f172a;
+  --text-secondary:#64748b;
+  --border-color:#e2e8f0;
+  --success-color:#10b981;
+  --danger-color:#ef4444;
+}
 body{background:var(--bg-color);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column}
 nav{background:var(--card-color);border-bottom:1px solid var(--border-color);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .logo{font-size:1.25rem;font-weight:700;color:var(--primary-color);display:flex;align-items:center;gap:.5rem}
 .nav-links{display:flex;gap:2rem;align-items:center}
 .nav-links a{color:var(--text-secondary);text-decoration:none;font-weight:500;cursor:pointer}
 .nav-links a:hover,.nav-links a.active{color:var(--primary-color)}
-.btn-primary{background:var(--primary-color);color:#fff;border:none;padding:.5rem 1.25rem;border-radius:.5rem;font-weight:500;cursor:pointer}
+.btn-primary{background:var(--primary-color);color:#fff;border:none;padding:.5rem 1.25rem;border-radius:.5rem;font-weight:500;cursor:pointer;transition:all .2s}
 .btn-primary:disabled{background:#93c5fd;cursor:not-allowed}
-.btn-secondary{background:transparent;color:var(--primary-color);border:1px solid var(--primary-color);padding:.5rem 1.25rem;border-radius:.5rem;cursor:pointer}
+.btn-primary:hover:not(:disabled){background:#1d4ed8}
+.btn-secondary{background:transparent;color:var(--primary-color);border:1px solid var(--primary-color);padding:.5rem 1.25rem;border-radius:.5rem;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{background:#eff6ff}
 .btn-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0}
+.btn-voice{background:var(--success-color);border-color:var(--success-color);color:#fff}
+.btn-voice.recording{background:var(--danger-color);border-color:var(--danger-color);animation:pulse 1s infinite}
 
 .container{flex:1;max-width:1400px;width:100%;margin:0 auto;padding:2rem}
 .chat-panel{background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);display:flex;flex-direction:column;height:calc(100vh - 120px);overflow:hidden}
@@ -26,67 +39,74 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
 .message{display:flex;gap:.75rem;max-width:85%}
 .message.user{align-self:flex-end;flex-direction:row-reverse}
 .message.ai{cursor:pointer;transition:all .2s}
-.message.ai:hover .message-content{background:#e2e8f0}
-.message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600}
+.message.ai:hover .message-content{background:#f1f5f9}
+.message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0}
 .message.user .message-avatar{background:var(--primary-color);color:#fff}
-.message.ai .message-avatar{background:#f15f9;color:var(--primary-color)}
-.message-content{padding:.75rem 1rem;border-radius:.75rem;line-height:1.6;white-space:pre-wrap}
+.message.ai .message-avatar{background:#e0e7ff;color:var(--primary-color)}
+.message-content{padding:.75rem 1rem;border-radius:.75rem;line-height:1.6;white-space:pre-wrap;word-break:break-word}
 .message.user .message-content{background:var(--primary-color);color:#fff}
-.message.ai .message-content{background:#f15f9;color:var(--text-primary)}
+.message.ai .message-content{background:#f1f5f9;color:var(--text-primary)}
 .chat-input-area{padding:1rem 1.5rem;border-top:1px solid var(--border-color)}
 .chat-input-wrapper{display:flex;gap:.75rem;align-items:flex-end}
-.chat-input{flex:1;border:1px solid var(--border-color);border-radius:.75rem;padding:.75rem 1rem;resize:none;font-size:.9375rem;outline:0}
+.chat-input{flex:1;border:1px solid var(--border-color);border-radius:.75rem;padding:.75rem 1rem;resize:none;font-size:.9375rem;outline:0;max-height:200px;line-height:1.5}
+.chat-input:focus{border-color:var(--primary-color)}
 
 .loading{display:inline-block;width:16px;height:16px;border:2px solid #f3f3f3; border-top:2px solid var(--primary-color);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+
 .page{display:none;width:100%;max-width:800px;margin:0 auto;padding:2rem}
 .page.active{display:block}
 .form-group{margin-bottom:1rem}
 .form-group label{display:block;margin-bottom:.5rem}
 .form-group input{width:100%;border:1px solid var(--border-color);border-radius:.5rem;padding:.75rem;outline:0}
-.user-info{margin-bottom:1rem; padding:1rem; background:#fff; border-radius:.5rem; border:1px solid var(--border-color)}
+.form-group input:focus{border-color:var(--primary-color)}
 
-.fab{position:fixed;right:2rem;bottom:2rem;width:60px;height:60px;border-radius:50%;background:var(--primary-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999}
+.fab{position:fixed;right:2rem;bottom:2rem;width:60px;height:60px;border-radius:50%;background:var(--primary-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999;transition:all .2s}
+.fab:hover{transform:scale(1.1)}
 
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
 .modal-content{background:#fff;border-radius:1rem;padding:2rem;max-width:400px;width:90%;position:relative}
 .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary)}
 .modal-tabs{display:flex;gap:1rem;margin-bottom:1rem}
 .modal-tab{flex:1;text-align:center;padding:.5rem;border-bottom:2px solid transparent;cursor:pointer}
-.modal-tab.active{border-bottom:2px solid var(--primary-color);color:var(--primary-color)}
+.modal-tab.active{border-bottom:2px solid var(--primary-color);color:var(--primary-color);font-weight:500}
 .modal-panel{display:none}
 .modal-panel.active{display:block}
-
-.fab{position:fixed;right:2rem;bottom:2rem;width:60px;height:60px;border-radius:50%;background:var(--primary-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999}
 
 .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
 .modal-mask.show{display:flex}
 .modal-box{background:#fff;border-radius:1rem;width:90%;max-width:400px;padding:1.5rem;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
 .modal-box h3{margin-bottom:1rem}
 .modal-btns{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}
-.modal-btns button{padding:.75rem;border-radius:.5rem;border:1px solid var(--border-color);background:#fff;cursor:pointer}
-.modal-btns button:hover{background:#f15f9}
-.modal-input{width:100%;border:1px solid var(--border-color);border-radius:.5rem;padding:.75rem;margin-bottom:1rem}
+.modal-btns button{padding:.75rem;border-radius:.5rem;border:1px solid var(--border-color);background:#fff;cursor:pointer;transition:all .2s}
+.modal-btns button:hover{background:#f8fafc;border-color:var(--primary-color)}
+.modal-input{width:100%;border:1px solid var(--border-color);border-radius:.5rem;padding:.75rem;margin-bottom:1rem;outline:0}
+.modal-input:focus{border-color:var(--primary-color)}
 .modal-footer{display:flex;justify-content:end;gap:.5rem}
+
+.voice-tip{text-align:center;color:var(--text-secondary);font-size:.875rem;margin-top:.5rem}
 </style>
 </head>
 <body>
 
+<!-- 导航栏 -->
 <nav>
-  <div class="logo">A Steward</div>
+  <div class="logo">Yara</div>
   <div class="nav-links">
     <a class="nav-link active" data-page="home">立即开始</a>
     <a class="nav-link" onclick="checkLoginAndRedirect()">个人中心</a>
   </div>
 </nav>
 
+<!-- 主聊天页面 -->
 <div id="page-home" class="page active">
   <div class="container">
     <div class="chat-panel">
       <div class="chat-header">
-        <h2>A Steward 为您解答</h2>
+        <h2>Yara 为您解答</h2>
         <div class="header-right">
-          <button class="btn-secondary btn-icon" id="toggleVoiceBtn" title="播放/暂停">
+          <button class="btn-secondary btn-icon" id="toggleVoiceBtn" title="播放/暂停回复">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
               <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
@@ -96,7 +116,7 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
               <path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/>
             </svg>
           </button>
-          <button class="btn-secondary btn-icon" id="replayVoiceBtn" title="重新播放">
+          <button class="btn-secondary btn-icon" id="replayVoiceBtn" title="重新播放回复">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
               <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
@@ -113,16 +133,27 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
       <div class="chat-messages" id="chatMessages"></div>
       <div class="chat-input-area">
         <div class="chat-input-wrapper">
-          <textarea class="chat-input" id="chatInput" rows="1" placeholder="输入消息..."></textarea>
+          <textarea class="chat-input" id="chatInput" rows="1" placeholder="输入消息，或点击麦克风语音对话..."></textarea>
+          <button class="btn-primary btn-icon btn-voice" id="voiceInputBtn" title="按住说话，松开发送">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
           <button class="btn-primary" id="sendChatBtn">发送</button>
         </div>
+        <p class="voice-tip" id="voiceTip">点击麦克风开始语音对话，再次点击结束并发送</p>
       </div>
     </div>
   </div>
 </div>
 
+<!-- 悬浮任务按钮 -->
 <div class="fab" id="fabBtn">📋</div>
 
+<!-- 任务类型选择模态框 -->
 <div class="modal-mask" id="typeModal">
   <div class="modal-box">
     <h3>选择任务类型</h3>
@@ -137,6 +168,7 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
   </div>
 </div>
 
+<!-- 任务生成模态框 -->
 <div class="modal-mask" id="taskModal">
   <div class="modal-box">
     <h3>生成 <span id="taskTypeName">事业</span> 任务</h3>
@@ -165,7 +197,7 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
         <label>密码</label>
         <input type="password" id="login-pwd" placeholder="请输入密码">
       </div>
-      <button class="btn-primary" style="width:100%" id="do-login" onclick="handleLogin()">登录</button>
+      <button class="btn-primary" style="width:100%" onclick="handleLogin()">登录</button>
       <p style="margin-top:1rem;text-align:center">没有账号？<a onclick="switchTab('register')" style="color:var(--primary-color);cursor:pointer">去注册</a></p>
     </div>
     <div class="modal-panel" id="registerPanel">
@@ -181,19 +213,25 @@ nav{background:var(--card-color);border-bottom:1px solid var(--border-color);pad
         <label>昵称</label>
         <input type="text" id="reg-nickname" placeholder="请输入昵称">
       </div>
-      <button class="btn-primary" style="width:100%" id="do-register" onclick="handleRegister()">注册</button>
+      <button class="btn-primary" style="width:100%" onclick="handleRegister()">注册</button>
       <p style="margin-top:1rem;text-align:center">已有账号？<a onclick="switchTab('login')" style="color:var(--primary-color);cursor:pointer">去登录</a></p>
     </div>
   </div>
 </div>
 
-<script src="common.js"></script>
 <script>
+// ===================== 基础工具函数 =====================
+// 页面跳转
 function goPage(pageName) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + pageName).classList.add('active');
   document.querySelector('.nav-link[data-page="' + pageName + '"]').classList.add('active');
+}
+
+// 本地存储用户信息
+function getUser() {
+  return JSON.parse(localStorage.getItem('user') || '{"account":"","pwd":"","name":"游客"}');
 }
 
 // 检查登录状态并跳转
@@ -267,6 +305,7 @@ function handleRegister() {
   switchTab('login');
 }
 
+// 模态框控制
 let selectedType = 'career';
 const fabBtn = document.getElementById('fabBtn');
 const typeModal = document.getElementById('typeModal');
@@ -293,152 +332,356 @@ document.querySelectorAll('#typeModal button[data-type]').forEach(btn=>{
   });
 });
 
+// ===================== AI核心配置 =====================
 const API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
 const MODEL = "doubao-1-5-pro-32k-250115";
 const API_KEY = "384628c3-79f7-4849-9622-a828c4259213";
-const SYSTEM_PROMPT = "你是A Steward，你的个人AI生活管家，专注回答事业、情感、生活相关问题，给出实用、可落地的建议。";
+const SYSTEM_PROMPT = "你是Yara，用户的专属AI生活管家，专注回答事业、情感、生活相关问题，给出实用、可落地、有温度的建议，语言简洁易懂。";
 
-const PLAY_DUCK_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/><path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/><circle cx="9" cy="10" r="1.5" fill="#000"/><circle cx="15" cy="10" r="1.5" fill="#000"/><path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/><path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/></svg>`;
-const PAUSE_DUCK_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/><path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/><circle cx="9" cy="10" r="1.5" fill="#000"/><circle cx="15" cy="10" r="1.5" fill="#000"/><path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/><rect x="8" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/><rect x="13" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/></svg>`;
+// ===================== 语音播报功能（AI回复转语音） =====================
+const PLAY_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/><path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/><circle cx="9" cy="10" r="1.5" fill="#000"/><circle cx="15" cy="10" r="1.5" fill="#000"/><path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/><path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/></svg>`;
+const PAUSE_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/><path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/><circle cx="9" cy="10" r="1.5" fill="#000"/><circle cx="15" cy="10" r="1.5" fill="#000"/><path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/><rect x="8" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/><rect x="13" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/></svg>`;
 
 let currentUtterance = null;
-let currentPlayText = "你好！我是你的专属AI生活管家A Steward~";
+let currentPlayText = "你好！我是你的专属AI生活管家Yara，有什么可以帮你的吗？";
 let isVoicePlaying = false;
 let isVoicePaused = false;
-let chatHistory = [{role:"system",content:SYSTEM_PROMPT},{role:"assistant",content:currentPlayText}];
+
+const toggleVoiceBtn = document.getElementById("toggleVoiceBtn");
+const replayVoiceBtn = document.getElementById("replayVoiceBtn");
+const voiceTip = document.getElementById("voiceTip");
+
+// 停止所有语音
+function stopAllVoice(){
+  if("speechSynthesis" in window){
+    window.speechSynthesis.cancel();
+    currentUtterance = null;
+    isVoicePlaying = false;
+    isVoicePaused = false;
+    toggleVoiceBtn.innerHTML = PLAY_ICON;
+  }
+}
+
+// 播放/暂停语音
+function toggleVoice(){
+  if(!("speechSynthesis" in window)){ 
+    alert("您的浏览器不支持语音播报功能"); 
+    return; 
+  }
+  // 播放中 -> 暂停
+  if(isVoicePlaying && !isVoicePaused){
+    window.speechSynthesis.pause();
+    isVoicePaused = true;
+    toggleVoiceBtn.innerHTML = PLAY_ICON;
+    return;
+  }
+  // 暂停中 -> 继续播放
+  if(isVoicePlaying && isVoicePaused){
+    window.speechSynthesis.resume();
+    isVoicePaused = false;
+    toggleVoiceBtn.innerHTML = PAUSE_ICON;
+    return;
+  }
+  // 未播放 -> 开始播放
+  stopAllVoice();
+  const utterance = new SpeechSynthesisUtterance(currentPlayText);
+  utterance.lang = "zh-CN";
+  utterance.rate = 1.0;
+  utterance.pitch = 1.1;
+  
+  utterance.onstart = () => {
+    isVoicePlaying = true;
+    isVoicePaused = false;
+    toggleVoiceBtn.innerHTML = PAUSE_ICON;
+  };
+  utterance.onend = () => {
+    isVoicePlaying = false;
+    isVoicePaused = false;
+    toggleVoiceBtn.innerHTML = PLAY_ICON;
+  };
+  utterance.onerror = () => stopAllVoice();
+  
+  currentUtterance = utterance;
+  window.speechSynthesis.speak(utterance);
+}
+
+// 重新播放语音
+function replayVoice(){ 
+  stopAllVoice(); 
+  toggleVoice(); 
+}
+
+// ===================== 新增：AI语音输入功能（语音转文字） =====================
+const voiceInputBtn = document.getElementById("voiceInputBtn");
+const chatInput = document.getElementById("chatInput");
+let recognition = null;
+let isRecording = false;
+
+// 初始化语音识别
+function initSpeechRecognition(){
+  if(!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)){
+    voiceTip.textContent = "您的浏览器不支持语音识别，建议使用Chrome/Edge浏览器";
+    voiceInputBtn.disabled = true;
+    return;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = "zh-CN";
+  recognition.continuous = false; // 单次识别
+  recognition.interimResults = false; // 只返回最终结果
+
+  // 识别开始
+  recognition.onstart = () => {
+    isRecording = true;
+    voiceInputBtn.classList.add("recording");
+    voiceTip.textContent = "正在录音，再次点击结束并发送...";
+  };
+
+  // 识别结果
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    chatInput.value = transcript;
+    chatInput.style.height = "auto";
+    chatInput.style.height = chatInput.scrollHeight + "px";
+  };
+
+  // 识别结束
+  recognition.onend = () => {
+    if(isRecording){
+      isRecording = false;
+      voiceInputBtn.classList.remove("recording");
+      voiceTip.textContent = "点击麦克风开始语音对话，再次点击结束并发送";
+      // 自动发送
+      if(chatInput.value.trim()){
+        sendMessage();
+      }
+    }
+  };
+
+  // 识别错误
+  recognition.onerror = (event) => {
+    isRecording = false;
+    voiceInputBtn.classList.remove("recording");
+    voiceTip.textContent = "录音失败：" + event.error + "，请重试";
+    console.error("语音识别错误：", event.error);
+  };
+}
+
+// 切换录音状态
+function toggleRecording(){
+  if(!recognition) return;
+  if(isRecording){
+    // 结束录音
+    recognition.stop();
+    isRecording = false;
+  } else {
+    // 开始录音
+    stopAllVoice();
+    recognition.start();
+  }
+}
+
+// ===================== AI聊天核心功能 =====================
+let chatHistory = [
+  {role:"system",content:SYSTEM_PROMPT},
+  {role:"assistant",content:currentPlayText}
+];
 let isGenerating = false;
 
 const chatMessages = document.getElementById("chatMessages");
-const chatInput = document.getElementById("chatInput");
 const sendChatBtn = document.getElementById("sendChatBtn");
 const clearChatBtn = document.getElementById("clearChatBtn");
-const toggleVoiceBtn = document.getElementById("toggleVoiceBtn");
-const replayVoiceBtn = document.getElementById("replayVoiceBtn");
 
-function stopAllVoice(){
-  if("speechSynthesis"in window){
-    window.speechSynthesis.cancel();
-    currentUtterance=null;
-    isVoicePlaying=false;
-    isVoicePaused=false;
-    toggleVoiceBtn.classList.remove("active");
-    toggleVoiceBtn.innerHTML=PLAY_DUCK_SVG;
-  }
-}
-function toggleVoice(){
-  if(!("speechSynthesis"in window)){ alert("浏览器不支持语音"); return; }
-  if(isVoicePlaying&&!isVoicePaused){
-    window.speechSynthesis.pause();
-    isVoicePaused=true;
-    toggleVoiceBtn.classList.remove("active");
-    toggleVoiceBtn.innerHTML=PLAY_DUCK_SVG;
-    return;
-  }
-  if(isVoicePlaying&&isVoicePaused){
-    window.speechSynthesis.resume();
-    isVoicePaused=false;
-    toggleVoiceBtn.classList.add("active");
-    toggleVoiceBtn.innerHTML=PAUSE_DUCK_SVG;
-    return;
-  }
-  stopAllVoice();
-  const u=new SpeechSynthesisUtterance(currentPlayText);
-  u.lang="zh-CN";u.rate=1.0;
-  u.onstart=()=>{
-    isVoicePlaying=true;isVoicePaused=false;
-    toggleVoiceBtn.classList.add("active");
-    toggleVoiceBtn.innerHTML=PAUSE_DUCK_SVG;
-  };
-  u.onend=()=>{
-    isVoicePlaying=false;isVoicePaused=false;
-    toggleVoiceBtn.classList.remove("active");
-    toggleVoiceBtn.innerHTML=PLAY_DUCK_SVG;
-  };
-  u.onerror=()=>stopAllVoice();
-  currentUtterance=u;window.speechSynthesis.speak(u);
-}
-function replayVoice(){ stopAllVoice(); toggleVoice(); }
-
+// 渲染聊天记录
 function renderChat(){
-  chatMessages.innerHTML="";
-  chatHistory.forEach(m=>{
-    if(m.role==="system")return;
-    const div=document.createElement("div");
-    div.className=`message ${m.role==="user"?"user":"ai"}`;
-    if(m.role==="ai")div.onclick=()=>{ currentPlayText=m.content; stopAllVoice(); toggleVoice(); };
-    div.innerHTML=`<div class="message-avatar">${m.role==="user"?"我":"AI"}</div><div class="message-content">${m.content}</div>`;
-  chatMessages.appendChild(div);
+  chatMessages.innerHTML = "";
+  chatHistory.forEach(msg => {
+    if(msg.role === "system") return;
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `message ${msg.role === "user" ? "user" : "ai"}`;
+    // AI消息点击播放语音
+    if(msg.role === "ai"){
+      msgDiv.onclick = () => {
+        currentPlayText = msg.content;
+        stopAllVoice();
+        toggleVoice();
+      };
+    }
+    msgDiv.innerHTML = `
+      <div class="message-avatar">${msg.role === "user" ? "我" : "Yara"}</div>
+      <div class="message-content">${msg.content}</div>
+    `;
+    chatMessages.appendChild(msgDiv);
   });
-  chatMessages.scrollTop=chatMessages.scrollHeight;
+  // 滚动到底部
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+// 发送消息
 async function sendMessage(){
-  const text=chatInput.value.trim();
-  if(!text||isGenerating)return;
-  isGenerating=true;sendChatBtn.disabled=true;
+  const text = chatInput.value.trim();
+  if(!text || isGenerating) return;
+
+  // 重置状态
+  isGenerating = true;
+  sendChatBtn.disabled = true;
   stopAllVoice();
+  chatInput.value = "";
+  chatInput.style.height = "auto";
+
+  // 添加用户消息
   chatHistory.push({role:"user",content:text});
-  chatInput.value="";renderChat();
-  const aiMsg=document.createElement("div");
-  aiMsg.className="message ai";
-  aiMsg.innerHTML=`<div class="message-avatar">AI</div><div class="message-content"><span class="loading"></span> 思考中...</div>`;
-  chatMessages.appendChild(aiMsg);
-  const contentEl=aiMsg.querySelector(".message-content");
-  try{
-    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+API_KEY},body:JSON.stringify({model:MODEL,messages:chatHistory,temperature:0.7,stream:true})});
-    const reader=res.body.getReader();
-    const decoder=new TextDecoder();
-    let full="";
+  renderChat();
+
+  // 添加AI加载占位
+  const loadingDiv = document.createElement("div");
+  loadingDiv.className = "message ai";
+  loadingDiv.innerHTML = `
+    <div class="message-avatar">Yara</div>
+    <div class="message-content"><span class="loading"></span> 思考中...</div>
+  `;
+  chatMessages.appendChild(loadingDiv);
+  const contentEl = loadingDiv.querySelector(".message-content");
+
+  try {
+    // 调用AI接口
+    const res = await fetch(API_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + API_KEY
+      },
+      body:JSON.stringify({
+        model:MODEL,
+        messages:chatHistory,
+        temperature:0.7,
+        stream:true
+      })
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullContent = "";
+
+    // 流式解析响应
     while(true){
-      const {done,value}=await reader.read();
-      if(done)break;
-      const chunk=decoder.decode(value);
-      const lines=chunk.split("\n").filter(i=>i.trim());
+      const {done,value} = await reader.read();
+      if(done) break;
+      const chunk = decoder.decode(value);
+      const lines = chunk.split("\n").filter(line => line.trim());
+      
       for(const line of lines){
-        if(!line.startsWith("data: "))continue;
-        const d=line.slice(6);
-        if(d==="[DONE]")continue;
-        try{
-          const obj=JSON.parse(d);
-          const c=obj.choices[0]?.delta?.content||"";
-          full+=c;contentEl.innerHTML=full;chatMessages.scrollTop=chatMessages.scrollHeight;
-        }catch(e){}
+        if(!line.startsWith("data: ")) continue;
+        const dataStr = line.slice(6);
+        if(dataStr === "[DONE]") continue;
+        try {
+          const data = JSON.parse(dataStr);
+          const content = data.choices[0]?.delta?.content || "";
+          fullContent += content;
+          contentEl.innerHTML = fullContent;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        } catch(e){}
       }
     }
-    currentPlayText=full;
-    chatHistory.push({role:"assistant",content:full});
-    renderChat();toggleVoice();
-  }catch(e){contentEl.textContent="请求失败："+e.message;}
-  finally{isGenerating=false;sendChatBtn.disabled=false;}
+
+    // 保存AI回复
+    currentPlayText = fullContent;
+    chatHistory.push({role:"assistant",content:fullContent});
+    renderChat();
+    // 自动播放语音
+    toggleVoice();
+
+  } catch(e){
+    contentEl.textContent = "请求失败：" + e.message;
+    console.error("AI请求错误：", e);
+  } finally {
+    isGenerating = false;
+    sendChatBtn.disabled = false;
+  }
 }
 
-toggleVoiceBtn.addEventListener("click",toggleVoice);
-replayVoiceBtn.addEventListener("click",replayVoice);
-sendChatBtn.addEventListener("click",sendMessage);
-chatInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
-clearChatBtn.addEventListener("click",()=>{if(!confirm("确定清空？"))return;stopAllVoice();currentPlayText="你好！我是你的专属AI生活管家A Steward~";chatHistory=[{role:"system",content:SYSTEM_PROMPT},{role:"assistant",content:currentPlayText}];renderChat();});
-
+// ===================== 任务生成功能 =====================
 doTaskBtn.addEventListener("click",async()=>{
-  const desc=taskInputModal.value.trim();
-  if(!desc||isGenerating)return;
-  isGenerating=true;doTaskBtn.disabled=true;
-  try{
-    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+API_KEY},body:JSON.stringify({model:MODEL,messages:[{role:"system",content:SYSTEM_PROMPT},{role:"user",content:`请生成${selectedType==='career'?'事业':selectedType==='emotion'?'情感':'生活'}方面的可执行任务：${desc}`}],temperature:0.6})});
-    const data=await res.json();
-    const ans=data.choices?.[0]?.message?.content||"生成失败";
-    chatHistory.push({role:"user",content:`我要生成${selectedType==='career'?'事业':selectedType==='emotion'?'情感':'生活'}任务：${desc}`});
-    chatHistory.push({role:"assistant",content:ans});
+  const desc = taskInputModal.value.trim();
+  if(!desc || isGenerating) return;
+  isGenerating = true;
+  doTaskBtn.disabled = true;
+
+  try {
+    const typeText = {career:'事业',emotion:'情感',life:'生活'}[selectedType];
+    const res = await fetch(API_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + API_KEY
+      },
+      body:JSON.stringify({
+        model:MODEL,
+        messages:[
+          {role:"system",content:SYSTEM_PROMPT},
+          {role:"user",content:`请生成${typeText}方面的可执行任务方案：${desc}，要求步骤清晰，可落地执行`}
+        ],
+        temperature:0.6
+      })
+    });
+    const data = await res.json();
+    const answer = data.choices?.[0]?.message?.content || "生成失败，请重试";
+    
+    // 添加到聊天记录
+    chatHistory.push({role:"user",content:`我要生成${typeText}任务：${desc}`});
+    chatHistory.push({role:"assistant",content:answer});
     renderChat();
     closeTaskModal();
-  }catch(e){alert("错误："+e.message);}
-  finally{isGenerating=false;doTaskBtn.disabled=false;}
+
+  } catch(e){
+    alert("生成失败：" + e.message);
+  } finally {
+    isGenerating = false;
+    doTaskBtn.disabled = false;
+  }
 });
 
+// ===================== 事件监听 =====================
+// 语音播报按钮
+toggleVoiceBtn.addEventListener("click", toggleVoice);
+replayVoiceBtn.addEventListener("click", replayVoice);
+
+// 语音输入按钮
+voiceInputBtn.addEventListener("click", toggleRecording);
+
+// 发送消息
+sendChatBtn.addEventListener("click", sendMessage);
+chatInput.addEventListener("keydown", e => {
+  if(e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+// 输入框自动高度
+chatInput.addEventListener("input", () => {
+  chatInput.style.height = "auto";
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + "px";
+});
+
+// 清空对话
+clearChatBtn.addEventListener("click", () => {
+  if(!confirm("确定要清空所有对话记录吗？")) return;
+  stopAllVoice();
+  currentPlayText = "你好！我是你的专属AI生活管家Yara，有什么可以帮你的吗？";
+  chatHistory = [
+    {role:"system",content:SYSTEM_PROMPT},
+    {role:"assistant",content:currentPlayText}
+  ];
+  renderChat();
+});
+
+// 页面加载初始化
 window.onload = function(){
-  initDarkMode();
+  initSpeechRecognition();
   renderChat();
 }
-window.addEventListener("beforeunload",()=>stopAllVoice());
+// 页面关闭前停止语音
+window.addEventListener("beforeunload", () => stopAllVoice());
 </script>
 </body>
 </html>
