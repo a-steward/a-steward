@@ -1,16 +1,21 @@
-## Hi there 👋
+# A Steward | AI生活管家
+纯前端本地运行的AI智能管家系统，集成AI聊天、任务管理、实名验证、图片验真、语音播报等功能。
 
-<!--
-**a-steward/a-steward** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+## 核心功能
+- ✅ AI智能聊天（事业/情感/生活任务生成）
+- ✅ 语音播报/暂停/重播
+- ✅ 账号注册/登录/资料管理
+- ✅ 实名认证+生日自动祝福
+- ✅ 每日任务+图片验真+完成率统计
+- ✅ AI个人记忆（习惯/喜好）
+- ✅ 全页面返回按钮+暗黑模式
 
-Here are some ideas to get you started:
+## 使用方式
+1. 直接浏览器打开 `login.html` 注册登录
+2. 登录后自动进入AI聊天主页
+3. 个人中心可查看任务、实名、记忆、平台说明
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## 技术栈
+- HTML/CSS/JavaScript + Tailwind CSS
+- 本地存储(localStorage)
+- 无后端、无云端、隐私安全
