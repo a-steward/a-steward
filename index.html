@@ -3,685 +3,605 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yara</title>
+<title>Yara - 你的专属AI生活管家</title>
+<!-- 全平台公共资源 -->
+<script src="./yara-config.js"></script>
+<link rel="stylesheet" href="./yara-common.css">
+<script src="./yara-common.js"></script>
+<script src="./yara-stat.js"></script>
+<!-- CDN资源 -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+<script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-:root{
-  --primary-color:#2563eb;
-  --bg-color:#f8fafc;
-  --card-color:#fff;
-  --text-primary:#0f172a;
-  --text-secondary:#64748b;
-  --border-color:#e2e8f0;
-  --success-color:#10b981;
-  --danger-color:#ef4444;
-}
-body{background:var(--bg-color);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column}
-nav{background:var(--card-color);border-bottom:1px solid var(--border-color);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{font-size:1.25rem;font-weight:700;color:var(--primary-color);display:flex;align-items:center;gap:.5rem}
-.nav-links{display:flex;gap:2rem;align-items:center}
-.nav-links a{color:var(--text-secondary);text-decoration:none;font-weight:500;cursor:pointer}
-.nav-links a:hover,.nav-links a.active{color:var(--primary-color)}
-.btn-primary{background:var(--primary-color);color:#fff;border:none;padding:.5rem 1.25rem;border-radius:.5rem;font-weight:500;cursor:pointer;transition:all .2s}
-.btn-primary:disabled{background:#93c5fd;cursor:not-allowed}
-.btn-primary:hover:not(:disabled){background:#1d4ed8}
-.btn-secondary{background:transparent;color:var(--primary-color);border:1px solid var(--primary-color);padding:.5rem 1.25rem;border-radius:.5rem;cursor:pointer;transition:all .2s}
-.btn-secondary:hover{background:#eff6ff}
-.btn-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0}
-.btn-voice{background:var(--success-color);border-color:var(--success-color);color:#fff}
-.btn-voice.recording{background:var(--danger-color);border-color:var(--danger-color);animation:pulse 1s infinite}
-
-.container{flex:1;max-width:1400px;width:100%;margin:0 auto;padding:2rem}
-.chat-panel{background:var(--card-color);border-radius:1rem;border:1px solid var(--border-color);display:flex;flex-direction:column;height:calc(100vh - 120px);overflow:hidden}
-.chat-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center}
-.header-right{display:flex;align-items:center;gap:0.5rem}
-.chat-messages{flex:1;padding:1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem}
-.message{display:flex;gap:.75rem;max-width:85%}
-.message.user{align-self:flex-end;flex-direction:row-reverse}
-.message.ai{cursor:pointer;transition:all .2s}
-.message.ai:hover .message-content{background:#f1f5f9}
-.message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0}
-.message.user .message-avatar{background:var(--primary-color);color:#fff}
-.message.ai .message-avatar{background:#e0e7ff;color:var(--primary-color)}
-.message-content{padding:.75rem 1rem;border-radius:.75rem;line-height:1.6;white-space:pre-wrap;word-break:break-word}
-.message.user .message-content{background:var(--primary-color);color:#fff}
-.message.ai .message-content{background:#f1f5f9;color:var(--text-primary)}
-.chat-input-area{padding:1rem 1.5rem;border-top:1px solid var(--border-color)}
-.chat-input-wrapper{display:flex;gap:.75rem;align-items:flex-end}
-.chat-input{flex:1;border:1px solid var(--border-color);border-radius:.75rem;padding:.75rem 1rem;resize:none;font-size:.9375rem;outline:0;max-height:200px;line-height:1.5}
-.chat-input:focus{border-color:var(--primary-color)}
-
-.loading{display:inline-block;width:16px;height:16px;border:2px solid #f3f3f3; border-top:2px solid var(--primary-color);border-radius:50%;animation:spin 1s linear infinite}
+.hero-section{background: linear-gradient(135deg, var(--yara-brand-color) 0%, #79bbff 100%); color: #fff; padding: 4rem 2rem; text-align: center;}
+.hero-title{font-size: 3rem; font-weight: 700; margin-bottom: 1rem;}
+.hero-desc{font-size: 1.25rem; opacity: 0.9; max-width: 800px; margin: 0 auto 2rem;}
+.hero-btns{display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;}
+.chat-panel{max-width: 1000px; margin: 2rem auto; background: var(--yara-white); border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;}
+.chat-header{padding: 1rem 1.5rem; border-bottom: 1px solid var(--yara-border-color); display: flex; justify-content: space-between; align-items: center;}
+.chat-messages{height: 500px; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem;}
+.message{display: flex; gap: .75rem; max-width: 85%;}
+.message.user{align-self: flex-end; flex-direction: row-reverse;}
+.message.ai{cursor: pointer; transition: all .2s;}
+.message.ai:hover .message-content{background: var(--yara-bg-light);}
+.message-avatar{width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;}
+.message.user .message-avatar{background: var(--yara-brand-color); color: var(--yara-white);}
+.message.ai .message-avatar{background: #e0e7ff; color: var(--yara-brand-color);}
+.message-content{padding: .75rem 1rem; border-radius: .75rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word;}
+.message.user .message-content{background: var(--yara-brand-color); color: var(--yara-white);}
+.message.ai .message-content{background: var(--yara-bg-light); color: var(--yara-text-main);}
+.chat-input-area{padding: 1rem 1.5rem; border-top: 1px solid var(--yara-border-color);}
+.chat-input-wrapper{display: flex; gap: .75rem; align-items: flex-end;}
+.chat-input{flex: 1; border: 1px solid var(--yara-border-color); border-radius: .75rem; padding: .75rem 1rem; resize: none; font-size: .9375rem; outline: 0; max-height: 200px; line-height: 1.5;}
+.chat-input:focus{border-color: var(--yara-brand-color);}
+.btn-voice{background: var(--yara-success); border-color: var(--yara-success); color: var(--yara-white);}
+.btn-voice.recording{background: var(--yara-danger); border-color: var(--yara-danger); animation: pulse 1s infinite;}
+.voice-tip{text-align: center; color: var(--yara-text-secondary); font-size: .875rem; margin-top: .5rem;}
+.quick-menu{max-width: 1200px; margin: 3rem auto; padding: 0 2rem;}
+.quick-menu-title{font-size: 1.75rem; font-weight: 700; text-align: center; margin-bottom: 2rem;}
+.quick-menu-row{display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;}
+.quick-menu-item{background: var(--yara-white); border-radius: 1rem; padding: 1.5rem; text-align: center; cursor: pointer; transition: all .3s; box-shadow: 0 2px 12px rgba(0,0,0,0.05);}
+.quick-menu-item:hover{transform: translateY(-5px); box-shadow: 0 8px 24px rgba(0,0,0,0.1);}
+.quick-menu-icon{width: 60px; height: 60px; border-radius: 1rem; background: var(--yara-brand-light); color: var(--yara-brand-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 28px;}
+.quick-menu-item h3{font-size: 1.25rem; margin-bottom: .5rem; color: var(--yara-text-main);}
+.quick-menu-item p{color: var(--yara-text-secondary); margin: 0;}
+nav{background: var(--yara-white); border-bottom: 1px solid var(--yara-border-color); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100;}
+.logo{font-size: 1.5rem; font-weight: 700; color: var(--yara-brand-color);}
+.nav-links{display: flex; gap: 2rem; align-items: center;}
+.nav-links a{color: var(--yara-text-secondary); text-decoration: none; font-weight: 500; cursor: pointer;}
+.nav-links a:hover{color: var(--yara-brand-color);}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
-
-.page{display:none;width:100%;max-width:800px;margin:0 auto;padding:2rem}
-.page.active{display:block}
-.form-group{margin-bottom:1rem}
-.form-group label{display:block;margin-bottom:.5rem}
-.form-group input{width:100%;border:1px solid var(--border-color);border-radius:.5rem;padding:.75rem;outline:0}
-.form-group input:focus{border-color:var(--primary-color)}
-
-.fab{position:fixed;right:2rem;bottom:2rem;width:60px;height:60px;border-radius:50%;background:var(--primary-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999;transition:all .2s}
-.fab:hover{transform:scale(1.1)}
-
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
-.modal-content{background:#fff;border-radius:1rem;padding:2rem;max-width:400px;width:90%;position:relative}
-.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-secondary)}
-.modal-tabs{display:flex;gap:1rem;margin-bottom:1rem}
-.modal-tab{flex:1;text-align:center;padding:.5rem;border-bottom:2px solid transparent;cursor:pointer}
-.modal-tab.active{border-bottom:2px solid var(--primary-color);color:var(--primary-color);font-weight:500}
-.modal-panel{display:none}
-.modal-panel.active{display:block}
-
-.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
-.modal-mask.show{display:flex}
-.modal-box{background:#fff;border-radius:1rem;width:90%;max-width:400px;padding:1.5rem;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
-.modal-box h3{margin-bottom:1rem}
-.modal-btns{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}
-.modal-btns button{padding:.75rem;border-radius:.5rem;border:1px solid var(--border-color);background:#fff;cursor:pointer;transition:all .2s}
-.modal-btns button:hover{background:#f8fafc;border-color:var(--primary-color)}
-.modal-input{width:100%;border:1px solid var(--border-color);border-radius:.5rem;padding:.75rem;margin-bottom:1rem;outline:0}
-.modal-input:focus{border-color:var(--primary-color)}
-.modal-footer{display:flex;justify-content:end;gap:.5rem}
-
-.voice-tip{text-align:center;color:var(--text-secondary);font-size:.875rem;margin-top:.5rem}
+.loading{display:inline-block;width:16px;height:16px;border:2px solid #f3f3f3; border-top:2px solid var(--yara-brand-color);border-radius:50%;animation:spin 1s linear infinite}
 </style>
 </head>
 <body>
+<div id="yara-home-app">
+  <!-- 导航栏 -->
+  <nav>
+    <div class="logo">{{ CONFIG.brand.name }}</div>
+    <div class="nav-links">
+      <a href="index.html" class="active">首页</a>
+      <a href="yara-index.html">控制台</a>
+      <a href="yara-create-order.html">我要派单</a>
+      <a href="yara-price.html">会员中心</a>
+      <a v-if="isLogin" href="yara-user-center.html">个人中心</a>
+      <a v-else @click="showLoginModal = true" style="cursor: pointer;">登录/注册</a>
+    </div>
+  </nav>
 
-<!-- 导航栏 -->
-<nav>
-  <div class="logo">Yara</div>
-  <div class="nav-links">
-    <a class="nav-link active" data-page="home">立即开始</a>
-    <a class="nav-link" onclick="checkLoginAndRedirect()">个人中心</a>
+  <!-- 英雄区 -->
+  <div class="hero-section">
+    <h1 class="hero-title">{{ CONFIG.brand.fullName }}</h1>
+    <p class="hero-desc">{{ CONFIG.brand.slogan }}，AI智能对话+全场景派单服务，一站式解决你的事业、情感、生活需求</p>
+    <div class="hero-btns">
+      <el-button type="primary" size="large" @click="scrollToChat">立即开始对话</el-button>
+      <el-button type="info" size="large" @click="window.location.href = 'yara-create-order.html'">发布派单需求</el-button>
+    </div>
   </div>
-</nav>
 
-<!-- 主聊天页面 -->
-<div id="page-home" class="page active">
-  <div class="container">
-    <div class="chat-panel">
-      <div class="chat-header">
-        <h2>Yara 为您解答</h2>
-        <div class="header-right">
-          <button class="btn-secondary btn-icon" id="toggleVoiceBtn" title="播放/暂停回复">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
-              <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
-              <circle cx="9" cy="10" r="1.5" fill="#000"/>
-              <circle cx="15" cy="10" r="1.5" fill="#000"/>
-              <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
-              <path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/>
-            </svg>
-          </button>
-          <button class="btn-secondary btn-icon" id="replayVoiceBtn" title="重新播放回复">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
-              <path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/>
-              <circle cx="9" cy="10" r="1.5" fill="#000"/>
-              <circle cx="15" cy="10" r="1.5" fill="#000"/>
-              <path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/>
-              <path d="M18 12 A6 6 0 1 0 12 18" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-              <path d="M15 18 L12 21 L9 18" fill="#000"/>
-            </svg>
-          </button>
-          <button class="btn-secondary" id="clearChatBtn">清空对话</button>
+  <!-- 快捷功能入口 -->
+  <div class="quick-menu">
+    <h2 class="quick-menu-title">核心功能</h2>
+    <div class="quick-menu-row">
+      <div class="quick-menu-item" @click="window.location.href = 'yara-create-order.html?type=career'">
+        <div class="quick-menu-icon">
+          <el-icon><OfficeBuilding /></el-icon>
+        </div>
+        <h3>事业咨询</h3>
+        <p>职业规划、职场问题、创业指导</p>
+      </div>
+      <div class="quick-menu-item" @click="window.location.href = 'yara-create-order.html?type=emotion'">
+        <div class="quick-menu-icon">
+          <el-icon><Heart /></el-icon>
+        </div>
+        <h3>情感咨询</h3>
+        <p>恋爱指导、婚姻修复、情绪疏导</p>
+      </div>
+      <div class="quick-menu-item" @click="window.location.href = 'yara-create-order.html?type=life'">
+        <div class="quick-menu-icon">
+          <el-icon><HomeFilled /></el-icon>
+        </div>
+        <h3>生活服务</h3>
+        <p>生活规划、跑腿代办、技能教学</p>
+      </div>
+      <div class="quick-menu-item" @click="window.location.href = 'yara-price.html'">
+        <div class="quick-menu-icon">
+          <el-icon><Medal /></el-icon>
+        </div>
+        <h3>会员特权</h3>
+        <p>下单折扣、优先接单、专属客服</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI聊天面板 -->
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+      <h2>Yara AI 智能对话</h2>
+      <div class="yara-flex" style="gap: 0.5rem; align-items: center;">
+        <el-button class="btn-icon" @click="toggleVoice" title="播放/暂停回复">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/>
+            <path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/>
+          </svg>
+        </el-button>
+        <el-button class="btn-icon" @click="replayVoice" title="重新播放回复">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 12 A6 6 0 1 0 12 18" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M15 18 L12 21 L9 18" fill="#000"/>
+          </svg>
+        </el-button>
+        <el-button @click="clearChat">清空对话</el-button>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div v-for="msg in chatHistory" :key="msg.id" :class="['message', msg.role]">
+        <div class="message-avatar">{{ msg.role === 'user' ? '我' : 'Yara' }}</div>
+        <div class="message-content" @click="msg.role === 'assistant' && playVoice(msg.content)">
+          {{ msg.content }}
         </div>
       </div>
-      <div class="chat-messages" id="chatMessages"></div>
-      <div class="chat-input-area">
-        <div class="chat-input-wrapper">
-          <textarea class="chat-input" id="chatInput" rows="1" placeholder="输入消息，或点击麦克风语音对话..."></textarea>
-          <button class="btn-primary btn-icon btn-voice" id="voiceInputBtn" title="按住说话，松开发送">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor"/>
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <button class="btn-primary" id="sendChatBtn">发送</button>
-        </div>
-        <p class="voice-tip" id="voiceTip">点击麦克风开始语音对话，再次点击结束并发送</p>
+      <div v-if="isGenerating" class="message ai">
+        <div class="message-avatar">Yara</div>
+        <div class="message-content"><span class="loading"></span> 思考中...</div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <div class="chat-input-wrapper">
+        <textarea v-model="chatInput" class="chat-input" rows="1" placeholder="输入消息，或点击麦克风语音对话..." @keydown.enter.prevent="sendMessage"></textarea>
+        <el-button class="btn-icon btn-voice" :class="{recording: isRecording}" @click="toggleRecording" title="点击开始/结束录音">
+          <el-icon><Microphone /></el-icon>
+        </el-button>
+        <el-button type="primary" :loading="isGenerating" @click="sendMessage">发送</el-button>
+      </div>
+      <p class="voice-tip">{{ voiceTip }}</p>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <div class="yara-footer">
+    <div class="yara-footer-content">
+      <div class="yara-footer-links">
+        <a href="yara-index.html">控制台</a>
+        <a href="agreement.html" target="_blank">用户服务协议</a>
+        <a href="privacy.html" target="_blank">隐私政策</a>
+        <a href="yara-refund.html" target="_blank">退款规则</a>
+        <a href="yara-help.html" target="_blank">帮助中心</a>
+      </div>
+      <div class="yara-footer-copyright">
+        <p>© {{ new Date().getFullYear() }} {{ CONFIG.brand.fullName }} 版权所有</p>
+        <p>
+          <a href="https://beian.miit.gov.cn/" target="_blank">{{ CONFIG.brand.icp }}</a>
+          <span style="margin: 0 10px;">|</span>
+          <a href="https://beian.mps.gov.cn/" target="_blank">{{ CONFIG.brand.policeRecord }}</a>
+        </p>
+        <p>客服热线：{{ CONFIG.brand.customerService.phone }}（{{ CONFIG.brand.customerService.workTime }}）</p>
       </div>
     </div>
   </div>
-</div>
 
-<!-- 悬浮任务按钮 -->
-<div class="fab" id="fabBtn">📋</div>
-
-<!-- 任务类型选择模态框 -->
-<div class="modal-mask" id="typeModal">
-  <div class="modal-box">
-    <h3>选择任务类型</h3>
-    <div class="modal-btns">
-      <button data-type="career">事业</button>
-      <button data-type="emotion">情感</button>
-      <button data-type="life">生活</button>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeTypeModal()">取消</button>
-    </div>
-  </div>
-</div>
-
-<!-- 任务生成模态框 -->
-<div class="modal-mask" id="taskModal">
-  <div class="modal-box">
-    <h3>生成 <span id="taskTypeName">事业</span> 任务</h3>
-    <input class="modal-input" id="taskInputModal" placeholder="描述你的情况...">
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeTaskModal()">取消</button>
-      <button class="btn-primary" id="doTaskBtn">生成</button>
-    </div>
-  </div>
-</div>
-
-<!-- 登录/注册模态框 -->
-<div class="modal" id="authModal">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeAuthModal()">&times;</button>
-    <div class="modal-tabs">
-      <div class="modal-tab active" onclick="switchTab('login')">登录</div>
-      <div class="modal-tab" onclick="switchTab('register')">注册</div>
-    </div>
-    <div class="modal-panel active" id="loginPanel">
-      <div class="form-group">
-        <label>账号</label>
-        <input type="text" id="login-username" placeholder="请输入账号">
-      </div>
-      <div class="form-group">
-        <label>密码</label>
-        <input type="password" id="login-pwd" placeholder="请输入密码">
-      </div>
-      <button class="btn-primary" style="width:100%" onclick="handleLogin()">登录</button>
-      <p style="margin-top:1rem;text-align:center">没有账号？<a onclick="switchTab('register')" style="color:var(--primary-color);cursor:pointer">去注册</a></p>
-    </div>
-    <div class="modal-panel" id="registerPanel">
-      <div class="form-group">
-        <label>账号</label>
-        <input type="text" id="reg-username" placeholder="请输入账号">
-      </div>
-      <div class="form-group">
-        <label>密码</label>
-        <input type="password" id="reg-pwd" placeholder="请输入密码">
-      </div>
-      <div class="form-group">
-        <label>昵称</label>
-        <input type="text" id="reg-nickname" placeholder="请输入昵称">
-      </div>
-      <button class="btn-primary" style="width:100%" onclick="handleRegister()">注册</button>
-      <p style="margin-top:1rem;text-align:center">已有账号？<a onclick="switchTab('login')" style="color:var(--primary-color);cursor:pointer">去登录</a></p>
-    </div>
-  </div>
+  <!-- 登录/注册模态框 -->
+  <el-dialog v-model="showLoginModal" title="账号登录" width="420px" :close-on-click-modal="false">
+    <el-tabs v-model="activeTab" type="card">
+      <el-tab-pane label="登录" name="login">
+        <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
+          <el-form-item prop="phone">
+            <el-input v-model="loginForm.phone" placeholder="请输入手机号" prefix-icon="Phone"></el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" prefix-icon="Lock" show-password></el-input>
+          </el-form-item>
+        </el-form>
+        <el-button type="primary" style="width: 100%;" size="large" :loading="loginLoading" @click="handleLogin">立即登录</el-button>
+        <p style="text-align: center; margin-top: 1rem;">
+          没有账号？<a @click="activeTab = 'register'" style="color: var(--yara-brand-color); cursor: pointer;">立即注册</a>
+        </p>
+      </el-tab-pane>
+      <el-tab-pane label="注册" name="register">
+        <el-form ref="registerFormRef" :model="registerForm" :rules="registerRules" size="large">
+          <el-form-item prop="phone">
+            <el-input v-model="registerForm.phone" placeholder="请输入手机号" prefix-icon="Phone"></el-input>
+          </el-form-item>
+          <el-form-item prop="code">
+            <div class="yara-flex" style="gap: 10px;">
+              <el-input v-model="registerForm.code" placeholder="请输入验证码" style="flex: 1;"></el-input>
+              <el-button :disabled="countDown > 0" @click="sendSmsCode">
+                {{ countDown > 0 ? `${countDown}s后重发` : '获取验证码' }}
+              </el-button>
+            </div>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input v-model="registerForm.password" type="password" placeholder="请设置6-16位密码" prefix-icon="Lock" show-password></el-input>
+          </el-form-item>
+          <el-form-item prop="nickname">
+            <el-input v-model="registerForm.nickname" placeholder="请输入昵称" prefix-icon="User"></el-input>
+          </el-form-item>
+        </el-form>
+        <el-button type="primary" style="width: 100%;" size="large" :loading="registerLoading" @click="handleRegister">立即注册</el-button>
+        <p style="text-align: center; margin-top: 1rem;">
+          已有账号？<a @click="activeTab = 'login'" style="color: var(--yara-brand-color); cursor: pointer;">立即登录</a>
+        </p>
+      </el-tab-pane>
+    </el-tabs>
+  </el-dialog>
 </div>
 
 <script>
-// ===================== 基础工具函数 =====================
-// 页面跳转
-function goPage(pageName) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + pageName).classList.add('active');
-  document.querySelector('.nav-link[data-page="' + pageName + '"]').classList.add('active');
-}
+const { createApp } = Vue
+const { ElMessage } = ElementPlus
 
-// 本地存储用户信息
-function getUser() {
-  return JSON.parse(localStorage.getItem('user') || '{"account":"","pwd":"","name":"游客"}');
-}
+createApp({
+  setup() {
+    const CONFIG = window.YARA_CONFIG
+    // 基础状态
+    const isLogin = Vue.ref(YARA_STORAGE.getToken())
+    const showLoginModal = Vue.ref(false)
+    const activeTab = Vue.ref('login')
+    const loginFormRef = Vue.ref()
+    const registerFormRef = Vue.ref()
+    const loginLoading = Vue.ref(false)
+    const registerLoading = Vue.ref(false)
+    const countDown = Vue.ref(0)
 
-// 检查登录状态并跳转
-function checkLoginAndRedirect() {
-  if (localStorage.getItem('token') === 'login') {
-    window.location.href = 'user.html';
-  } else {
-    document.getElementById('authModal').style.display = 'flex';
-  }
-}
+    // AI聊天状态
+    const chatInput = Vue.ref('')
+    const isGenerating = Vue.ref(false)
+    const chatHistory = Vue.ref([
+      { id: 1, role: 'assistant', content: '你好！我是Yara，你的专属AI生活管家，有什么可以帮你的吗？无论是事业、情感还是生活问题，我都可以为你解答，也可以帮你生成可执行的方案哦~' }
+    ])
+    let chatId = 2
 
-// 关闭登录/注册模态框
-function closeAuthModal() {
-  document.getElementById('authModal').style.display = 'none';
-}
+    // 语音相关状态
+    const isRecording = Vue.ref(false)
+    const voiceTip = Vue.ref('点击麦克风开始语音对话，再次点击结束并发送')
+    let recognition = null
+    let currentUtterance = null
+    let isVoicePlaying = false
 
-// 切换登录/注册标签
-function switchTab(tab) {
-  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.modal-panel').forEach(p => p.classList.remove('active'));
-  if (tab === 'login') {
-    document.querySelector('.modal-tab:nth-child(1)').classList.add('active');
-    document.getElementById('loginPanel').classList.add('active');
-  } else {
-    document.querySelector('.modal-tab:nth-child(2)').classList.add('active');
-    document.getElementById('registerPanel').classList.add('active');
-  }
-}
+    // AI接口配置
+    const API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+    const MODEL = "doubao-1-5-pro-32k-250115";
+    const API_KEY = "384628c3-79f7-4849-9622-a828c4259213";
+    const SYSTEM_PROMPT = "你是Yara，用户的专属AI生活管家，专注回答事业、情感、生活相关问题，给出实用、可落地、有温度的建议，语言简洁易懂。如果用户需要方案，可生成清晰的可执行步骤，结尾可提示用户可以点击跳转派单页，获取1v1专属服务。";
 
-// 处理登录
-function handleLogin() {
-  const username = document.getElementById('login-username').value.trim();
-  const pwd = document.getElementById('login-pwd').value.trim();
-  const user = getUser();
-  
-  if (!username || !pwd) {
-    alert('账号和密码不能为空');
-    return;
-  }
-  
-  if (user.account === username && user.pwd === pwd) {
-    localStorage.setItem('token', 'login');
-    alert('登录成功！');
-    closeAuthModal();
-    window.location.href = 'user.html';
-  } else {
-    alert('账号或密码错误');
-  }
-}
-
-// 处理注册
-function handleRegister() {
-  const username = document.getElementById('reg-username').value.trim();
-  const pwd = document.getElementById('reg-pwd').value.trim();
-  const nickname = document.getElementById('reg-nickname').value.trim();
-  
-  if (!username || !pwd || !nickname) {
-    alert('账号、密码和昵称不能为空');
-    return;
-  }
-  
-  localStorage.setItem('user', JSON.stringify({
-    avatar: '',
-    account: username,
-    pwd: pwd,
-    name: nickname,
-    agreed: true
-  }));
-  
-  alert('注册成功！请登录');
-  switchTab('login');
-}
-
-// 模态框控制
-let selectedType = 'career';
-const fabBtn = document.getElementById('fabBtn');
-const typeModal = document.getElementById('typeModal');
-const taskModal = document.getElementById('taskModal');
-const taskTypeName = document.getElementById('taskTypeName');
-const taskInputModal = document.getElementById('taskInputModal');
-const doTaskBtn = document.getElementById('doTaskBtn');
-
-fabBtn.addEventListener('click',()=>{
-  typeModal.classList.add('show');
-});
-
-function closeTypeModal(){ typeModal.classList.remove('show'); }
-function closeTaskModal(){ taskModal.classList.remove('show'); }
-
-document.querySelectorAll('#typeModal button[data-type]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    selectedType = btn.dataset.type;
-    taskTypeName.textContent = btn.textContent;
-    typeModal.classList.remove('show');
-    taskModal.classList.add('show');
-    taskInputModal.value = '';
-    taskInputModal.focus();
-  });
-});
-
-// ===================== AI核心配置 =====================
-const API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
-const MODEL = "doubao-1-5-pro-32k-250115";
-const API_KEY = "384628c3-79f7-4849-9622-a828c4259213";
-const SYSTEM_PROMPT = "你是Yara，用户的专属AI生活管家，专注回答事业、情感、生活相关问题，给出实用、可落地、有温度的建议，语言简洁易懂。";
-
-// ===================== 语音播报功能（AI回复转语音） =====================
-const PLAY_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/><path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/><circle cx="9" cy="10" r="1.5" fill="#000"/><circle cx="15" cy="10" r="1.5" fill="#000"/><path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/><path d="M10 18 L16 12 L10 6 Z" fill="#000" opacity="0.8"/></svg>`;
-const PAUSE_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FFCC00" stroke="#000" stroke-width="1"/><path d="M12 2 C13 1 14 2 13 3" stroke="#000" stroke-width="1" fill="none"/><circle cx="9" cy="10" r="1.5" fill="#000"/><circle cx="15" cy="10" r="1.5" fill="#000"/><path d="M8 14 L12 16 L16 14" fill="#FF6600" stroke="#000" stroke-width="1"/><rect x="8" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/><rect x="13" y="6" width="3" height="12" rx="1" fill="#000" opacity="0.8"/></svg>`;
-
-let currentUtterance = null;
-let currentPlayText = "你好！我是你的专属AI生活管家Yara，有什么可以帮你的吗？";
-let isVoicePlaying = false;
-let isVoicePaused = false;
-
-const toggleVoiceBtn = document.getElementById("toggleVoiceBtn");
-const replayVoiceBtn = document.getElementById("replayVoiceBtn");
-const voiceTip = document.getElementById("voiceTip");
-
-// 停止所有语音
-function stopAllVoice(){
-  if("speechSynthesis" in window){
-    window.speechSynthesis.cancel();
-    currentUtterance = null;
-    isVoicePlaying = false;
-    isVoicePaused = false;
-    toggleVoiceBtn.innerHTML = PLAY_ICON;
-  }
-}
-
-// 播放/暂停语音
-function toggleVoice(){
-  if(!("speechSynthesis" in window)){ 
-    alert("您的浏览器不支持语音播报功能"); 
-    return; 
-  }
-  // 播放中 -> 暂停
-  if(isVoicePlaying && !isVoicePaused){
-    window.speechSynthesis.pause();
-    isVoicePaused = true;
-    toggleVoiceBtn.innerHTML = PLAY_ICON;
-    return;
-  }
-  // 暂停中 -> 继续播放
-  if(isVoicePlaying && isVoicePaused){
-    window.speechSynthesis.resume();
-    isVoicePaused = false;
-    toggleVoiceBtn.innerHTML = PAUSE_ICON;
-    return;
-  }
-  // 未播放 -> 开始播放
-  stopAllVoice();
-  const utterance = new SpeechSynthesisUtterance(currentPlayText);
-  utterance.lang = "zh-CN";
-  utterance.rate = 1.0;
-  utterance.pitch = 1.1;
-  
-  utterance.onstart = () => {
-    isVoicePlaying = true;
-    isVoicePaused = false;
-    toggleVoiceBtn.innerHTML = PAUSE_ICON;
-  };
-  utterance.onend = () => {
-    isVoicePlaying = false;
-    isVoicePaused = false;
-    toggleVoiceBtn.innerHTML = PLAY_ICON;
-  };
-  utterance.onerror = () => stopAllVoice();
-  
-  currentUtterance = utterance;
-  window.speechSynthesis.speak(utterance);
-}
-
-// 重新播放语音
-function replayVoice(){ 
-  stopAllVoice(); 
-  toggleVoice(); 
-}
-
-// ===================== 新增：AI语音输入功能（语音转文字） =====================
-const voiceInputBtn = document.getElementById("voiceInputBtn");
-const chatInput = document.getElementById("chatInput");
-let recognition = null;
-let isRecording = false;
-
-// 初始化语音识别
-function initSpeechRecognition(){
-  if(!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)){
-    voiceTip.textContent = "您的浏览器不支持语音识别，建议使用Chrome/Edge浏览器";
-    voiceInputBtn.disabled = true;
-    return;
-  }
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.lang = "zh-CN";
-  recognition.continuous = false; // 单次识别
-  recognition.interimResults = false; // 只返回最终结果
-
-  // 识别开始
-  recognition.onstart = () => {
-    isRecording = true;
-    voiceInputBtn.classList.add("recording");
-    voiceTip.textContent = "正在录音，再次点击结束并发送...";
-  };
-
-  // 识别结果
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    chatInput.value = transcript;
-    chatInput.style.height = "auto";
-    chatInput.style.height = chatInput.scrollHeight + "px";
-  };
-
-  // 识别结束
-  recognition.onend = () => {
-    if(isRecording){
-      isRecording = false;
-      voiceInputBtn.classList.remove("recording");
-      voiceTip.textContent = "点击麦克风开始语音对话，再次点击结束并发送";
-      // 自动发送
-      if(chatInput.value.trim()){
-        sendMessage();
-      }
+    // 登录表单
+    const loginForm = Vue.reactive({
+      phone: '',
+      password: ''
+    })
+    const loginRules = {
+      phone: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        { validator: (rule, value, callback) => YARA_UTILS.validPhone(value) ? callback() : callback(new Error('请输入正确的手机号')), trigger: 'blur' }
+      ],
+      password: [
+        { required: true, message: '请输入密码', trigger: 'blur' },
+        { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+      ]
     }
-  };
 
-  // 识别错误
-  recognition.onerror = (event) => {
-    isRecording = false;
-    voiceInputBtn.classList.remove("recording");
-    voiceTip.textContent = "录音失败：" + event.error + "，请重试";
-    console.error("语音识别错误：", event.error);
-  };
-}
-
-// 切换录音状态
-function toggleRecording(){
-  if(!recognition) return;
-  if(isRecording){
-    // 结束录音
-    recognition.stop();
-    isRecording = false;
-  } else {
-    // 开始录音
-    stopAllVoice();
-    recognition.start();
-  }
-}
-
-// ===================== AI聊天核心功能 =====================
-let chatHistory = [
-  {role:"system",content:SYSTEM_PROMPT},
-  {role:"assistant",content:currentPlayText}
-];
-let isGenerating = false;
-
-const chatMessages = document.getElementById("chatMessages");
-const sendChatBtn = document.getElementById("sendChatBtn");
-const clearChatBtn = document.getElementById("clearChatBtn");
-
-// 渲染聊天记录
-function renderChat(){
-  chatMessages.innerHTML = "";
-  chatHistory.forEach(msg => {
-    if(msg.role === "system") return;
-    const msgDiv = document.createElement("div");
-    msgDiv.className = `message ${msg.role === "user" ? "user" : "ai"}`;
-    // AI消息点击播放语音
-    if(msg.role === "ai"){
-      msgDiv.onclick = () => {
-        currentPlayText = msg.content;
-        stopAllVoice();
-        toggleVoice();
-      };
+    // 注册表单
+    const registerForm = Vue.reactive({
+      phone: '',
+      code: '',
+      password: '',
+      nickname: ''
+    })
+    const registerRules = {
+      phone: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        { validator: (rule, value, callback) => YARA_UTILS.validPhone(value) ? callback() : callback(new Error('请输入正确的手机号')), trigger: 'blur' }
+      ],
+      code: [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
+        { len: 6, message: '验证码为6位数字', trigger: 'blur' }
+      ],
+      password: [
+        { required: true, message: '请设置密码', trigger: 'blur' },
+        { min: 6, max: 16, message: '密码长度为6-16位', trigger: 'blur' }
+      ],
+      nickname: [
+        { required: true, message: '请输入昵称', trigger: 'blur' }
+      ]
     }
-    msgDiv.innerHTML = `
-      <div class="message-avatar">${msg.role === "user" ? "我" : "Yara"}</div>
-      <div class="message-content">${msg.content}</div>
-    `;
-    chatMessages.appendChild(msgDiv);
-  });
-  // 滚动到底部
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
 
-// 发送消息
-async function sendMessage(){
-  const text = chatInput.value.trim();
-  if(!text || isGenerating) return;
+    // 滚动到聊天面板
+    const scrollToChat = () => {
+      document.getElementById('chatPanel').scrollIntoView({ behavior: 'smooth' })
+    }
 
-  // 重置状态
-  isGenerating = true;
-  sendChatBtn.disabled = true;
-  stopAllVoice();
-  chatInput.value = "";
-  chatInput.style.height = "auto";
-
-  // 添加用户消息
-  chatHistory.push({role:"user",content:text});
-  renderChat();
-
-  // 添加AI加载占位
-  const loadingDiv = document.createElement("div");
-  loadingDiv.className = "message ai";
-  loadingDiv.innerHTML = `
-    <div class="message-avatar">Yara</div>
-    <div class="message-content"><span class="loading"></span> 思考中...</div>
-  `;
-  chatMessages.appendChild(loadingDiv);
-  const contentEl = loadingDiv.querySelector(".message-content");
-
-  try {
-    // 调用AI接口
-    const res = await fetch(API_URL,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":"Bearer " + API_KEY
-      },
-      body:JSON.stringify({
-        model:MODEL,
-        messages:chatHistory,
-        temperature:0.7,
-        stream:true
+    // 登录处理
+    const handleLogin = async () => {
+      if (!loginFormRef.value) return
+      await loginFormRef.value.validate(async (valid) => {
+        if (valid) {
+          loginLoading.value = true
+          try {
+            const res = await YARA_API_LIST.login(loginForm)
+            YARA_STORAGE.setToken(res.data.token)
+            YARA_STORAGE.setUserInfo(res.data.userInfo)
+            isLogin.value = true
+            showLoginModal.value = false
+            ElMessage.success('登录成功')
+            window.location.reload()
+          } catch (error) {
+            console.error('登录失败', error)
+          } finally {
+            loginLoading.value = false
+          }
+        }
       })
-    });
+    }
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let fullContent = "";
+    // 注册处理
+    const handleRegister = async () => {
+      if (!registerFormRef.value) return
+      await registerFormRef.value.validate(async (valid) => {
+        if (valid) {
+          registerLoading.value = true
+          try {
+            await YARA_API_LIST.register(registerForm)
+            ElMessage.success('注册成功，请登录')
+            activeTab.value = 'login'
+          } catch (error) {
+            console.error('注册失败', error)
+          } finally {
+            registerLoading.value = false
+          }
+        }
+      })
+    }
 
-    // 流式解析响应
-    while(true){
-      const {done,value} = await reader.read();
-      if(done) break;
-      const chunk = decoder.decode(value);
-      const lines = chunk.split("\n").filter(line => line.trim());
-      
-      for(const line of lines){
-        if(!line.startsWith("data: ")) continue;
-        const dataStr = line.slice(6);
-        if(dataStr === "[DONE]") continue;
-        try {
-          const data = JSON.parse(dataStr);
-          const content = data.choices[0]?.delta?.content || "";
-          fullContent += content;
-          contentEl.innerHTML = fullContent;
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        } catch(e){}
+    // 发送验证码
+    const sendSmsCode = async () => {
+      if (!YARA_UTILS.validPhone(registerForm.phone)) {
+        ElMessage.error('请输入正确的手机号')
+        return
+      }
+      try {
+        await YARA_API_LIST.sendSmsCode({ phone: registerForm.phone, type: 'register' })
+        ElMessage.success('验证码发送成功')
+        countDown.value = 60
+        const timer = setInterval(() => {
+          countDown.value--
+          if (countDown.value <= 0) clearInterval(timer)
+        }, 1000)
+      } catch (error) {
+        console.error('验证码发送失败', error)
       }
     }
 
-    // 保存AI回复
-    currentPlayText = fullContent;
-    chatHistory.push({role:"assistant",content:fullContent});
-    renderChat();
-    // 自动播放语音
-    toggleVoice();
+    // 发送消息
+    const sendMessage = async () => {
+      const text = chatInput.value.trim()
+      if (!text || isGenerating.value) return
 
-  } catch(e){
-    contentEl.textContent = "请求失败：" + e.message;
-    console.error("AI请求错误：", e);
-  } finally {
-    isGenerating = false;
-    sendChatBtn.disabled = false;
+      // 添加用户消息
+      chatHistory.value.push({ id: chatId++, role: 'user', content: text })
+      chatInput.value = ''
+      isGenerating.value = true
+
+      // 构建消息列表
+      const messages = [
+        { role: 'system', content: SYSTEM_PROMPT },
+        ...chatHistory.value.map(msg => ({ role: msg.role, content: msg.content }))
+      ]
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + API_KEY
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: messages,
+            temperature: 0.7,
+            stream: true
+          })
+        })
+
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
+        let fullContent = ''
+        const tempId = chatId++
+
+        // 添加临时AI消息
+        chatHistory.value.push({ id: tempId, role: 'assistant', content: '' })
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          const chunk = decoder.decode(value)
+          const lines = chunk.split('\n').filter(line => line.trim())
+          
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue
+            const dataStr = line.slice(6)
+            if (dataStr === '[DONE]') continue
+            try {
+              const data = JSON.parse(dataStr)
+              const content = data.choices[0]?.delta?.content || ''
+              fullContent += content
+              // 更新消息内容
+              const index = chatHistory.value.findIndex(item => item.id === tempId)
+              if (index !== -1) {
+                chatHistory.value[index].content = fullContent
+              }
+              // 滚动到底部
+              const chatMessages = document.getElementById('chatMessages')
+              chatMessages.scrollTop = chatMessages.scrollHeight
+            } catch (e) {}
+          }
+        }
+
+        // 自动播放语音
+        playVoice(fullContent)
+
+      } catch (e) {
+        ElMessage.error('请求失败：' + e.message)
+        console.error('AI请求错误', e)
+      } finally {
+        isGenerating.value = false
+      }
+    }
+
+    // 语音播放
+    const playVoice = (text) => {
+      if (!('speechSynthesis' in window)) {
+        ElMessage.warning('您的浏览器不支持语音播报')
+        return
+      }
+      // 停止之前的语音
+      window.speechSynthesis.cancel()
+      isVoicePlaying = false
+
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.lang = 'zh-CN'
+      utterance.rate = 1.0
+      utterance.pitch = 1.1
+
+      utterance.onstart = () => { isVoicePlaying = true }
+      utterance.onend = () => { isVoicePlaying = false }
+      utterance.onerror = () => { isVoicePlaying = false }
+
+      currentUtterance = utterance
+      window.speechSynthesis.speak(utterance)
+    }
+
+    // 暂停/播放语音
+    const toggleVoice = () => {
+      if (!('speechSynthesis' in window)) return
+      if (isVoicePlaying) {
+        window.speechSynthesis.pause()
+        isVoicePlaying = false
+      } else {
+        window.speechSynthesis.resume()
+        isVoicePlaying = true
+      }
+    }
+
+    // 重新播放语音
+    const replayVoice = () => {
+      const lastMsg = chatHistory.value.findLast(item => item.role === 'assistant')
+      if (lastMsg) playVoice(lastMsg.content)
+    }
+
+    // 初始化语音识别
+    const initSpeechRecognition = () => {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        voiceTip.value = '您的浏览器不支持语音识别，建议使用Chrome/Edge浏览器'
+        return
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      recognition = new SpeechRecognition()
+      recognition.lang = 'zh-CN'
+      recognition.continuous = false
+      recognition.interimResults = false
+
+      // 识别开始
+      recognition.onstart = () => {
+        isRecording.value = true
+        voiceTip.value = '正在录音，再次点击结束并发送...'
+      }
+
+      // 识别结果
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript
+        chatInput.value = transcript
+      }
+
+      // 识别结束
+      recognition.onend = () => {
+        if (isRecording.value) {
+          isRecording.value = false
+          voiceTip.value = '点击麦克风开始语音对话，再次点击结束并发送'
+          // 自动发送
+          if (chatInput.value.trim()) {
+            sendMessage()
+          }
+        }
+      }
+
+      // 识别错误
+      recognition.onerror = (event) => {
+        isRecording.value = false
+        voiceTip.value = '录音失败：' + event.error + '，请重试'
+        console.error('语音识别错误', event.error)
+      }
+    }
+
+    // 切换录音状态
+    const toggleRecording = () => {
+      if (!recognition) return
+      if (isRecording.value) {
+        recognition.stop()
+        isRecording.value = false
+      } else {
+        window.speechSynthesis.cancel()
+        recognition.start()
+      }
+    }
+
+    // 清空对话
+    const clearChat = () => {
+      ElMessageBox.confirm('确定要清空所有对话记录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        chatHistory.value = [
+          { id: 1, role: 'assistant', content: '你好！我是Yara，你的专属AI生活管家，有什么可以帮你的吗？无论是事业、情感还是生活问题，我都可以为你解答，也可以帮你生成可执行的方案哦~' }
+        ]
+        chatId = 2
+        window.speechSynthesis.cancel()
+        ElMessage.success('对话已清空')
+      }).catch(() => {})
+    }
+
+    // 页面加载初始化
+    Vue.onMounted(() => {
+      initSpeechRecognition()
+      YARA_STAT.pageView('平台首页')
+    })
+
+    return {
+      CONFIG,
+      isLogin,
+      showLoginModal,
+      activeTab,
+      loginFormRef,
+      registerFormRef,
+      loginLoading,
+      registerLoading,
+      countDown,
+      loginForm,
+      loginRules,
+      registerForm,
+      registerRules,
+      chatInput,
+      isGenerating,
+      chatHistory,
+      isRecording,
+      voiceTip,
+      scrollToChat,
+      handleLogin,
+      handleRegister,
+      sendSmsCode,
+      sendMessage,
+      playVoice,
+      toggleVoice,
+      replayVoice,
+      toggleRecording,
+      clearChat
+    }
   }
-}
-
-// ===================== 任务生成功能 =====================
-doTaskBtn.addEventListener("click",async()=>{
-  const desc = taskInputModal.value.trim();
-  if(!desc || isGenerating) return;
-  isGenerating = true;
-  doTaskBtn.disabled = true;
-
-  try {
-    const typeText = {career:'事业',emotion:'情感',life:'生活'}[selectedType];
-    const res = await fetch(API_URL,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":"Bearer " + API_KEY
-      },
-      body:JSON.stringify({
-        model:MODEL,
-        messages:[
-          {role:"system",content:SYSTEM_PROMPT},
-          {role:"user",content:`请生成${typeText}方面的可执行任务方案：${desc}，要求步骤清晰，可落地执行`}
-        ],
-        temperature:0.6
-      })
-    });
-    const data = await res.json();
-    const answer = data.choices?.[0]?.message?.content || "生成失败，请重试";
-    
-    // 添加到聊天记录
-    chatHistory.push({role:"user",content:`我要生成${typeText}任务：${desc}`});
-    chatHistory.push({role:"assistant",content:answer});
-    renderChat();
-    closeTaskModal();
-
-  } catch(e){
-    alert("生成失败：" + e.message);
-  } finally {
-    isGenerating = false;
-    doTaskBtn.disabled = false;
-  }
-});
-
-// ===================== 事件监听 =====================
-// 语音播报按钮
-toggleVoiceBtn.addEventListener("click", toggleVoice);
-replayVoiceBtn.addEventListener("click", replayVoice);
-
-// 语音输入按钮
-voiceInputBtn.addEventListener("click", toggleRecording);
-
-// 发送消息
-sendChatBtn.addEventListener("click", sendMessage);
-chatInput.addEventListener("keydown", e => {
-  if(e.key === "Enter" && !e.shiftKey){
-    e.preventDefault();
-    sendMessage();
-  }
-});
-// 输入框自动高度
-chatInput.addEventListener("input", () => {
-  chatInput.style.height = "auto";
-  chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + "px";
-});
-
-// 清空对话
-clearChatBtn.addEventListener("click", () => {
-  if(!confirm("确定要清空所有对话记录吗？")) return;
-  stopAllVoice();
-  currentPlayText = "你好！我是你的专属AI生活管家Yara，有什么可以帮你的吗？";
-  chatHistory = [
-    {role:"system",content:SYSTEM_PROMPT},
-    {role:"assistant",content:currentPlayText}
-  ];
-  renderChat();
-});
-
-// 页面加载初始化
-window.onload = function(){
-  initSpeechRecognition();
-  renderChat();
-}
-// 页面关闭前停止语音
-window.addEventListener("beforeunload", () => stopAllVoice());
+}).use(ElementPlus).mount('#yara-home-app')
 </script>
 </body>
 </html>
