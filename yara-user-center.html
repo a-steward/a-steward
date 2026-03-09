@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="Yara,AI派单,个人中心">
+  <meta name="description" content="Yara 个人中心，一站式全场景智能派单服务">
+  <title>个人中心 - Yara</title>
+  <!-- CDN资源 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
+  <!-- 根目录公共资源 -->
+  <script src="./yara-config.js"></script>
+  <link rel="stylesheet" href="./yara-common.css">
+  <script src="./yara-common.js"></script>
+  <script src="./yara-stat.js"></script>
+</head>
+<body>
+  <div id="yara-user-center-app">
+    <div class="yara-layout-container">
+      <!-- 侧边栏导航 -->
+      <div class="yara-sidebar-container">
+        <div class="yara-logo">
+          <h2>{{ CONFIG.brand.name }}</h2>
+          <p>AI智能派单平台</p>
+        </div>
+        <el-menu
+          :default-active="activeMenu"
+          router
+          background-color="#304156"
+          text-color="#bfcbd9"
+          active-text-color="var(--yara-brand-color)"
+        >
+          <el-menu-item index="yara-index.html">
+            <el-icon><House /></el-icon>
+            <span>控制台</span>
+          </el-menu-item>
+          <el-menu-item index="yara-order-list.html">
+            <el-icon><Document /></el-icon>
+            <span>订单管理</span>
+          </el-menu-item>
+          <el-menu-item index="yara-user-center.html">
+            <el-icon><User /></el-icon>
+            <span>个人中心</span>
+          </el-menu-item>
+          <el-menu-item index="index.html" class="yara-back-home">
+            <el-icon><ArrowLeft /></el-icon>
+            <span>返回首页</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
+
+      <!-- 主内容区 -->
+      <div class="yara-main-content">
+        <!-- 顶部导航栏 -->
+        <div class="yara-header-container">
+          <div class="yara-header-left">
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item :to="{ path: 'yara-index.html' }">控制台</el-breadcrumb-item>
+              <el-breadcrumb-item>个人中心</el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="yara-page-wrapper">
+          <!-- 账号信息卡片 -->
+          <el-card shadow="never" class="yara-mb-20">
+            <div class="yara-flex" style="align-items: center; gap: 30px;">
+              <el-avatar :size="80" :src="userInfo.avatar" style="border: 2px solid var(--yara-brand-color);"></el-avatar>
+              <div>
+                <div class="yara-flex" style="align-items: center; gap: 15px; margin-bottom: 10px;">
+                  <h2 style="font-size: 24px; margin: 0;">{{ userInfo.nickname || userInfo.phone || 'Yara用户' }}</h2>
+                  <el-tag v-if="userInfo.isVip" type="warning" size="large">VIP会员</el-tag>
+                  <el-tag v-else type="info" size="large">普通用户</el-tag>
+                </div>
+                <p style="color: var(--yara-text-secondary); margin: 0;">
+                  账号：{{ userInfo.phone || '未绑定手机号' }} | 注册时间：{{ YARA_UTILS.formatTime(userInfo.registerTime, 'YYYY-MM-DD') }}
+                </p>
+                <p v-if="userInfo.isVip" style="color: var(--yara-warning); margin: 5px 0 0 0;">
+                  会员有效期至：{{ YARA_UTILS.formatTime(userInfo.vipEndTime, 'YYYY年MM月DD日') }}
+                </p>
+              </div>
+              <div style="margin-left: auto; display: flex; gap: 10px;">
+                <el-button type="primary" size="large" @click="showEditModal = true">
+                  编辑资料
+                </el-button>
+                <el-button v-if="!userInfo.isVip" type="danger" size="large" @click="window.location.href = 'yara-price.html'">
+                  开通会员
+                </el-button>
+              </div>
+            </div>
+          </el-card>
+
+          <!-- 数据统计 -->
+          <el-row :gutter="20" class="yara-mb-20">
+            <el-col :span="6">
+              <el-card shadow="never" class="yara-stat-card">
+                <div class="yara-stat-content">
+                  <div>
+                    <p class="yara-stat-label">累计订单</p>
+                    <h3 class="yara-stat-value">{{ statData.orderCount }}</h3>
+                  </div>
+                  <div class="yara-stat-icon order">
+                    <el-icon><Document /></el-icon>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="6">
+              <el-card shadow="never" class="yara-stat-card">
+                <div class="yara-stat-content">
+                  <div>
+                    <p class="yara-stat-label">待支付订单</p>
+                    <h3 class="yara-stat-value">{{ statData.unPayCount }}</h3>
+                  </div>
+                  <div class="yara-stat-icon waiting">
+                    <el-icon><Clock /></el-icon>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="6">
+              <el-card shadow="never" class="yara-stat-card">
+                <div class="yara-stat-content">
+                  <div>
+                    <p class="yara-stat-label">可用优惠券</p>
+                    <h3 class="yara-stat-value">{{ statData.couponCount }}</h3>
+                  </div>
+                  <div class="yara-stat-icon processing">
+                    <el-icon><Ticket /></el-icon>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="6">
+              <el-card shadow="never" class="yara-stat-card">
+                <div class="yara-stat-content">
+                  <div>
+                    <p class="yara-stat-label">累计消费</p>
+                    <h3 class="yara-stat-value">¥{{ statData.totalAmount }}</h3>
+                  </div>
+                  <div class="yara-stat-icon completed">
+                    <el-icon><Money /></el-icon>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+
+          <!-- 标签页 -->
+          <el-card shadow="never">
+            <el-tabs v-model="activeTab" type="card">
+              <!-- 我的优惠券 -->
+              <el-tab-pane label="我的优惠券" name="coupon">
+                <el-empty v-if="couponList.length === 0" description="暂无可用优惠券" class="yara-mt-30">
+                  <el-button type="primary" @click="window.location.href = 'yara-price.html'">开通会员领优惠券</el-button>
+                </el-empty>
+                <el-row :gutter="20" v-else>
+                  <el-col :span="8" v-for="coupon in couponList" :key="coupon.id">
+                    <el-card shadow="hover" style="background: linear-gradient(135deg, var(--yara-brand-color) 0%, #79bbff 100%); color: #fff; border-radius: 8px; border: none;">
+                      <div class="yara-flex-between">
+                        <h3 style="font-size: 32px; margin: 0; font-weight: 700;">¥{{ coupon.discountAmount }}</h3>
+                        <el-tag type="warning" size="large" style="border: none;">{{ coupon.name }}</el-tag>
+                      </div>
+                      <p class="yara-mt-10" style="opacity: 0.9;">满{{ coupon.minAmount }}元可用</p>
+                      <div class="yara-flex-between yara-mt-10" style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">
+                        <span>有效期至：{{ YARA_UTILS.formatTime(coupon.endTime, 'YYYY-MM-DD') }}</span>
+                        <el-button type="primary" size="small" @click="window.location.href = 'yara-create-order.html'" style="background: #fff; color: var(--yara-brand-color); border: none;">
+                          去使用
+                        </el-button>
+                      </div>
+                    </el-card>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
+
+              <!-- 我的评价 -->
+              <el-tab-pane label="我的评价" name="comment">
+                <el-empty v-if="commentList.length === 0" description="暂无评价数据" class="yara-mt-30"></el-empty>
+                <el-timeline v-else>
+                  <el-timeline-item
+                    v-for="comment in commentList"
+                    :key="comment.id"
+                    :timestamp="YARA_UTILS.formatTime(comment.createTime)"
+                  >
+                    <el-card shadow="never">
+                      <div class="yara-flex-between">
+                        <div>
+                          <h4 style="margin: 0 0 10px 0;">{{ comment.orderTitle }}</h4>
+                          <el-rate v-model="comment.score" disabled show-score text-color="#ff9900"></el-rate>
+                          <p class="yara-mt-10" style="color: var(--yara-text-regular);">{{ comment.content }}</p>
+                        </div>
+                        <el-button size="small" @click="window.location.href = `yara-order-detail.html?id=${comment.orderId}`">
+                          查看订单
+                        </el-button>
+                      </div>
+                    </el-card>
+                  </el-timeline-item>
+                </el-timeline>
+              </el-tab-pane>
+
+              <!-- 账号安全 -->
+              <el-tab-pane label="账号安全" name="security">
+                <el-descriptions :column="1" border style="max-width: 600px;">
+                  <el-descriptions-item label="登录手机号">
+                    <span>{{ userInfo.phone || '未绑定' }}</span>
+                    <el-button type="primary" link style="margin-left: 20px;" @click="showPhoneModal = true">更换手机号</el-button>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="登录密码">
+                    <span>******</span>
+                    <el-button type="primary" link style="margin-left: 20px;" @click="showPwdModal = true">修改密码</el-button>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="账号状态">
+                    <el-tag type="success">正常使用</el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="账号注销">
+                    <el-button type="danger" link @click="handleLogoutConfirm">申请账号注销</el-button>
+                  </el-descriptions-item>
+                </el-descriptions>
+              </el-tab-pane>
+            </el-tabs>
+          </el-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑资料弹窗 -->
+    <el-dialog v-model="showEditModal" title="编辑资料" width="500px" :close-on-click-modal="false">
+      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="80px" size="large">
+        <el-form-item label="用户昵称" prop="nickname">
+          <el-input v-model="editForm.nickname" placeholder="请输入用户昵称" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="头像" prop="avatar">
+          <el-upload
+            class="avatar-uploader"
+            action="#"
+            :show-file-list="false"
+            :auto-upload="false"
+            :on-change="handleAvatarChange"
+            accept="image/jpg,image/jpeg,image/png"
+          >
+            <img v-if="editForm.avatar" :src="editForm.avatar" class="avatar" style="width: 100px; height: 100px; border-radius: 8px; object-fit: cover;" />
+            <el-icon v-else class="avatar-uploader-icon" style="font-size: 28px; color: #8c939d; width: 100px; height: 100px; line-height: 100px; text-align: center; border: 1px dashed #d9d9d9; border-radius: 8px;"><Plus /></el-icon>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showEditModal = false">取消</el-button>
+        <el-button type="primary" :loading="editLoading" @click="handleEditSubmit">保存修改</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 更换手机号弹窗 -->
+    <el-dialog v-model="showPhoneModal" title="更换手机号" width="420px" :close-on-click-modal="false">
+      <el-form ref="phoneFormRef" :model="phoneForm" :rules="phoneRules" size="large">
+        <el-form-item label="原手机号" prop="oldPhone">
+          <el-input v-model="phoneForm.oldPhone" placeholder="请输入原手机号" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="原验证码" prop="oldCode">
+          <div class="yara-flex" style="gap: 10px;">
+            <el-input v-model="phoneForm.oldCode" placeholder="请输入原手机号验证码" style="flex: 1;"></el-input>
+            <el-button :disabled="oldCountDown > 0" @click="sendOldCode">
+              {{ oldCountDown > 0 ? `${oldCountDown}s后重发` : '获取验证码' }}
+            </el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="新手机号" prop="newPhone">
+          <el-input v-model="phoneForm.newPhone" placeholder="请输入新手机号"></el-input>
+        </el-form-item>
+        <el-form-item label="新验证码" prop="newCode">
+          <div class="yara-flex" style="gap: 10px;">
+            <el-input v-model="phoneForm.newCode" placeholder="请输入新手机号验证码" style="flex: 1;"></el-input>
+            <el-button :disabled="newCountDown > 0" @click="sendNewCode">
+              {{ newCountDown > 0 ? `${newCountDown}s后重发` : '获取验证码' }}
+            </el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showPhoneModal = false">取消</el-button>
+        <el-button type="primary" :loading="phoneLoading" @click="handlePhoneSubmit">确认更换</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 修改密码弹窗 -->
+    <el-dialog v-model="showPwdModal" title="修改登录密码" width="420px" :close-on-click-modal="false">
+      <el-form ref="pwdFormRef" :model="pwdForm" :rules="pwdRules" size="large">
+        <el-form-item label="原密码" prop="oldPwd">
+          <el-input v-model="pwdForm.oldPwd" type="password" placeholder="请输入原登录密码" show-password></el-input>
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPwd">
+          <el-input v-model="pwdForm.newPwd" type="password" placeholder="请设置6-16位新密码" show-password></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPwd">
+          <el-input v-model="pwdForm.confirmPwd" type="password" placeholder="请再次确认新密码" show-password></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showPwdModal = false">取消</el-button>
+        <el-button type="primary" :loading="pwdLoading" @click="handlePwdSubmit">确认修改</el-button>
+      </template>
+    </el-dialog>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+    const { ElMessage, ElMessageBox } = ElementPlus
+
+    createApp({
+      setup() {
+        const CONFIG = window.YARA_CONFIG
+        const activeMenu = Vue.ref('yara-user-center.html')
+        const activeTab = Vue.ref('coupon')
+        const loading = Vue.ref(false)
+        const userInfo = Vue.ref(YARA_STORAGE.getUserInfo())
+
+        // 统计数据
+        const statData = Vue.reactive({
+          orderCount: 0,
+          unPayCount: 0,
+          couponCount: 0,
+          totalAmount: 0
+        })
+
+        // 优惠券列表
+        const couponList = Vue.ref([])
+        // 评价列表
+        const commentList = Vue.ref([])
+
+        // 编辑资料相关
+        const showEditModal = Vue.ref(false)
+        const editFormRef = Vue.ref()
+        const editLoading = Vue.ref(false)
+        const editForm = Vue.reactive({
+          nickname: '',
+          avatar: ''
+        })
+        const editRules = {
+          nickname: [
+            { required: true, message: '请输入用户昵称', trigger: 'blur' }
+          ]
+        }
+
+        // 更换手机号相关
+        const showPhoneModal = Vue.ref(false)
+        const phoneFormRef = Vue.ref()
+        const phoneLoading = Vue.ref(false)
+        const oldCountDown = Vue.ref(0)
+        const newCountDown = Vue.ref(0)
+        const phoneForm = Vue.reactive({
+          oldPhone: '',
+          oldCode: '',
+          newPhone: '',
+          newCode: ''
+        })
+        const phoneRules = {
+          oldCode: [
+            { required: true, message: '请输入原手机号验证码', trigger: 'blur' }
+          ],
+          newPhone: [
+            { required: true, message: '请输入新手机号', trigger: 'blur' },
+            { validator: (rule, value, callback) => YARA_UTILS.validPhone(value) ? callback() : callback(new Error('请输入正确的手机号')), trigger: 'blur' }
+          ],
+          newCode: [
+            { required: true, message: '请输入新手机号验证码', trigger: 'blur' }
+          ]
+        }
+
+        // 修改密码相关
+        const showPwdModal = Vue.ref(false)
+        const pwdFormRef = Vue.ref()
+        const pwdLoading = Vue.ref(false)
+        const pwdForm = Vue.reactive({
+          oldPwd: '',
+          newPwd: '',
+          confirmPwd: ''
+        })
+        const validateConfirmPwd = (rule, value, callback) => {
+          if (value !== pwdForm.newPwd) {
+            callback(new Error('两次输入的密码不一致'))
+          } else {
+            callback()
+          }
+        }
+        const pwdRules = {
+          oldPwd: [
+            { required: true, message: '请输入原登录密码', trigger: 'blur' }
+          ],
+          newPwd: [
+            { required: true, message: '请输入新登录密码', trigger: 'blur' },
+            { min: 6, max: 16, message: '密码长度为6-16位', trigger: 'blur' }
+          ],
+          confirmPwd: [
+            { required: true, message: '请再次确认新密码', trigger: 'blur' },
+            { validator: validateConfirmPwd, trigger: 'blur' }
+          ]
+        }
+
+        // 获取用户数据
+        const getUserData = async () => {
+          loading.value = true
+          try {
+            // 获取用户信息
+            const userRes = await YARA_API_LIST.getUserInfo()
+            userInfo.value = userRes.data
+            YARA_STORAGE.setUserInfo(userRes.data)
+
+            // 初始化编辑表单
+            editForm.nickname = userRes.data.nickname || ''
+            editForm.avatar = userRes.data.avatar || ''
+            phoneForm.oldPhone = userRes.data.phone || ''
+
+            // 获取统计数据
+            const stat
+
