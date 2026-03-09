@@ -7,7 +7,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen" onload="initDarkMode()">
-<div class="max-w-md mx-auto p-6 pt-16">
+<div class="max-w-md mx-auto px-4 py-3">
+  <a href="index.html" class="inline-block px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-lg text-xs dark:text-white">← 返回主页</a>
+</div>
+<div class="max-w-md mx-auto p-6 pt-2">
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
     <h2 class="text-xl font-bold text-center dark:text-white mb-6">登录</h2>
     <div class="space-y-4">
@@ -25,9 +28,8 @@ function login() {
   let pwd = document.getElementById('pwd').value.trim();
   let user = getUser();
   if (user.account === account && user.pwd === pwd) {
-    if(!user.agreed) { alert('请先注册并同意用户协议与隐私政策！'); return; }
     localStorage.setItem('token', 'login');
-    location.href = 'user.html';
+    location.href = 'index.html';
   } else {
     alert('账号或密码错误');
   }
