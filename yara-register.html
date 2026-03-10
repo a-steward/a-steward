@@ -5,45 +5,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="keywords" content="Yara,AI派单,账号注册">
   <meta name="description" content="Yara 账号注册，一站式全场景智能派单服务">
-  <title>账号注册 - Yara</title>
-  <!-- CDN资源 -->
+  <!-- 严格加载顺序 -->
+  <script src="./env-config.js"></script>
+  <script src="./yara-config.js"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
   <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
-  <!-- 根目录公共资源 -->
-  <script src="./yara-config.js"></script>
   <link rel="stylesheet" href="./yara-common.css">
   <script src="./yara-common.js"></script>
   <script src="./yara-stat.js"></script>
+  <!-- 页面专属样式 -->
   <style>
     .yara-register-container {
       width: 100vw;
       height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
+      overflow: hidden;
+    }
+    .yara-register-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://picsum.photos/1920/1080?random=register') center/cover no-repeat;
+      opacity: 0.1;
+      filter: blur(10px);
     }
     .yara-register-box {
-      width: 420px;
-      padding: 40px 35px;
-      background-color: rgba(255,255,255,0.95);
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      backdrop-filter: blur(10px);
+      width: 440px;
+      padding: 45px 40px;
+      background: var(--yara-bg-glass);
+      backdrop-filter: blur(25px);
+      border-radius: var(--yara-radius-xl);
+      box-shadow: var(--yara-shadow-hover);
+      border: 1px solid var(--yara-border-glass);
+      position: relative;
+      z-index: 2;
+      animation: registerBoxSlide 0.6s ease forwards;
+    }
+    @keyframes registerBoxSlide {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .yara-register-logo {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 35px;
     }
     .yara-register-logo h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--yara-brand-color);
+      font-size: 32px;
+      font-weight: 900;
+      background: var(--yara-brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin: 0 0 8px 0;
+      letter-spacing: 0.5px;
     }
     .yara-register-logo p {
       font-size: 14px;
@@ -52,27 +75,42 @@
     }
     .yara-register-btn {
       width: 100%;
-      height: 48px;
+      height: 50px;
       font-size: 16px;
-      font-weight: 500;
-      border-radius: 8px;
+      font-weight: 700;
+      border-radius: var(--yara-radius-full);
       margin-top: 10px;
     }
     .yara-back-home {
       position: absolute;
-      top: 20px;
-      left: 20px;
-      color: #fff;
+      top: 24px;
+      left: 24px;
+      color: var(--yara-text-white);
       font-size: 14px;
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 8px;
+      font-weight: 600;
+      transition: all var(--yara-transition-fast);
+      z-index: 3;
     }
     .yara-back-home:hover {
-      text-decoration: underline;
+      transform: translateX(-4px);
+      color: var(--yara-brand-green);
+    }
+    @media (max-width: 768px) {
+      .yara-register-box {
+        width: 90%;
+        padding: 35px 25px;
+      }
+      .yara-back-home {
+        top: 16px;
+        left: 16px;
+      }
     }
   </style>
+  <title>账号注册 - Yara</title>
 </head>
 <body>
   <div id="yara-register-app">
@@ -81,65 +119,58 @@
         <el-icon><ArrowLeft /></el-icon>
         返回首页
       </a>
-
-      <div class="yara-register-box">
+      <div class="yara-register-box yara-slide-up-delay-1">
         <div class="yara-register-logo">
-          <h1>{{ CONFIG.brand.name }}</h1>
+          <h1>{{ CONFIG?.brand?.name || 'Yara' }}</h1>
           <p>新用户注册，立享新人专属福利</p>
         </div>
-
         <el-form ref="registerFormRef" :model="registerForm" :rules="registerRules" size="large">
-          <el-form-item prop="phone">
+          <el-form-item prop="phone" class="yara-slide-up-delay-2">
             <el-input v-model="registerForm.phone" placeholder="请输入手机号" prefix-icon="Phone" clearable></el-input>
           </el-form-item>
-          <el-form-item prop="code">
+          <el-form-item prop="code" class="yara-slide-up-delay-2">
             <div class="yara-flex" style="gap: 10px;">
               <el-input v-model="registerForm.code" placeholder="请输入验证码" prefix-icon="Key" style="flex: 1;" clearable></el-input>
-              <el-button :disabled="countDown > 0" @click="sendSmsCode" style="width: 120px;">
+              <el-button :disabled="countDown > 0" @click="sendSmsCode" style="width: 120px; height: 40px; border-radius: var(--yara-radius-full);">
                 {{ countDown > 0 ? `${countDown}s后重发` : '获取验证码' }}
               </el-button>
             </div>
           </el-form-item>
-          <el-form-item prop="password">
+          <el-form-item prop="password" class="yara-slide-up-delay-2">
             <el-input v-model="registerForm.password" type="password" placeholder="请设置6-16位登录密码" prefix-icon="Lock" show-password clearable></el-input>
           </el-form-item>
-          <el-form-item prop="confirmPassword">
+          <el-form-item prop="confirmPassword" class="yara-slide-up-delay-2">
             <el-input v-model="registerForm.confirmPassword" type="password" placeholder="请再次确认密码" prefix-icon="Lock" show-password clearable></el-input>
           </el-form-item>
-          <el-form-item prop="nickname">
-            <el-input v-model="registerForm.nickname" placeholder="请输入昵称（选填）" prefix-icon="User" clearable></el-input>
+          <el-form-item prop="nickname" class="yara-slide-up-delay-2">
+            <el-input v-model="registerForm.nickname" placeholder="请输入昵称" prefix-icon="User" clearable></el-input>
           </el-form-item>
-          <el-form-item prop="agree">
-            <el-checkbox v-model="registerForm.agree">
-              我已阅读并同意<a href="agreement.html" target="_blank" style="color: var(--yara-brand-color);">《用户服务协议》</a>和<a href="privacy.html" target="_blank" style="color: var(--yara-brand-color);">《隐私政策》</a>
+          <el-form-item prop="agree" class="yara-slide-up-delay-2">
+            <el-checkbox v-model="registerForm.agree" style="--el-checkbox-font-weight: 500;">
+              我已阅读并同意<a href="agreement.html" target="_blank" style="color: var(--yara-brand-green);">《用户服务协议》</a>和<a href="privacy.html" target="_blank" style="color: var(--yara-brand-green);">《隐私政策》</a>
             </el-checkbox>
           </el-form-item>
         </el-form>
-
-        <el-button type="primary" class="yara-register-btn" :loading="loading" @click="handleRegister">
+        <el-button type="primary" class="yara-register-btn yara-slide-up-delay-3" :loading="loading" @click="handleRegister">
           立即注册
         </el-button>
-
-        <div class="yara-text-center yara-mt-20">
+        <div class="yara-text-center yara-mt-20 yara-slide-up-delay-3">
           <span style="font-size: 14px; color: var(--yara-text-secondary);">已有账号？</span>
-          <a href="yara-login.html" style="color: var(--yara-brand-color); text-decoration: none;">立即登录</a>
+          <a href="yara-login.html" style="color: var(--yara-brand-green); text-decoration: none; font-weight: 600;">立即登录</a>
         </div>
       </div>
     </div>
   </div>
-
   <script>
-    const { createApp } = Vue
+    const { createApp, onMounted } = Vue
     const { ElMessage } = ElementPlus
-
     createApp({
       setup() {
-        const CONFIG = window.YARA_CONFIG
+        const CONFIG = window.CONFIG
         const registerFormRef = Vue.ref()
         const loading = Vue.ref(false)
         const countDown = Vue.ref(0)
 
-        // 注册表单
         const registerForm = Vue.reactive({
           phone: '',
           code: '',
@@ -149,16 +180,10 @@
           agree: false
         })
 
-        // 确认密码校验
         const validateConfirmPassword = (rule, value, callback) => {
-          if (value !== registerForm.password) {
-            callback(new Error('两次输入的密码不一致'))
-          } else {
-            callback()
-          }
+          if (value !== registerForm.password) callback(new Error('两次输入的密码不一致'))
+          else callback()
         }
-
-        // 表单校验规则
         const registerRules = {
           phone: [
             { required: true, message: '请输入手机号', trigger: 'blur' },
@@ -176,22 +201,19 @@
             { required: true, message: '请再次确认密码', trigger: 'blur' },
             { validator: validateConfirmPassword, trigger: 'blur' }
           ],
+          nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
           agree: [
             { validator: (rule, value, callback) => value ? callback() : callback(new Error('请阅读并同意用户协议和隐私政策')), trigger: 'change' }
           ]
         }
 
-        // 发送验证码
         const sendSmsCode = async () => {
           if (!YARA_UTILS.validPhone(registerForm.phone)) {
             ElMessage.error('请输入正确的手机号')
             return
           }
           try {
-            await YARA_API_LIST.sendSmsCode({
-              phone: registerForm.phone,
-              type: 'register'
-            })
+            await YARA_API_LIST.sendSmsCode({ phone: registerForm.phone, type: 'register' })
             ElMessage.success('验证码发送成功')
             countDown.value = 60
             const timer = setInterval(() => {
@@ -202,24 +224,15 @@
             console.error('验证码发送失败', error)
           }
         }
-
-        // 注册提交
         const handleRegister = async () => {
           if (!registerFormRef.value) return
           await registerFormRef.value.validate(async (valid) => {
             if (valid) {
               loading.value = true
               try {
-                await YARA_API_LIST.register({
-                  phone: registerForm.phone,
-                  code: registerForm.code,
-                  password: registerForm.password,
-                  nickname: registerForm.nickname
-                })
+                await YARA_API_LIST.register(registerForm)
                 ElMessage.success('注册成功，即将跳转到登录页')
-                setTimeout(() => {
-                  window.location.href = 'yara-login.html'
-                }, 1500)
+                setTimeout(() => window.location.href = 'yara-login.html', 1500)
               } catch (error) {
                 console.error('注册失败', error)
               } finally {
@@ -229,8 +242,7 @@
           })
         }
 
-        // 页面加载初始化
-        Vue.onMounted(() => {
+        onMounted(() => {
           YARA_STAT.pageView('注册页')
         })
 
@@ -242,10 +254,12 @@
           registerForm,
           registerRules,
           sendSmsCode,
-          handleRegister
+          handleRegister,
+          YARA_UTILS
         }
       }
     }).use(ElementPlus).mount('#yara-register-app')
   </script>
 </body>
 </html>
+
