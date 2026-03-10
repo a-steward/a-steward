@@ -6,8 +6,12 @@
 <meta name="keywords" content="Yara,AI派单,智能管家,AI咨询,生活服务">
 <meta name="description" content="Yara AI智能生活管家，一站式全场景智能派单服务平台，AI咨询+专业人工服务双保障">
 <title>{{ CONFIG.brand.fullName }} - AI智能生活管家</title>
-<!-- 全平台统一公共资源（和所有其他页面完全共用，无冲突，一处修改全平台生效） -->
+<!-- ===================== 核心加载顺序修复（安全规范必选） ===================== -->
+<!-- 1. 先加载敏感信息安全配置文件（绝对禁止提交Git，仅本地/服务器部署使用） -->
+<script src="./env-config.js"></script>
+<!-- 2. 再加载全平台统一公共配置（可安全提交Git） -->
 <script src="./yara-config.js"></script>
+<!-- 3. 最后加载其他全平台公共资源（和所有其他页面完全共用，无冲突） -->
 <link rel="stylesheet" href="./yara-common.css">
 <script src="./yara-common.js"></script>
 <script src="./yara-stat.js"></script>
@@ -28,21 +32,18 @@
   --yara-home-border: var(--yara-border-color);
   --yara-home-bg-light: var(--yara-bg-light);
 }
-
 /* 全局重置，仅作用于首页，不影响其他页面 */
 #yara-home-app * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 #yara-home-app {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   background-color: #f8fafc;
   color: var(--yara-home-text-main);
   line-height: 1.6;
 }
-
 /* 顶部导航栏（和全平台导航逻辑完全统一，权限、跳转完全一致） */
 .yara-home-nav {
   background: var(--yara-home-white);
@@ -57,7 +58,6 @@
   z-index: 999;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-
 .yara-home-logo {
   font-size: 1.75rem;
   font-weight: 800;
@@ -67,13 +67,11 @@
   align-items: center;
   gap: 8px;
 }
-
 .yara-home-nav-links {
   display: flex;
   gap: 2.5rem;
   align-items: center;
 }
-
 .yara-home-nav-links a {
   color: var(--yara-home-text-secondary);
   text-decoration: none;
@@ -82,18 +80,15 @@
   cursor: pointer;
   transition: color 0.2s;
 }
-
 .yara-home-nav-links a:hover,
 .yara-home-nav-links a.active {
   color: var(--yara-home-brand);
 }
-
 .yara-home-nav-right {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
-
 /* 英雄区 */
 .yara-home-hero {
   background: linear-gradient(135deg, var(--yara-home-brand) 0%, #60a5fa 50%, #3b82f6 100%);
@@ -103,21 +98,18 @@
   position: relative;
   overflow: hidden;
 }
-
 .yara-home-hero-content {
   max-width: 900px;
   margin: 0 auto;
   position: relative;
   z-index: 2;
 }
-
 .yara-home-hero-title {
   font-size: 3.5rem;
   font-weight: 800;
   margin-bottom: 1rem;
   line-height: 1.2;
 }
-
 .yara-home-hero-desc {
   font-size: 1.25rem;
   opacity: 0.95;
@@ -125,46 +117,39 @@
   margin: 0 auto 2rem;
   line-height: 1.8;
 }
-
 .yara-home-hero-btns {
   display: flex;
   gap: 1.5rem;
   justify-content: center;
   flex-wrap: wrap;
 }
-
 /* 核心服务板块 */
 .yara-home-section {
   max-width: 1400px;
   margin: 4rem auto;
   padding: 0 2rem;
 }
-
 .yara-home-section-title {
   text-align: center;
   margin-bottom: 3rem;
 }
-
 .yara-home-section-title h2 {
   font-size: 2.25rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: var(--yara-home-text-main);
 }
-
 .yara-home-section-title p {
   font-size: 1rem;
   color: var(--yara-home-text-secondary);
   max-width: 600px;
   margin: 0 auto;
 }
-
 .yara-home-service-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
 }
-
 .yara-home-service-card {
   background: var(--yara-home-white);
   border-radius: 1rem;
@@ -175,13 +160,11 @@
   cursor: pointer;
   border: 1px solid transparent;
 }
-
 .yara-home-service-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 30px rgba(0,0,0,0.1);
   border-color: var(--yara-home-brand);
 }
-
 .yara-home-service-icon {
   width: 70px;
   height: 70px;
@@ -193,47 +176,40 @@
   font-size: 32px;
   color: var(--yara-home-white);
 }
-
 .yara-home-service-card h3 {
   font-size: 1.375rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: var(--yara-home-text-main);
 }
-
 .yara-home-service-card p {
   color: var(--yara-home-text-secondary);
   margin-bottom: 1rem;
   line-height: 1.6;
 }
-
 .yara-home-service-price {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--yara-home-brand);
   margin-bottom: 1rem;
 }
-
 .yara-home-service-price span {
   font-size: 0.875rem;
   font-weight: 400;
   color: var(--yara-home-text-secondary);
 }
-
 /* AI对话核心板块 */
 .yara-home-chat-section {
   max-width: 1200px;
   margin: 0 auto 4rem;
   padding: 0 2rem;
 }
-
 .yara-home-chat-panel {
   background: var(--yara-home-white);
   border-radius: 1rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
   overflow: hidden;
 }
-
 .yara-home-chat-header {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--yara-home-border);
@@ -241,13 +217,11 @@
   justify-content: space-between;
   align-items: center;
 }
-
 .yara-home-chat-header h2 {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
 }
-
 .yara-home-chat-messages {
   height: 450px;
   padding: 1.5rem;
@@ -256,27 +230,22 @@
   flex-direction: column;
   gap: 1.5rem;
 }
-
 .yara-home-message {
   display: flex;
   gap: 0.75rem;
   max-width: 85%;
 }
-
 .yara-home-message.user {
   align-self: flex-end;
   flex-direction: row-reverse;
 }
-
 .yara-home-message.ai {
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .yara-home-message.ai:hover .yara-home-message-content {
   background: var(--yara-home-bg-light);
 }
-
 .yara-home-message-avatar {
   width: 38px;
   height: 38px;
@@ -288,17 +257,14 @@
   flex-shrink: 0;
   font-size: 0.875rem;
 }
-
 .yara-home-message.user .yara-home-message-avatar {
   background: var(--yara-home-brand);
   color: var(--yara-home-white);
 }
-
 .yara-home-message.ai .yara-home-message-avatar {
   background: #e0e7ff;
   color: var(--yara-home-brand);
 }
-
 .yara-home-message-content {
   padding: 0.875rem 1rem;
   border-radius: 0.75rem;
@@ -308,17 +274,14 @@
   position: relative;
   font-size: 0.9375rem;
 }
-
 .yara-home-message.user .yara-home-message-content {
   background: var(--yara-home-brand);
   color: var(--yara-home-white);
 }
-
 .yara-home-message.ai .yara-home-message-content {
   background: var(--yara-home-bg-light);
   color: var(--yara-home-text-main);
 }
-
 .yara-home-fill-btn {
   position: absolute;
   right: 10px;
@@ -327,22 +290,18 @@
   opacity: 0;
   transition: all 0.2s;
 }
-
 .yara-home-message.ai:hover .yara-home-fill-btn {
   opacity: 1;
 }
-
 .yara-home-chat-input-area {
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--yara-home-border);
 }
-
 .yara-home-chat-input-wrapper {
   display: flex;
   gap: 0.75rem;
   align-items: flex-end;
 }
-
 .yara-home-chat-input {
   flex: 1;
   border: 1px solid var(--yara-home-border);
@@ -355,62 +314,52 @@
   line-height: 1.6;
   font-family: inherit;
 }
-
 .yara-home-chat-input:focus {
   border-color: var(--yara-home-brand);
 }
-
 .yara-home-voice-btn {
   background: var(--yara-success);
   border-color: var(--yara-success);
   color: var(--yara-home-white);
   height: 44px;
 }
-
 .yara-home-voice-btn.recording {
   background: var(--yara-danger);
   border-color: var(--yara-danger);
   animation: pulse 1s infinite;
 }
-
 .yara-home-voice-tip {
   text-align: center;
   color: var(--yara-home-text-secondary);
   font-size: 0.75rem;
   margin-top: 0.5rem;
 }
-
 /* 会员特权板块 */
 .yara-home-vip-section {
   background: linear-gradient(135deg, var(--yara-home-brand) 0%, #60a5fa 100%);
   padding: 4rem 2rem;
   margin: 4rem 0;
 }
-
 .yara-home-vip-content {
   max-width: 1400px;
   margin: 0 auto;
 }
-
 .yara-home-vip-title {
   text-align: center;
   color: var(--yara-home-white);
   margin-bottom: 3rem;
 }
-
 .yara-home-vip-title h2 {
   font-size: 2.25rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
 }
-
 .yara-home-vip-title p {
   font-size: 1rem;
   opacity: 0.9;
   max-width: 600px;
   margin: 0 auto;
 }
-
 .yara-home-vip-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -418,7 +367,6 @@
   max-width: 1000px;
   margin: 0 auto;
 }
-
 .yara-home-vip-card {
   background: var(--yara-home-white);
   border-radius: 1rem;
@@ -429,45 +377,38 @@
   display: flex;
   flex-direction: column;
 }
-
 .yara-home-vip-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
-
 .yara-home-vip-card-header {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--yara-home-border);
 }
-
 .yara-home-vip-card-header h3 {
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
   color: var(--yara-home-text-main);
 }
-
 .yara-home-vip-price {
   font-size: 3rem;
   font-weight: 800;
   color: var(--yara-home-brand);
   line-height: 1;
 }
-
 .yara-home-vip-price del {
   font-size: 1rem;
   font-weight: 400;
   color: var(--yara-home-text-secondary);
   margin-left: 0.5rem;
 }
-
 .yara-home-vip-price span {
   font-size: 1rem;
   font-weight: 400;
   color: var(--yara-home-text-secondary);
 }
-
 .yara-home-vip-rights {
   list-style: none;
   padding: 0;
@@ -475,7 +416,6 @@
   flex: 1;
   text-align: left;
 }
-
 .yara-home-vip-rights li {
   padding: 0.5rem 0;
   font-size: 0.9375rem;
@@ -484,26 +424,22 @@
   align-items: center;
   gap: 0.5rem;
 }
-
 .yara-home-vip-rights li::before {
   content: '✓';
   color: var(--yara-success);
   font-weight: 700;
   font-size: 1rem;
 }
-
 /* 动画 */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
 }
-
 .loading {
   display: inline-block;
   width: 16px;
@@ -513,7 +449,6 @@
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
-
 /* 响应式适配 */
 @media (max-width: 768px) {
   .yara-home-nav {
@@ -579,7 +514,6 @@
       </template>
     </div>
   </nav>
-
   <!-- 英雄区 -->
   <section class="yara-home-hero">
     <div class="yara-home-hero-content">
@@ -595,7 +529,6 @@
       </div>
     </div>
   </section>
-
   <!-- 核心服务板块（和派单系统完全打通，配置自动同步） -->
   <section class="yara-home-section">
     <div class="yara-home-section-title">
@@ -623,7 +556,6 @@
       </div>
     </div>
   </section>
-
   <!-- AI对话核心板块（和派单系统完全打通，一键生成派单） -->
   <section class="yara-home-chat-section" id="chatSection">
     <div class="yara-home-section-title">
@@ -690,7 +622,6 @@
       </div>
     </div>
   </section>
-
   <!-- 会员特权板块（和会员中心完全打通，配置自动同步） -->
   <section class="yara-home-vip-section">
     <div class="yara-home-vip-content">
@@ -718,7 +649,6 @@
       </div>
     </div>
   </section>
-
   <!-- 全平台统一页脚（和所有其他页面完全一致，合规链接100%正确） -->
   <div class="yara-footer">
     <div class="yara-footer-content">
@@ -740,7 +670,6 @@
       </div>
     </div>
   </div>
-
   <!-- 全平台统一登录/注册模态框（和登录/注册页完全打通，接口完全一致） -->
   <el-dialog v-model="showLoginModal" title="账号登录" width="420px" :close-on-click-modal="false" @close="resetLoginForm">
     <el-tabs v-model="loginActiveTab" type="card">
@@ -794,16 +723,15 @@
     </el-tabs>
   </el-dialog>
 </div>
-
 <script>
 const { createApp } = Vue
 const { ElMessage, ElMessageBox } = ElementPlus
-
 createApp({
   setup() {
     // 全平台统一配置，和所有其他页面完全同步
     const CONFIG = window.YARA_CONFIG
-
+    // 敏感配置从安全文件读取，绝不硬编码在提交Git的文件中
+    const ENV_CONFIG = window.ENV_CONFIG || {}
     // ===================== 全局基础状态（和全平台完全统一） =====================
     const isLogin = Vue.ref(YARA_STORAGE.getToken())
     const userInfo = Vue.ref(YARA_STORAGE.getUserInfo())
@@ -811,7 +739,6 @@ createApp({
     const loginActiveTab = Vue.ref('login')
     const countDown = Vue.ref(0)
     const redirectUrl = Vue.ref('')
-
     // ===================== AI对话核心状态 =====================
     const chatInput = Vue.ref('')
     const isGenerating = Vue.ref(false)
@@ -819,19 +746,18 @@ createApp({
     const chatHistory = Vue.ref([
       { id: 1, role: 'assistant', content: `你好！我是${CONFIG.brand.name}，你的专属AI智能管家，有什么可以帮你的吗？无论是事业规划、情感问题、生活需求还是游戏相关，我都可以为你解答疑惑、生成解决方案，还能一键帮你发布派单需求，匹配专业人工服务哦~` }
     ])
-    // 全平台统一AI接口配置
-    const API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
-    const MODEL = "doubao-1-5-pro-32k-250115";
-    const API_KEY = "384628c3-79f7-4849-9622-a828c4259213";
+    // AI接口配置（全部从安全配置文件读取，无任何硬编码敏感信息）
+    const API_URL = ENV_CONFIG.AI_API_URL || "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+    const MODEL = ENV_CONFIG.AI_MODEL || "doubao-1-5-pro-32k-250115";
+    const API_KEY = ENV_CONFIG.AI_API_KEY || "";
+    // 动态系统提示词，从配置读取，无需硬编码
     const SYSTEM_PROMPT = `你是${CONFIG.brand.name}，用户的专属AI生活管家，专注回答事业、情感、生活、游戏相关问题，给出实用、可落地、有温度的解决方案，语言简洁易懂，不要太官方。结尾可以提示用户点击「一键生成派单」按钮，发布需求获取1v1专业人工服务。`;
-
     // 语音相关状态
     const isRecording = Vue.ref(false)
     const voiceTip = Vue.ref('点击麦克风开始语音对话，再次点击结束并发送')
     let recognition = null
     let currentUtterance = null
     let isVoicePlaying = false
-
     // ===================== 登录/注册相关状态（和全平台完全统一） =====================
     const loginFormRef = Vue.ref()
     const registerFormRef = Vue.ref()
@@ -868,7 +794,6 @@ createApp({
         { validator: (rule, value, callback) => value ? callback() : callback(new Error('请阅读并同意用户协议和隐私政策')), trigger: 'change' }
       ]
     }
-
     // ===================== 核心方法：全平台统一权限跳转（和所有页面逻辑完全一致） =====================
     const checkAuthJump = (targetUrl) => {
       if (isLogin.value) {
@@ -879,7 +804,6 @@ createApp({
       showLoginModal.value = true
       ElMessage.warning('请先登录后再访问该功能')
     }
-
     // 导航下拉菜单操作
     const handleNavCommand = (command) => {
       if (command === 'center') window.location.href = './yara-user-center.html'
@@ -887,12 +811,10 @@ createApp({
       if (command === 'console') window.location.href = './yara-index.html'
       if (command === 'logout') YARA_AUTH.logout()
     }
-
     // 滚动到AI对话区
     const scrollToChat = () => {
       document.getElementById('chatSection').scrollIntoView({ behavior: 'smooth' })
     }
-
     // ===================== 核心联动：AI内容一键跳转到派单页，自动填充 =====================
     const jumpToOrder = (content) => {
       // 未登录拦截
@@ -917,11 +839,15 @@ createApp({
       // 跳转到派单页
       window.location.href = autoType ? `./yara-create-order.html?type=${autoType}` : './yara-create-order.html'
     }
-
     // ===================== AI对话核心方法 =====================
     const sendMessage = async () => {
       const text = chatInput.value.trim()
       if (!text || isGenerating.value) return
+      // 无API_KEY拦截提示
+      if (!API_KEY) {
+        ElMessage.error('AI接口配置异常，请检查敏感配置文件')
+        return
+      }
       // 重置状态
       isGenerating.value = true
       window.speechSynthesis.cancel()
@@ -941,7 +867,6 @@ createApp({
       setTimeout(() => {
         chatMessages.scrollTop = chatMessages.scrollHeight
       }, 100)
-
       try {
         const res = await fetch(API_URL, {
           method: 'POST',
@@ -959,7 +884,6 @@ createApp({
         const reader = res.body.getReader()
         const decoder = new TextDecoder()
         let fullContent = ''
-
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
@@ -991,7 +915,6 @@ createApp({
         isGenerating.value = false
       }
     }
-
     // 语音播放
     const playVoice = (text) => {
       if (!('speechSynthesis' in window)) {
@@ -1010,7 +933,6 @@ createApp({
       currentUtterance = utterance
       window.speechSynthesis.speak(utterance)
     }
-
     // 暂停/播放语音
     const toggleVoice = () => {
       if (!('speechSynthesis' in window)) return
@@ -1022,13 +944,11 @@ createApp({
         isVoicePlaying = true
       }
     }
-
     // 重新播放语音
     const replayVoice = () => {
       const lastMsg = chatHistory.value.findLast(item => item.role === 'assistant')
       if (lastMsg) playVoice(lastMsg.content)
     }
-
     // 初始化语音识别
     const initSpeechRecognition = () => {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -1061,7 +981,6 @@ createApp({
         console.error('语音识别错误', event.error)
       }
     }
-
     // 切换录音状态
     const toggleRecording = () => {
       if (!recognition) return
@@ -1073,7 +992,6 @@ createApp({
         recognition.start()
       }
     }
-
     // 清空对话
     const clearChat = () => {
       ElMessageBox.confirm('确定要清空所有对话记录吗？', '提示', {
@@ -1089,7 +1007,6 @@ createApp({
         ElMessage.success('对话已清空')
       }).catch(() => {})
     }
-
     // ===================== 登录/注册核心方法（和全平台完全统一） =====================
     const resetLoginForm = () => {
       loginForm.phone = ''
@@ -1102,7 +1019,6 @@ createApp({
       loginActiveTab.value = 'login'
       redirectUrl.value = ''
     }
-
     const handleLogin = async () => {
       if (!loginFormRef.value) return
       await loginFormRef.value.validate(async (valid) => {
@@ -1133,7 +1049,6 @@ createApp({
         }
       })
     }
-
     const handleRegister = async () => {
       if (!registerFormRef.value) return
       await registerFormRef.value.validate(async (valid) => {
@@ -1152,7 +1067,6 @@ createApp({
         }
       })
     }
-
     const sendSmsCode = async () => {
       if (!YARA_UTILS.validPhone(registerForm.phone)) {
         ElMessage.error('请输入正确的手机号')
@@ -1170,7 +1084,6 @@ createApp({
         console.error('验证码发送失败', error)
       }
     }
-
     // ===================== 页面初始化 =====================
     Vue.onMounted(() => {
       initSpeechRecognition()
@@ -1181,7 +1094,6 @@ createApp({
         userInfo.value = YARA_STORAGE.getUserInfo()
       })
     })
-
     return {
       CONFIG,
       isLogin,
