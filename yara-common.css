@@ -30,6 +30,7 @@
   --yara-radius-sm: 12px;
   --yara-radius: 20px;
   --yara-radius-lg: 28px;
+  --yara-radius-xl: 36px;
   --yara-radius-full: 50px;
   
   /* 动效体系（硬件加速，丝滑流畅） */
@@ -518,7 +519,7 @@ body::after {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  z-index: 999;
+  z-index: 998;
   background: var(--yara-bg-glass);
   backdrop-filter: blur(25px);
   border-radius: var(--yara-radius-full);
@@ -544,6 +545,281 @@ body::after {
 .yara-bg-option.forest { background: var(--bg-forest); }
 .yara-bg-option.space { background: var(--bg-space); }
 .yara-bg-option.ocean { background: var(--bg-ocean); }
+
+/* ===================== 【新增】全局悬浮AI助手样式 ===================== */
+.yara-ai-float-wrapper {
+  position: fixed;
+  bottom: 120px;
+  right: 30px;
+  z-index: 999;
+}
+/* 悬浮球按钮 */
+.yara-ai-float-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--yara-brand-gradient);
+  box-shadow: var(--yara-shadow-neon);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all var(--yara-transition);
+  position: relative;
+  animation: floatBtnPulse 3s infinite ease-in-out;
+}
+@keyframes floatBtnPulse {
+  0% { box-shadow: 0 0 20px rgba(134, 239, 172, 0.25); }
+  50% { box-shadow: 0 0 35px rgba(134, 239, 172, 0.4); }
+  100% { box-shadow: 0 0 20px rgba(134, 239, 172, 0.25); }
+}
+.yara-ai-float-btn:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: var(--yara-shadow-hover);
+}
+.yara-ai-float-btn .el-icon {
+  font-size: 28px;
+  color: var(--yara-bg-main);
+  font-weight: 700;
+}
+.yara-ai-float-btn .close-icon {
+  display: none;
+}
+.yara-ai-float-btn.active .chat-icon {
+  display: none;
+}
+.yara-ai-float-btn.active .close-icon {
+  display: block;
+  animation: rotateClose 0.3s ease forwards;
+}
+@keyframes rotateClose {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(90deg); }
+}
+
+/* AI面板容器 */
+.yara-ai-panel {
+  position: absolute;
+  bottom: 80px;
+  right: 0;
+  width: 380px;
+  height: 600px;
+  background: var(--yara-bg-glass);
+  backdrop-filter: blur(25px);
+  border-radius: var(--yara-radius-lg);
+  border: 1px solid var(--yara-border-glass);
+  box-shadow: var(--yara-shadow-hover);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform-origin: bottom right;
+  animation: panelOpen 0.3s ease forwards;
+}
+@keyframes panelOpen {
+  from { opacity: 0; transform: scale(0.8) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.yara-ai-panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--yara-border-glass);
+  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+}
+.yara-ai-panel-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--yara-text-white);
+  margin: 0;
+  background: var(--yara-brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.yara-ai-panel-header p {
+  font-size: 12px;
+  color: var(--yara-text-secondary);
+  margin: 2px 0 0 0;
+}
+
+/* 快捷跳转导航 */
+.yara-ai-quick-nav {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--yara-border-glass);
+  flex-shrink: 0;
+}
+.yara-ai-nav-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.yara-ai-nav-item {
+  padding: 6px 12px;
+  border-radius: var(--yara-radius-full);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--yara-border-glass);
+  color: var(--yara-text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--yara-transition-fast);
+}
+.yara-ai-nav-item:hover {
+  background: var(--yara-brand-gradient);
+  color: var(--yara-bg-main);
+  border-color: transparent;
+  transform: scale(1.05);
+}
+
+/* AI对话区域 */
+.yara-ai-panel-messages {
+  flex: 1;
+  padding: 16px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.yara-ai-panel-message {
+  display: flex;
+  gap: 8px;
+  max-width: 90%;
+  animation: messageSlide 0.3s ease forwards;
+}
+@keyframes messageSlide {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.yara-ai-panel-message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+.yara-ai-panel-message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.yara-ai-panel-message.user .yara-ai-panel-message-avatar {
+  background: var(--yara-brand-gradient);
+  color: var(--yara-bg-main);
+}
+.yara-ai-panel-message.ai .yara-ai-panel-message-avatar {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--yara-brand-green);
+  border: 2px solid var(--yara-border-glass);
+}
+.yara-ai-panel-message-content {
+  padding: 10px 14px;
+  border-radius: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13px;
+}
+.yara-ai-panel-message.user .yara-ai-panel-message-content {
+  background: var(--yara-brand-gradient);
+  color: var(--yara-bg-main);
+  border-bottom-right-radius: 4px;
+}
+.yara-ai-panel-message.ai .yara-ai-panel-message-content {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--yara-text-primary);
+  border-bottom-left-radius: 4px;
+}
+.yara-ai-fill-btn {
+  font-size: 11px;
+  opacity: 0;
+  transition: all var(--yara-transition-fast);
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+.yara-ai-panel-message.ai:hover .yara-ai-fill-btn {
+  opacity: 1;
+}
+
+/* 输入区域 */
+.yara-ai-panel-input-area {
+  padding: 12px 20px;
+  border-top: 1px solid var(--yara-border-glass);
+  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+}
+.yara-ai-panel-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.yara-ai-panel-input {
+  flex: 1;
+  border: 1px solid var(--yara-border-glass);
+  border-radius: var(--yara-radius-full);
+  padding: 10px 16px;
+  font-size: 13px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all var(--yara-transition-fast);
+  color: var(--yara-text-white);
+  font-family: inherit;
+}
+.yara-ai-panel-input:focus {
+  border-color: var(--yara-brand-green);
+  box-shadow: 0 0 0 3px rgba(134, 239, 172, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+}
+.yara-ai-panel-input::placeholder {
+  color: var(--yara-text-placeholder);
+}
+.yara-ai-panel-send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--yara-brand-gradient);
+  border: none;
+  color: var(--yara-bg-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--yara-transition-fast);
+  flex-shrink: 0;
+}
+.yara-ai-panel-send-btn:hover {
+  transform: scale(1.1);
+  box-shadow: var(--yara-shadow-neon);
+}
+.yara-ai-panel-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .yara-ai-float-wrapper {
+    bottom: 90px;
+    right: 16px;
+  }
+  .yara-ai-float-btn {
+    width: 56px;
+    height: 56px;
+  }
+  .yara-ai-panel {
+    width: calc(100vw - 32px);
+    height: 70vh;
+    right: 0;
+    bottom: 70px;
+  }
+  .yara-bg-switcher {
+    bottom: 20px;
+    right: 16px;
+  }
+}
 
 /* ===================== Element Plus 组件全局焕新（深色主题适配） ===================== */
 /* 按钮焕新（霓虹玻璃态） */
@@ -877,8 +1153,8 @@ body::after {
   background: var(--yara-bg-card);
   backdrop-filter: blur(25px);
   --el-dropdown-menuItem-hover-bg-color: rgba(134, 239, 172, 0.1);
-  --el-dropdown-menuItem-text-color: var(--yara-text-primary);
   --el-dropdown-menuItem-hover-text-color: var(--yara-brand-green);
+  --el-dropdown-menuItem-text-color: var(--yara-text-primary);
 }
 .el-dropdown-menu__item {
   padding: 10px 20px;
