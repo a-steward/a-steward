@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="Yara,AI派单,控制台">
+  <meta name="description" content="Yara 控制台，一站式全场景智能派单服务">
+  <!-- 严格加载顺序 -->
+  <script src="./env-config.js"></script>
+  <script src="./yara-config.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
+  <link rel="stylesheet" href="./yara-common.css">
+  <script src="./yara-common.js"></script>
+  <script src="./yara-stat.js"></script>
+  <title>控制台 - Yara</title>
+</head>
+<body>
+  <div id="yara-index-app">
+    <div class="yara-layout-container">
+      <!-- 侧边栏导航 -->
+      <div class="yara-sidebar-container">
+        <div class="yara-logo">
+          <h2>{{ CONFIG?.brand?.name || 'Yara' }}</h2>
+          <p>AI智能派单平台</p>
+        </div>
+        <el-menu
+          :default-active="activeMenu"
+          router
+          background-color="transparent"
+          text-color="#bfcbd9"
+          active-text-color="var(--yara-brand-green)"
+        >
+          <el-menu-item index="yara-index.html">
+            <el-icon><House /></el-icon>
+            <span>控制台</span>
+          </el-menu-item>
+          <el-menu-item index="yara-create-order.html">
+            <el-icon><Edit /></el-icon>
+            <span>我要派单</span>
+          </el-menu-item>
+          <el-menu-item index="yara-order-list.html">
+            <el-icon><Document /></el-icon>
+            <span>订单管理</span>
+          </el-menu-item>
+          <el-menu-item index="yara-price.html">
+            <el-icon><Medal /></el-icon>
+            <span>会员中心</span>
+          </el-menu-item>
+          <el-menu-item index="yara-user-center.html">
+            <el-icon><User /></el-icon>
+            <span>个人中心</span>
+          </el-menu-item>
+          <el-menu-item index="index.html" class="yara-back-home">
+            <el-icon><ArrowLeft /></el-icon>
+            <span>返回首页</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
+      <!-- 主内容区 -->
+      <div class="yara-main-content">
+        <!-- 顶部导航栏 -->
+        <div class="yara-header-container">
+          <div class="yara-header-left">
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item>控制台</el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+          <div class="yara-header-right yara-flex" style="gap: 20px;">
+            <el-dropdown @command="handleCommand">
+              <div class="yara-flex" style="align-items: center; cursor: pointer; gap: 8px;">
+                <el-avatar :size="36" :src="userInfo.avatar"></el-avatar>
+                <span style="font-size: 14px; font-weight: 600;">{{ userInfo.nickname || userInfo.phone }}</span>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="center">个人中心</el-dropdown-item>
+                  <el-dropdown-item command="logout" divided class="yara-logout-btn">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+        </div>
+        <!-- 页面内容 -->
+        <div class="yara-page-wrapper">
+          <!-- 公告栏 -->
+          <el-alert
+            :title="CONFIG?.operation?.notice || '平台全新升级，新增会员体系，下单享更低价格！'"
+            type="info"
+            :closable="false"
+            class="yara-mb-20 yara-slide-up-delay-1"
+            show-icon
+          ></el-alert>
+          <!-- 数据统计 -->
+          <el-row :gutter="20" class="yara-mb-30">
+            <el-col :span="6" class="yara-slide-up-delay-1">
+              <el-card shadow="never" class="yara-stat-card order">
+                <div class="yara-stat-content">
+                  <div>
+                    <p class="yara-stat-label">累计订单</p>
+                    <h3 class="yara-stat-value" ref="orderCountRef">{{ statData.orderCount }}</h3>
+                  </div>
+                  <div class="yara-stat-icon">
+                    <el-icon><Document /></el-icon>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="6" class="yara-slide-up-delay-1">
+              <el-card shadow="never" class="yara-stat-card waiting">
+                <div class="yara-stat-content">
+                  <div>
+                    <p class="yara-stat-label">待处理订单</p>
+                    <h3 class="yara-stat-value" ref="pendingCountRef">{{ statData.pendingCount }}</h3>
+                  </div>
+                  <div class="yara-stat-icon">
+                    <el-icon><Clock /></el-icon>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="6" class="yara-slide-up-delay-1">
+              <el-card shadow="never" class="yara-stat-card processing">
+                <div class="yara-stat-content">
+                  <div>
+                    <p class="yara-stat-label">可用优惠券</p>
+                    <h3 class="yara-stat-value" ref="couponCountRef">{{ statData.couponCount }}</h3>
+                  </div>
+                  <div class="yara-stat-icon">
+                    <el-icon><Ticket /></el-icon>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="6" class="yara-slide-up-delay-1">
+              <el-card shadow="never" class="yara-stat-card completed">
+                <div class="yara-stat-content">
+                  <div>
+                    <p class="yara-stat-label">会员状态</p>
+                    <h3 class="yara-stat-value" style="color: #fff;" v-if="userInfo.isVip">已开通</h3>
+                    <h3 class="yara-stat-value" style="color: rgba(255,255,255,0.8);" v-else>未开通</h3>
+                  </div>
+                  <div class="yara-stat-icon">
+                    <el-icon><Medal /></el-icon>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+          <!-- 快捷功能 -->
+          <el-card shadow="never" class="yara-mb-30 yara-slide-up-delay-2 yara-card">
+            <template #header>
+              <span class="yara-card-title">快捷功能</span>
+            </template>
+            <el-row :gutter="20">
+              <el-col :span="3" v-for="item in quickMenu" :key="item.id">
+                <div class="yara-quick-item" @click="window.location.href = item.url">
+                  <div class="yara-quick-icon">
+                    <el-icon><component :is="item.icon"></component></el-icon>
+                  </div>
+                  <p class="yara-quick-name">{{ item.name }}</p>
+                </div>
+              </el-col>
+            </el-row>
+          </el-card>
+          <!-- 最近订单 -->
+          <el-card shadow="never" class="yara-slide-up-delay-3 yara-card">
+            <template #header>
+              <div class="yara-flex-between">
+                <span class="yara-card-title">最近订单</span>
+                <el-button type="primary" link @click="window.location.href = 'yara-order-list.html'">查看全部</el-button>
+              </div>
+            </template>
+            <el-table :data="recentOrderList" v-loading="loading" style="width: 100%;" stripe>
+              <el-table-column prop="orderNo" label="订单编号" width="200"></el-table-column>
+              <el-table-column prop="title" label="需求标题" min-width="200" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="type" label="服务类型" width="100">
+                <template #default="scope">
+                  {{ YARA_ORDER_TYPE[scope.row.type] || '-' }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="finalPrice" label="订单金额" width="100">
+                <template #default="scope">
+                  {{ YARA_UTILS.formatPrice(scope.row.finalPrice) }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="status" label="订单状态" width="100">
+                <template #default="scope">
+                  <el-tag :type="YARA_ORDER_STATUS[scope.row.status].type" size="small">
+                    {{ YARA_ORDER_STATUS[scope.row.status].text }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column prop="createTime" label="下单时间" width="180">
+                <template #default="scope">
+                  {{ YARA_UTILS.formatTime(scope.row.createTime) }}
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="120" fixed="right">
+                <template #default="scope">
+                  <el-button size="small" type="primary" link @click="window.location.href = `yara-order-detail.html?id=${scope.row.id}`">查看详情</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-empty v-if="recentOrderList.length === 0 && !loading" description="暂无订单数据" class="yara-mt-30">
+              <el-button type="primary" @click="window.location.href = 'yara-create-order.html'">去发布派单</el-button>
+            </el-empty>
+          </el-card>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const { createApp, onMounted, nextTick, ref } = Vue
+    const { ElMessage } = ElementPlus
+    createApp({
+      setup() {
+        const CONFIG = window.CONFIG
+        const activeMenu = Vue.ref('yara-index.html')
+        const loading = Vue.ref(false)
+        const userInfo = Vue.ref(YARA_STORAGE.getUserInfo())
+        // 数字动画ref
+        const orderCountRef = ref(null)
+        const pendingCountRef = ref(null)
+        const couponCountRef = ref(null)
+
+        const statData = Vue.reactive({
+          orderCount: 0,
+          pendingCount: 0,
+          couponCount: 0
+        })
+        const recentOrderList = Vue.ref([])
+        const quickMenu = [
+          { id: 1, name: '我要派单', icon: 'Edit', url: 'yara-create-order.html' },
+          { id: 2, name: '订单管理', icon: 'Document', url: 'yara-order-list.html' },
+          { id: 3, name: '会员中心', icon: 'Medal', url: 'yara-price.html' },
+          { id: 4, name: '个人中心', icon: 'User', url: 'yara-user-center.html' },
+          { id: 5, name: '帮助中心', icon: 'QuestionFilled', url: 'yara-help.html' },
+          { id: 6, name: '用户协议', icon: 'DocumentCopy', url: 'agreement.html' },
+          { id: 7, name: '隐私政策', icon: 'Lock', url: 'privacy.html' },
+          { id: 8, name: '返回首页', icon: 'Home', url: 'index.html' }
+        ]
+
+        const handleCommand = (command) => {
+          if (command === 'center') window.location.href = 'yara-user-center.html'
+          if (command === 'logout') YARA_AUTH.logout()
+        }
+        const getUserData = async () => {
+          loading.value = true
+          try {
+            const userRes = await YARA_API_LIST.getUserInfo()
+            userInfo.value = userRes.data
+            YARA_STORAGE.setUserInfo(userRes.data)
+            const statRes = await YARA_API_LIST.getUserStat()
+            // 数字动画
+            await nextTick()
+            YARA_UTILS.animateNumber(orderCountRef.value, statRes.data.orderCount || 0)
+            YARA_UTILS.animateNumber(pendingCountRef.value, statRes.data.pendingCount || 0)
+            YARA_UTILS.animateNumber(couponCountRef.value, statRes.data.couponCount || 0)
+            // 赋值
+            statData.orderCount = statRes.data.orderCount || 0
+            statData.pendingCount = statRes.data.pendingCount || 0
+            statData.couponCount = statRes.data.couponCount || 0
+            // 订单列表
+            const orderRes = await YARA_API_LIST.getOrderList({ pageNum: 1, pageSize: 10 })
+            recentOrderList.value = orderRes.data.list || []
+          } catch (error) {
+            console.error('获取用户数据失败', error)
+          } finally {
+            loading.value = false
+          }
+        }
+
+        onMounted(() => {
+          getUserData()
+          YARA_STAT.pageView('控制台首页')
+        })
+
+        return {
+          CONFIG,
+          activeMenu,
+          loading,
+          userInfo,
+          statData,
+          recentOrderList,
+          quickMenu,
+          orderCountRef,
+          pendingCountRef,
+          couponCountRef,
+          YARA_ORDER_TYPE,
+          YARA_ORDER_STATUS,
+          YARA_UTILS,
+          handleCommand
+        }
+      }
+    }).use(ElementPlus).mount('#yara-index-app')
+  </script>
+</body>
+</html>
+
