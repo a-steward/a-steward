@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="keywords" content="Yara,AI派单,订单详情">
   <meta name="description" content="Yara 订单详情，一站式全场景智能派单服务">
-  <title>订单详情 - Yara</title>
-  <!-- CDN资源 -->
+  <!-- 严格加载顺序 -->
+  <script src="./env-config.js"></script>
+  <script src="./yara-config.js"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
   <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
-  <!-- 根目录公共资源 -->
-  <script src="./yara-config.js"></script>
   <link rel="stylesheet" href="./yara-common.css">
   <script src="./yara-common.js"></script>
   <script src="./yara-stat.js"></script>
+  <title>订单详情 - Yara</title>
 </head>
 <body>
   <div id="yara-order-detail-app">
@@ -24,23 +24,31 @@
       <!-- 侧边栏导航 -->
       <div class="yara-sidebar-container">
         <div class="yara-logo">
-          <h2>{{ CONFIG.brand.name }}</h2>
+          <h2>{{ CONFIG?.brand?.name || 'Yara' }}</h2>
           <p>AI智能派单平台</p>
         </div>
         <el-menu
           :default-active="activeMenu"
           router
-          background-color="#304156"
+          background-color="transparent"
           text-color="#bfcbd9"
-          active-text-color="var(--yara-brand-color)"
+          active-text-color="var(--yara-brand-green)"
         >
           <el-menu-item index="yara-index.html">
             <el-icon><House /></el-icon>
             <span>控制台</span>
           </el-menu-item>
+          <el-menu-item index="yara-create-order.html">
+            <el-icon><Edit /></el-icon>
+            <span>我要派单</span>
+          </el-menu-item>
           <el-menu-item index="yara-order-list.html">
             <el-icon><Document /></el-icon>
             <span>订单管理</span>
+          </el-menu-item>
+          <el-menu-item index="yara-price.html">
+            <el-icon><Medal /></el-icon>
+            <span>会员中心</span>
           </el-menu-item>
           <el-menu-item index="yara-user-center.html">
             <el-icon><User /></el-icon>
@@ -52,7 +60,6 @@
           </el-menu-item>
         </el-menu>
       </div>
-
       <!-- 主内容区 -->
       <div class="yara-main-content">
         <!-- 顶部导航栏 -->
@@ -68,7 +75,7 @@
             <el-dropdown @command="handleCommand">
               <div class="yara-flex" style="align-items: center; cursor: pointer; gap: 8px;">
                 <el-avatar :size="36" :src="userInfo.avatar"></el-avatar>
-                <span style="font-size: 14px;">{{ userInfo.nickname || '用户' }}</span>
+                <span style="font-size: 14px; font-weight: 600;">{{ userInfo.nickname || userInfo.phone }}</span>
               </div>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -79,16 +86,15 @@
             </el-dropdown>
           </div>
         </div>
-
         <!-- 页面内容 -->
         <div class="yara-page-wrapper">
           <div class="yara-page-container">
             <!-- 订单状态头部 -->
-            <el-card shadow="never" class="yara-mb-20">
+            <el-card shadow="never" class="yara-card yara-mb-20 yara-slide-up-delay-1">
               <div class="yara-flex-between">
                 <div class="yara-flex" style="align-items: center; gap: 20px;">
-                  <h2 style="font-size: 20px; margin: 0;">订单号：{{ orderInfo.orderNo }}</h2>
-                  <el-tag :type="orderStatus.type" size="large" style="font-size: 16px; padding: 8px 16px;">
+                  <h2 style="font-size: 20px; margin: 0; font-weight: 700; color: var(--yara-text-white);">订单号：{{ orderInfo.orderNo }}</h2>
+                  <el-tag :type="orderStatus.type" size="large" style="font-size: 16px; padding: 8px 16px; font-weight: 600;">
                     {{ orderStatus.text }}
                   </el-tag>
                 </div>
@@ -98,6 +104,7 @@
                     type="primary"
                     size="large"
                     @click="handlePay"
+                    style="height: 44px; font-weight: 600;"
                   >
                     立即支付
                   </el-button>
@@ -106,7 +113,7 @@
                     type="danger"
                     size="large"
                     @click="handleCancel"
-                    style="margin-left: 10px;"
+                    style="margin-left: 10px; height: 44px; font-weight: 600;"
                   >
                     取消订单
                   </el-button>
@@ -115,7 +122,7 @@
                     type="warning"
                     size="large"
                     @click="showRefundModal = true"
-                    style="margin-left: 10px;"
+                    style="margin-left: 10px; height: 44px; font-weight: 600;"
                   >
                     申请退款
                   </el-button>
@@ -124,7 +131,7 @@
                     type="success"
                     size="large"
                     @click="handleConfirm"
-                    style="margin-left: 10px;"
+                    style="margin-left: 10px; height: 44px; font-weight: 600;"
                   >
                     确认完成
                   </el-button>
@@ -133,16 +140,15 @@
                     type="primary"
                     size="large"
                     @click="showCommentModal = true"
-                    style="margin-left: 10px;"
+                    style="margin-left: 10px; height: 44px; font-weight: 600;"
                   >
                     去评价
                   </el-button>
                 </div>
               </div>
             </el-card>
-
             <!-- 需求信息 -->
-            <el-card shadow="never" class="yara-mb-20">
+            <el-card shadow="never" class="yara-card yara-mb-20 yara-slide-up-delay-2">
               <template #header>
                 <span class="yara-card-title">需求信息</span>
               </template>
@@ -169,15 +175,14 @@
                   {{ orderInfo.contact || '-' }}
                 </el-descriptions-item>
                 <el-descriptions-item label="附件" v-if="orderInfo.fileUrls && orderInfo.fileUrls.length > 0" :span="2">
-                  <a v-for="(url, index) in orderInfo.fileUrls" :key="index" :href="url" target="_blank" style="margin-right: 20px; color: var(--yara-brand-color);">
+                  <a v-for="(url, index) in orderInfo.fileUrls" :key="index" :href="url" target="_blank" style="margin-right: 20px; color: var(--yara-brand-green); font-weight: 600;">
                     附件{{ index + 1 }}
                   </a>
                 </el-descriptions-item>
               </el-descriptions>
             </el-card>
-
             <!-- 服务人员信息 -->
-            <el-card shadow="never" class="yara-mb-20" v-if="orderInfo.serverInfo">
+            <el-card shadow="never" class="yara-card yara-mb-20 yara-slide-up-delay-2" v-if="orderInfo.serverInfo">
               <template #header>
                 <span class="yara-card-title">服务人员信息</span>
               </template>
@@ -196,89 +201,48 @@
                 </el-descriptions-item>
               </el-descriptions>
             </el-card>
-
             <!-- 价格信息 -->
-            <el-card shadow="never" class="yara-mb-20">
+            <el-card shadow="never" class="yara-card yara-mb-20 yara-slide-up-delay-3">
               <template #header>
                 <span class="yara-card-title">价格明细</span>
               </template>
-              <div style="max-width: 400px; margin-left: auto;">
-                <div class="yara-flex-between yara-mb-10">
-                  <span>基础费用</span>
-                  <span>{{ YARA_UTILS.formatPrice(orderInfo.basePrice || 0) }}</span>
+              <div style="max-width: 500px; margin: 0 auto;">
+                <div class="yara-flex-between yara-mb-15">
+                  <span style="color: var(--yara-text-secondary); font-size: 15px;">基础费用</span>
+                  <span style="font-weight: 600; font-size: 15px; color: var(--yara-text-white);">{{ YARA_UTILS.formatPrice(orderInfo.basePrice || 0) }}</span>
                 </div>
-                <div v-if="orderInfo.urgentPrice" class="yara-flex-between yara-mb-10">
-                  <span>加急服务费</span>
-                  <span>{{ YARA_UTILS.formatPrice(orderInfo.urgentPrice) }}</span>
+                <div v-if="orderInfo.urgentPrice" class="yara-flex-between yara-mb-15">
+                  <span style="color: var(--yara-text-secondary); font-size: 15px;">加急服务费</span>
+                  <span style="font-weight: 600; font-size: 15px; color: var(--yara-text-white);">{{ YARA_UTILS.formatPrice(orderInfo.urgentPrice || 0) }}</span>
                 </div>
-                <div v-if="orderInfo.vipDiscount < 10" class="yara-flex-between yara-mb-10">
-                  <span>会员折扣（{{ orderInfo.vipDiscount }}折）</span>
-                  <span style="color: var(--yara-danger);">-{{ YARA_UTILS.formatPrice((orderInfo.basePrice || 0) * (1 - (orderInfo.vipDiscount || 10) / 10)) }}</span>
+                <div v-if="orderInfo.vipDiscountPrice" class="yara-flex-between yara-mb-15">
+                  <span style="color: var(--yara-text-secondary); font-size: 15px;">会员折扣</span>
+                  <span style="color: var(--yara-brand-green); font-weight: 600; font-size: 15px;">-{{ YARA_UTILS.formatPrice(orderInfo.vipDiscountPrice || 0) }}</span>
                 </div>
-                <div v-if="orderInfo.couponDiscount" class="yara-flex-between yara-mb-10">
-                  <span>优惠券抵扣</span>
-                  <span style="color: var(--yara-danger);">-{{ YARA_UTILS.formatPrice(orderInfo.couponDiscount) }}</span>
+                <div v-if="orderInfo.couponDiscount" class="yara-flex-between yara-mb-15">
+                  <span style="color: var(--yara-text-secondary); font-size: 15px;">优惠券抵扣</span>
+                  <span style="color: var(--yara-brand-green); font-weight: 600; font-size: 15px;">-{{ YARA_UTILS.formatPrice(orderInfo.couponDiscount || 0) }}</span>
                 </div>
-                <div class="yara-flex-between" style="border-top: 1px solid var(--yara-border-color); padding-top: 15px; font-size: 18px; font-weight: 700; color: var(--yara-danger);">
+                <div class="yara-flex-between" style="border-top: 1px solid var(--yara-border-glass); padding-top: 20px; font-size: 22px; font-weight: 800; color: var(--yara-brand-green);">
                   <span>实付金额</span>
                   <span>{{ YARA_UTILS.formatPrice(orderInfo.finalPrice || 0) }}</span>
                 </div>
               </div>
             </el-card>
-
-            <!-- 订单流程信息 -->
-            <el-card shadow="never">
+            <!-- 订单时间线 -->
+            <el-card shadow="never" class="yara-card yara-slide-up-delay-3">
               <template #header>
-                <span class="yara-card-title">订单流程</span>
+                <span class="yara-card-title">订单进度</span>
               </template>
               <el-timeline>
                 <el-timeline-item
-                  timestamp="YARA_UTILS.formatTime(orderInfo.createTime)"
-                  type="primary"
+                  v-for="(item, index) in orderTimeline"
+                  :key="index"
+                  :timestamp="item.time"
+                  :type="item.type"
                 >
-                  订单创建成功，等待支付
-                </el-timeline-item>
-                <el-timeline-item
-                  v-if="orderInfo.payTime"
-                  timestamp="YARA_UTILS.formatTime(orderInfo.payTime)"
-                  type="success"
-                >
-                  订单支付成功，已发布派单
-                </el-timeline-item>
-                <el-timeline-item
-                  v-if="orderInfo.receiveTime"
-                  timestamp="YARA_UTILS.formatTime(orderInfo.receiveTime)"
-                  type="warning"
-                >
-                  服务人员已接单，开始提供服务
-                </el-timeline-item>
-                <el-timeline-item
-                  v-if="orderInfo.completeTime"
-                  timestamp="YARA_UTILS.formatTime(orderInfo.completeTime)"
-                  type="success"
-                >
-                  订单已完成，服务结束
-                </el-timeline-item>
-                <el-timeline-item
-                  v-if="orderInfo.cancelTime"
-                  timestamp="YARA_UTILS.formatTime(orderInfo.cancelTime)"
-                  type="danger"
-                >
-                  订单已取消
-                </el-timeline-item>
-                <el-timeline-item
-                  v-if="orderInfo.refundTime"
-                  timestamp="YARA_UTILS.formatTime(orderInfo.refundTime)"
-                  type="info"
-                >
-                  退款申请已处理，退款已到账
-                </el-timeline-item>
-                <el-timeline-item
-                  v-if="orderInfo.commentTime"
-                  timestamp="YARA_UTILS.formatTime(orderInfo.commentTime)"
-                  type="primary"
-                >
-                  订单评价已提交
+                  <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px; color: var(--yara-text-white);">{{ item.title }}</div>
+                  <div style="font-size: 13px; color: var(--yara-text-secondary);">{{ item.desc }}</div>
                 </el-timeline-item>
               </el-timeline>
             </el-card>
@@ -287,9 +251,9 @@
       </div>
     </div>
 
-    <!-- 退款申请弹窗 -->
+    <!-- 退款弹窗 -->
     <el-dialog v-model="showRefundModal" title="申请退款" width="500px" :close-on-click-modal="false">
-      <el-form ref="refundFormRef" :model="refundForm" :rules="refundRules" label-width="80px" size="large">
+      <el-form ref="refundFormRef" :model="refundForm" :rules="refundRules" size="large">
         <el-form-item label="退款原因" prop="reason">
           <el-select v-model="refundForm.reason" placeholder="请选择退款原因" style="width: 100%;">
             <el-option label="服务人员未接单" value="服务人员未接单"></el-option>
@@ -303,124 +267,171 @@
             v-model="refundForm.description"
             type="textarea"
             :rows="4"
-            placeholder="请详细说明退款原因，我们将尽快为你处理"
+            placeholder="请详细说明退款原因，以便我们快速处理"
             maxlength="500"
             show-word-limit
           ></el-input>
         </el-form-item>
+        <el-form-item label="退款金额">
+          <el-input :value="YARA_UTILS.formatPrice(orderInfo.finalPrice || 0)" disabled></el-input>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showRefundModal = false">取消</el-button>
-        <el-button type="primary" :loading="refundLoading" @click="handleRefundSubmit">提交申请</el-button>
+        <el-button type="primary" :loading="refundLoading" @click="handleRefund">提交退款申请</el-button>
       </template>
     </el-dialog>
 
     <!-- 评价弹窗 -->
     <el-dialog v-model="showCommentModal" title="服务评价" width="500px" :close-on-click-modal="false">
-      <el-form ref="commentFormRef" :model="commentForm" :rules="commentRules" label-width="80px" size="large">
+      <el-form ref="commentFormRef" :model="commentForm" :rules="commentRules" size="large">
         <el-form-item label="服务评分" prop="score">
-          <el-rate v-model="commentForm.score" show-score text-color="#ff9900" style="font-size: 24px;"></el-rate>
+          <el-rate v-model="commentForm.score" style="font-size: 24px;"></el-rate>
         </el-form-item>
         <el-form-item label="评价内容" prop="content">
           <el-input
             v-model="commentForm.content"
             type="textarea"
             :rows="4"
-            placeholder="请写下你的评价内容，帮助我们提升服务质量"
+            placeholder="请分享你的服务体验，帮助我们提升服务质量"
             maxlength="500"
             show-word-limit
           ></el-input>
         </el-form-item>
+        <el-form-item label="匿名评价">
+          <el-switch v-model="commentForm.isAnonymous"></el-switch>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showCommentModal = false">取消</el-button>
-        <el-button type="primary" :loading="commentLoading" @click="handleCommentSubmit">提交评价</el-button>
+        <el-button type="primary" :loading="commentLoading" @click="handleComment">提交评价</el-button>
       </template>
     </el-dialog>
   </div>
-
   <script>
-    const { createApp } = Vue
+    const { createApp, onMounted } = Vue
     const { ElMessage, ElMessageBox } = ElementPlus
-
     createApp({
       setup() {
-        const CONFIG = window.YARA_CONFIG
+        const CONFIG = window.CONFIG
         const activeMenu = Vue.ref('yara-order-list.html')
         const loading = Vue.ref(false)
-        const orderId = Vue.ref('')
-        const orderInfo = Vue.ref({})
-        const userInfo = Vue.ref(YARA_STORAGE.getUserInfo())
-
-        // 订单状态计算
-        const orderStatus = Vue.computed(() => {
-          const status = YARA_ORDER_STATUS[orderInfo.value.status] || { text: '未知状态', type: 'info' }
-          // 补充确认完成权限
-          if (orderInfo.value.status === 4) {
-            status.canConfirm = true
-          }
-          return status
-        })
-
-        // 退款相关
-        const showRefundModal = Vue.ref(false)
-        const refundFormRef = Vue.ref()
         const refundLoading = Vue.ref(false)
+        const commentLoading = Vue.ref(false)
+        const userInfo = Vue.ref(YARA_STORAGE.getUserInfo())
+        const orderId = Vue.ref(YARA_UTILS.getUrlParam('id'))
+        const orderInfo = Vue.ref({})
+        const showRefundModal = Vue.ref(false)
+        const showCommentModal = Vue.ref(false)
+        const refundFormRef = Vue.ref()
+        const commentFormRef = Vue.ref()
+
         const refundForm = Vue.reactive({
           reason: '',
           description: ''
         })
-        const refundRules = {
-          reason: [
-            { required: true, message: '请选择退款原因', trigger: 'change' }
-          ],
-          description: [
-            { required: true, message: '请填写退款说明', trigger: 'blur' },
-            { min: 10, message: '退款说明不能少于10字', trigger: 'blur' }
-          ]
-        }
-
-        // 评价相关
-        const showCommentModal = Vue.ref(false)
-        const commentFormRef = Vue.ref()
-        const commentLoading = Vue.ref(false)
         const commentForm = Vue.reactive({
           score: 5,
-          content: ''
+          content: '',
+          isAnonymous: false
         })
+
+        const refundRules = {
+          reason: [{ required: true, message: '请选择退款原因', trigger: 'change' }],
+          description: [{ required: true, message: '请输入退款说明', trigger: 'blur' }]
+        }
         const commentRules = {
-          score: [
-            { required: true, message: '请选择服务评分', trigger: 'change' }
-          ],
-          content: [
-            { required: true, message: '请填写评价内容', trigger: 'blur' },
-            { min: 5, message: '评价内容不能少于5字', trigger: 'blur' }
-          ]
+          score: [{ required: true, message: '请选择服务评分', trigger: 'change' }],
+          content: [{ required: true, message: '请输入评价内容', trigger: 'blur' }]
         }
 
-        // 获取订单详情
+        const orderStatus = Vue.computed(() => {
+          return YARA_ORDER_STATUS[orderInfo.value.status] || { text: '未知状态', type: 'info' }
+        })
+        const orderTimeline = Vue.computed(() => {
+          const timeline = []
+          if (orderInfo.value.createTime) {
+            timeline.push({
+              title: '订单创建成功',
+              desc: '您的派单需求已提交，等待支付',
+              time: YARA_UTILS.formatTime(orderInfo.value.createTime),
+              type: 'primary'
+            })
+          }
+          if (orderInfo.value.payTime) {
+            timeline.push({
+              title: '支付成功',
+              desc: '订单已支付，正在为您匹配服务人员',
+              time: YARA_UTILS.formatTime(orderInfo.value.payTime),
+              type: 'success'
+            })
+          }
+          if (orderInfo.value.receiveTime) {
+            timeline.push({
+              title: '服务人员已接单',
+              desc: `服务人员${orderInfo.value.serverInfo?.nickname || ''}已接单，正在为您提供服务`,
+              time: YARA_UTILS.formatTime(orderInfo.value.receiveTime),
+              type: 'warning'
+            })
+          }
+          if (orderInfo.value.completeTime) {
+            timeline.push({
+              title: '服务已完成',
+              desc: '服务人员已提交完成，请您确认',
+              time: YARA_UTILS.formatTime(orderInfo.value.completeTime),
+              type: 'info'
+            })
+          }
+          if (orderInfo.value.confirmTime) {
+            timeline.push({
+              title: '订单已确认完成',
+              desc: '您已确认服务完成，订单已完结',
+              time: YARA_UTILS.formatTime(orderInfo.value.confirmTime),
+              type: 'success'
+            })
+          }
+          if (orderInfo.value.cancelTime) {
+            timeline.push({
+              title: '订单已取消',
+              desc: `订单已取消，取消原因：${orderInfo.value.cancelReason || '用户主动取消'}`,
+              time: YARA_UTILS.formatTime(orderInfo.value.cancelTime),
+              type: 'info'
+            })
+          }
+          if (orderInfo.value.refundTime) {
+            timeline.push({
+              title: '退款已完成',
+              desc: `退款申请已处理，退款金额：${YARA_UTILS.formatPrice(orderInfo.value.refundAmount || 0)}`,
+              time: YARA_UTILS.formatTime(orderInfo.value.refundTime),
+              type: 'danger'
+            })
+          }
+          return timeline.reverse()
+        })
+
+        const handleCommand = (command) => {
+          if (command === 'center') window.location.href = 'yara-user-center.html'
+          if (command === 'logout') YARA_AUTH.logout()
+        }
         const getOrderDetail = async () => {
+          if (!orderId.value) {
+            ElMessage.error('订单ID不存在')
+            setTimeout(() => window.location.href = 'yara-order-list.html', 1500)
+            return
+          }
           loading.value = true
           try {
             const res = await YARA_API_LIST.getOrderDetail(orderId.value)
             orderInfo.value = res.data
           } catch (error) {
             console.error('获取订单详情失败', error)
-            ElMessage.error('获取订单详情失败')
-            setTimeout(() => {
-              window.location.href = 'yara-order-list.html'
-            }, 1500)
           } finally {
             loading.value = false
           }
         }
-
-        // 支付订单
         const handlePay = () => {
           YARA_PAY.createPay(orderInfo.value.orderNo, 'wechat', 'qr')
         }
-
-        // 取消订单
         const handleCancel = () => {
           ElMessageBox.confirm('确定要取消该订单吗？取消后不可恢复', '提示', {
             confirmButtonText: '确定',
@@ -432,29 +443,25 @@
             getOrderDetail()
           }).catch(() => {})
         }
-
-        // 确认订单完成
         const handleConfirm = () => {
-          ElMessageBox.confirm('确定要确认订单完成吗？确认后订单将正式完结', '提示', {
+          ElMessageBox.confirm('确定要确认服务完成吗？确认后订单将完结', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(async () => {
             await YARA_API_LIST.confirmOrder(orderId.value)
-            ElMessage.success('订单已确认完成')
+            ElMessage.success('订单确认完成')
             getOrderDetail()
           }).catch(() => {})
         }
-
-        // 提交退款申请
-        const handleRefundSubmit = async () => {
+        const handleRefund = async () => {
           if (!refundFormRef.value) return
           await refundFormRef.value.validate(async (valid) => {
             if (valid) {
               refundLoading.value = true
               try {
                 await YARA_API_LIST.refundOrder(orderId.value, refundForm)
-                ElMessage.success('退款申请提交成功，我们将尽快为你处理')
+                ElMessage.success('退款申请提交成功，我们将尽快处理')
                 showRefundModal.value = false
                 getOrderDetail()
               } catch (error) {
@@ -465,16 +472,14 @@
             }
           })
         }
-
-        // 提交评价
-        const handleCommentSubmit = async () => {
+        const handleComment = async () => {
           if (!commentFormRef.value) return
           await commentFormRef.value.validate(async (valid) => {
             if (valid) {
               commentLoading.value = true
               try {
                 await YARA_API_LIST.commentOrder(orderId.value, commentForm)
-                ElMessage.success('评价提交成功，感谢你的反馈')
+                ElMessage.success('评价提交成功，感谢您的反馈')
                 showCommentModal.value = false
                 getOrderDetail()
               } catch (error) {
@@ -486,23 +491,7 @@
           })
         }
 
-        // 下拉菜单操作
-        const handleCommand = (command) => {
-          if (command === 'center') {
-            window.location.href = 'yara-user-center.html'
-          } else if (command === 'logout') {
-            YARA_AUTH.logout()
-          }
-        }
-
-        // 页面加载初始化
-        Vue.onMounted(() => {
-          orderId.value = YARA_UTILS.getUrlParam('id')
-          if (!orderId.value) {
-            ElMessage.error('订单ID不存在')
-            window.location.href = 'yara-order-list.html'
-            return
-          }
+        onMounted(() => {
           getOrderDetail()
           YARA_STAT.pageView('订单详情页')
         })
@@ -511,28 +500,30 @@
           CONFIG,
           activeMenu,
           loading,
-          orderInfo,
-          userInfo,
-          orderStatus,
-          showRefundModal,
-          refundFormRef,
           refundLoading,
-          refundForm,
-          refundRules,
-          showCommentModal,
-          commentFormRef,
           commentLoading,
+          userInfo,
+          orderInfo,
+          showRefundModal,
+          showCommentModal,
+          refundFormRef,
+          commentFormRef,
+          refundForm,
           commentForm,
+          refundRules,
           commentRules,
+          orderStatus,
+          orderTimeline,
           YARA_ORDER_TYPE,
+          YARA_ORDER_STATUS,
           YARA_UTILS,
+          handleCommand,
           getOrderDetail,
           handlePay,
           handleCancel,
           handleConfirm,
-          handleRefundSubmit,
-          handleCommentSubmit,
-          handleCommand
+          handleRefund,
+          handleComment
         }
       }
     }).use(ElementPlus).mount('#yara-order-detail-app')
