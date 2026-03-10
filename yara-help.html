@@ -3,378 +3,372 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="keywords" content="Yara,AI派单,帮助中心,常见问题,工单提交">
-  <meta name="description" content="Yara 帮助中心，常见问题解答与工单提交">
-  <title>帮助中心 - Yara</title>
-  <!-- CDN资源 -->
+  <meta name="keywords" content="Yara,AI派单,帮助中心">
+  <meta name="description" content="Yara 帮助中心，常见问题解答">
+  <!-- 严格加载顺序 -->
+  <script src="./env-config.js"></script>
+  <script src="./yara-config.js"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
   <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
-  <!-- 根目录公共资源 -->
-  <script src="./yara-config.js"></script>
   <link rel="stylesheet" href="./yara-common.css">
   <script src="./yara-common.js"></script>
   <script src="./yara-stat.js"></script>
+  <!-- 页面专属样式 -->
+  <style>
+    .help-header {
+      background: var(--yara-brand-gradient);
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--yara-bg-main);
+    }
+    .help-header h1 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .help-header p {
+      font-size: 16px;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .help-search {
+      max-width: 600px;
+      margin: 30px auto 0;
+    }
+    .help-search .el-input__wrapper {
+      border-radius: 50px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    .help-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .help-card {
+      margin-bottom: 30px;
+    }
+    .help-nav {
+      position: sticky;
+      top: 90px;
+    }
+    .help-nav .el-menu {
+      border-radius: var(--yara-radius);
+      background: var(--yara-bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--yara-border-glass);
+    }
+    .help-nav .el-menu-item {
+      color: var(--yara-text-primary);
+      border-radius: var(--yara-radius-sm);
+      margin: 4px 8px;
+    }
+    .help-nav .el-menu-item.is-active {
+      background: var(--yara-brand-gradient);
+      color: var(--yara-bg-main);
+    }
+    .help-home-nav {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      color: var(--yara-text-white);
+      font-size: 14px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      transition: all var(--yara-transition-fast);
+      z-index: 3;
+    }
+    .help-home-nav:hover {
+      transform: translateX(-4px);
+      color: var(--yara-bg-main);
+    }
+  </style>
+  <title>帮助中心 - Yara</title>
 </head>
 <body>
   <div id="yara-help-app">
-    <div class="yara-layout-container">
-      <!-- 侧边栏导航 -->
-      <div class="yara-sidebar-container">
-        <div class="yara-logo">
-          <h2>{{ CONFIG.brand.name }}</h2>
-          <p>AI智能派单平台</p>
-        </div>
-        <el-menu
-          :default-active="activeMenu"
-          router
-          background-color="#304156"
-          text-color="#bfcbd9"
-          active-text-color="var(--yara-brand-color)"
-        >
-          <el-menu-item index="yara-index.html">
-            <el-icon><House /></el-icon>
-            <span>控制台</span>
-          </el-menu-item>
-          <el-menu-item index="yara-help.html">
-            <el-icon><QuestionFilled /></el-icon>
-            <span>帮助中心</span>
-          </el-menu-item>
-          <el-menu-item index="index.html" class="yara-back-home">
-            <el-icon><ArrowLeft /></el-icon>
-            <span>返回首页</span>
-          </el-menu-item>
-        </el-menu>
+    <a href="index.html" class="help-home-nav">
+      <el-icon><ArrowLeft /></el-icon>
+      返回首页
+    </a>
+    <!-- 头部 -->
+    <div class="help-header">
+      <h1>帮助中心</h1>
+      <p>有任何问题，都可以在这里找到答案，也可以联系我们的客服为你解答</p>
+      <div class="help-search">
+        <el-input v-model="searchKeyword" placeholder="搜索你想了解的问题..." size="large" @input="handleSearch">
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
       </div>
-
-      <!-- 主内容区 -->
-      <div class="yara-main-content">
-        <!-- 顶部导航栏 -->
-        <div class="yara-header-container">
-          <div class="yara-header-left">
-            <el-breadcrumb separator="/">
-              <el-breadcrumb-item :to="{ path: 'yara-index.html' }">控制台</el-breadcrumb-item>
-              <el-breadcrumb-item>帮助中心</el-breadcrumb-item>
-            </el-breadcrumb>
-          </div>
-        </div>
-
-        <!-- 页面内容 -->
-        <div class="yara-page-wrapper">
-          <!-- 搜索栏 -->
-          <el-card shadow="never" class="yara-mb-30">
-            <div class="yara-flex-center" style="flex-direction: column; padding: 20px 0;">
-              <h2 style="font-size: 28px; margin: 0 0 20px 0;">有什么可以帮你的吗？</h2>
-              <el-input
-                v-model="searchKeyword"
-                placeholder="请输入你想咨询的问题"
-                size="large"
-                style="width: 600px;"
-                clearable
-                @keyup.enter="handleSearch"
-              >
-                <template #append>
-                  <el-button @click="handleSearch" type="primary">搜索</el-button>
-                </template>
-              </el-input>
-            </div>
-          </el-card>
-
-          <!-- 常见问题分类 -->
-          <el-row :gutter="20" class="yara-mb-30">
-            <el-col :span="6" v-for="category in faqCategory" :key="category.id">
-              <el-card shadow="hover" class="yara-flex-center" style="flex-direction: column; height: 120px; cursor: pointer;" @click="activeTab = category.id">
-                <el-icon :size="40" color="var(--yara-brand-color)" style="margin-bottom: 10px;">
-                  <component :is="category.icon"></component>
-                </el-icon>
-                <h3 style="margin: 0; font-size: 18px;">{{ category.name }}</h3>
-              </el-card>
-            </el-col>
-          </el-row>
-
-          <!-- 常见问题列表 -->
-          <el-card shadow="never" class="yara-mb-30">
-            <template #header>
-              <span class="yara-card-title" style="font-size: 20px;">常见问题</span>
-            </template>
-            <el-tabs v-model="activeTab" type="card">
-              <el-tab-pane v-for="category in faqCategory" :key="category.id" :label="category.name" :name="category.id">
-                <el-collapse v-model="activeFaqNames" accordion>
-                  <el-collapse-item v-for="faq in category.list" :key="faq.id" :title="faq.question" :name="faq.id">
-                    <div style="color: var(--yara-text-regular); line-height: 1.8;">
-                      {{ faq.answer }}
-                    </div>
-                  </el-collapse-item>
-                </el-collapse>
-              </el-tab-pane>
-            </el-tabs>
-          </el-card>
-
-          <!-- 工单提交 -->
-          <el-card shadow="never">
-            <template #header>
-              <div>
-                <span class="yara-card-title" style="font-size: 20px;">提交工单</span>
-                <p class="yara-card-subtitle">如果没有找到你想要的答案，可以提交工单联系我们</p>
-              </div>
-            </template>
-            <el-form
-              ref="ticketFormRef"
-              :model="ticketForm"
-              :rules="ticketRules"
-              label-width="100px"
-              size="large"
-              style="max-width: 700px; margin: 0 auto;"
+    </div>
+    <!-- 主体内容 -->
+    <div class="help-container">
+      <el-row :gutter="30">
+        <el-col :span="6">
+          <div class="help-nav">
+            <el-menu
+              :default-active="activeMenu"
+              background-color="transparent"
+              text-color="#bfcbd9"
+              active-text-color="var(--yara-brand-green)"
+              @select="handleMenuSelect"
             >
+              <el-menu-item index="account">
+                <el-icon><User /></el-icon>
+                <span>账号相关</span>
+              </el-menu-item>
+              <el-menu-item index="order">
+                <el-icon><Document /></el-icon>
+                <span>订单相关</span>
+              </el-menu-item>
+              <el-menu-item index="pay">
+                <el-icon><Money /></el-icon>
+                <span>支付相关</span>
+              </el-menu-item>
+              <el-menu-item index="vip">
+                <el-icon><Medal /></el-icon>
+                <span>会员相关</span>
+              </el-menu-item>
+              <el-menu-item index="service">
+                <el-icon><Service /></el-icon>
+                <span>服务相关</span>
+              </el-menu-item>
+              <el-menu-item index="contact">
+                <el-icon><Phone /></el-icon>
+                <span>联系我们</span>
+              </el-menu-item>
+            </el-menu>
+          </div>
+        </el-col>
+        <el-col :span="18">
+          <div v-for="menu in menuList" :key="menu.id" :id="menu.id" class="help-card yara-card">
+            <el-card shadow="never">
+              <template #header>
+                <span class="yara-card-title" style="font-size: 20px;">{{ menu.title }}</span>
+              </template>
+              <el-collapse v-model="activeCollapse">
+                <el-collapse-item v-for="item in menu.list" :key="item.id" :title="item.title" :name="item.id">
+                  <div>{{ item.content }}</div>
+                </el-collapse-item>
+              </el-collapse>
+            </el-card>
+          </div>
+          <!-- 工单提交 -->
+          <el-card shadow="never" class="yara-card yara-mt-30" id="contact">
+            <template #header>
+              <span class="yara-card-title" style="font-size: 20px;">提交工单</span>
+              <p class="yara-card-subtitle">如果没有找到你想要的答案，可以提交工单，我们会尽快为你处理</p>
+            </template>
+            <el-form ref="ticketFormRef" :model="ticketForm" :rules="ticketRules" size="large" style="max-width: 700px;">
               <el-form-item label="问题类型" prop="type">
                 <el-select v-model="ticketForm.type" placeholder="请选择问题类型" style="width: 100%;">
-                  <el-option label="账号问题" value="账号问题"></el-option>
-                  <el-option label="订单问题" value="订单问题"></el-option>
-                  <el-option label="支付问题" value="支付问题"></el-option>
-                  <el-option label="会员问题" value="会员问题"></el-option>
-                  <el-option label="退款问题" value="退款问题"></el-option>
-                  <el-option label="其他问题" value="其他问题"></el-option>
+                  <el-option label="账号问题" value="account"></el-option>
+                  <el-option label="订单问题" value="order"></el-option>
+                  <el-option label="支付问题" value="pay"></el-option>
+                  <el-option label="会员问题" value="vip"></el-option>
+                  <el-option label="服务问题" value="service"></el-option>
+                  <el-option label="其他问题" value="other"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item label="问题标题" prop="title">
-                <el-input v-model="ticketForm.title" placeholder="请简要描述你的问题" clearable></el-input>
+                <el-input v-model="ticketForm.title" placeholder="请简要描述你的问题" maxlength="100" show-word-limit clearable></el-input>
               </el-form-item>
               <el-form-item label="问题详情" prop="content">
                 <el-input
                   v-model="ticketForm.content"
                   type="textarea"
                   :rows="5"
-                  placeholder="请详细描述你的问题，我们将在1个工作日内为你处理"
-                  maxlength="1000"
+                  placeholder="请详细描述你的问题，最好附上相关截图，以便我们快速处理"
+                  maxlength="2000"
                   show-word-limit
                 ></el-input>
               </el-form-item>
               <el-form-item label="联系方式" prop="contact">
-                <el-input v-model="ticketForm.contact" placeholder="请输入你的手机号/微信，方便我们联系你" clearable></el-input>
-              </el-form-item>
-              <el-form-item label="附件上传">
-                <el-upload
-                  action="#"
-                  :auto-upload="false"
-                  :on-change="handleFileChange"
-                  :on-remove="handleFileRemove"
-                  :limit="3"
-                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                >
-                  <el-button type="primary">选择文件</el-button>
-                  <template #tip>
-                    <div class="el-upload__tip">
-                      支持jpg/png/pdf/word格式，单个文件不超过10MB，最多上传3个文件
-                    </div>
-                  </template>
-                </el-upload>
+                <el-input v-model="ticketForm.contact" placeholder="请输入你的联系方式（微信/QQ/电话）" clearable></el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" size="large" :loading="submitLoading" @click="handleSubmit" style="width: 200px;">
-                  提交工单
-                </el-button>
-                <el-button size="large" @click="handleReset" style="margin-left: 20px;">
-                  重置表单
-                </el-button>
+                <el-button type="primary" size="large" :loading="ticketLoading" @click="handleSubmitTicket">提交工单</el-button>
+                <el-button size="large" @click="handleResetTicket">重置</el-button>
               </el-form-item>
             </el-form>
           </el-card>
+        </el-col>
+      </el-row>
+    </div>
+    <!-- 页脚 -->
+    <div class="yara-footer">
+      <div class="yara-footer-content">
+        <div class="yara-footer-links">
+          <a href="./index.html">首页</a>
+          <a href="./agreement.html" target="_blank">用户服务协议</a>
+          <a href="./privacy.html" target="_blank">隐私政策</a>
+          <a href="./yara-refund.html" target="_blank">退款规则</a>
+        </div>
+        <div class="yara-footer-copyright">
+          <p>© {{ new Date().getFullYear() }} {{ CONFIG?.brand?.fullName || 'Yara AI智能派单平台' }} 版权所有</p>
+          <p>
+            <a href="https://beian.miit.gov.cn/" target="_blank">{{ CONFIG?.brand?.icp || '' }}</a>
+            <span style="margin: 0 10px;" v-if="CONFIG?.brand?.icp">|</span>
+            <a href="https://beian.mps.gov.cn/" target="_blank">{{ CONFIG?.brand?.policeRecord || '' }}</a>
+          </p>
+          <p>客服热线：{{ CONFIG?.brand?.customerService?.phone || '' }}（{{ CONFIG?.brand?.customerService?.workTime || '' }}）</p>
         </div>
       </div>
     </div>
   </div>
-
   <script>
-    const { createApp } = Vue
+    const { createApp, onMounted } = Vue
     const { ElMessage } = ElementPlus
-
     createApp({
       setup() {
-        const CONFIG = window.YARA_CONFIG
-        const activeMenu = Vue.ref('yara-help.html')
+        const CONFIG = window.CONFIG
+        const activeMenu = Vue.ref('account')
+        const activeCollapse = Vue.ref([])
         const searchKeyword = Vue.ref('')
-        const activeTab = Vue.ref(1)
-        const activeFaqNames = Vue.ref([])
         const ticketFormRef = Vue.ref()
-        const submitLoading = Vue.ref(false)
-        const fileList = Vue.ref([])
+        const ticketLoading = Vue.ref(false)
 
-        // 常见问题分类
-        const faqCategory = [
-          {
-            id: 1,
-            name: '账号问题',
-            icon: 'User',
-            list: [
-              {
-                id: 101,
-                question: '如何注册Yara平台账号？',
-                answer: '您可以点击平台首页右上角的登录/注册按钮，选择注册页签，输入手机号、验证码、密码和昵称，完成注册即可。一个手机号仅可注册一个账号，注册成功后即可使用平台全部功能。'
-              },
-              {
-                id: 102,
-                question: '忘记登录密码怎么办？',
-                answer: '您可以在登录页面点击「忘记密码」，输入注册手机号，接收验证码后即可重置新的登录密码。重置成功后即可使用新密码登录。'
-              },
-              {
-                id: 103,
-                question: '如何更换绑定的手机号？',
-                answer: '您可以进入个人中心-账号安全页面，点击「更换手机号」，先验证原手机号的验证码，再输入新手机号和对应的验证码，即可完成手机号更换。更换成功后需要重新登录。'
-              },
-              {
-                id: 104,
-                question: '账号可以注销吗？',
-                answer: '可以。您可以进入个人中心-账号安全页面，提交账号注销申请。注销申请提交后，将有7天的冷静期，冷静期过后账号将正式注销，所有数据将被清空且无法恢复，请谨慎操作。'
-              }
-            ]
-          },
-          {
-            id: 2,
-            name: '订单问题',
-            icon: 'Document',
-            list: [
-              {
-                id: 201,
-                question: '如何发布派单需求？',
-                answer: '您可以点击控制台的「我要派单」，选择服务类型，填写需求标题、详情、服务时长、联系方式等信息，确认价格后提交订单并支付，支付成功后订单将正式发布，平台会为您匹配对应的服务人员。'
-              },
-              {
-                id: 202,
-                question: '订单提交后可以修改需求吗？',
-                answer: '订单未被接单前，您可以联系客服修改需求内容；订单已被接单后，如需修改需求，需与服务人员协商一致，若产生价格变动，需补充差价或申请部分退款。'
-              },
-              {
-                id: 203,
-                question: '订单长时间无人接单怎么办？',
-                answer: '若订单发布后24小时内无人接单，您可以选择取消订单，系统将全额退款至您的支付账户；也可以联系客服加急匹配服务人员，或补充需求详情、提高预算来提升接单率。'
-              },
-              {
-                id: 204,
-                question: '如何确认订单完成？',
-                answer: '服务人员完成服务后，会提交完成申请，您可以在订单详情页查看服务成果，确认无误后点击「确认完成」，订单将正式完结；若您7天内未操作，系统将自动确认订单完成。'
-              }
-            ]
-          },
-          {
-            id: 3,
-            name: '支付问题',
-            icon: 'Money',
-            list: [
-              {
-                id: 301,
-                question: '平台支持哪些支付方式？',
-                answer: '平台目前支持微信支付、支付宝支付两种方式，后续将陆续开通更多支付渠道，敬请期待。'
-              },
-              {
-                id: 302,
-                question: '支付成功但订单状态未更新怎么办？',
-                answer: '由于网络延迟，可能会出现支付状态同步延迟的情况，您可以等待1-3分钟后刷新页面查看；若仍未更新，请联系客服并提供支付截图，我们将为您手动同步状态。'
-              },
-              {
-                id: 303,
-                question: '支付后可以开发票吗？',
-                answer: '可以。您可以在订单完成后，联系客服提供发票抬头、税号、收件地址等信息，我们将在3-7个工作日内为您开具电子发票或纸质发票并寄出。'
-              }
-            ]
-          },
-          {
-            id: 4,
-            name: '会员问题',
-            icon: 'Medal',
-            list: [
-              {
-                id: 401,
-                question: '开通会员有哪些特权？',
-                answer: '开通会员后，您可享受下单折扣、每月专属优惠券、订单优先接单、专属客服、加急通道等特权，不同会员套餐对应的特权不同，年卡会员可享受最高等级的全部特权。'
-              },
-              {
-                id: 402,
-                question: '会员可以自动续费吗？',
-                answer: '目前平台暂不支持自动续费，会员到期前7天，系统会通过站内信提醒您续费，您可以手动选择对应套餐续费，续费后会员有效期将自动顺延。'
-              },
-              {
-                id: 403,
-                question: '开通会员后可以退款吗？',
-                answer: '会员开通后，若未使用任何会员特权，可在开通后24小时内联系客服申请全额退款；若已使用会员特权，或开通超过24小时，将不予退款，敬请谅解。'
-              },
-              {
-                id: 404,
-                question: '会员优惠券在哪里领取？',
-                answer: '会员开通后，系统将自动发放当月优惠券到您的账户，您可以进入个人中心-我的优惠券页面查看；每月1号系统将自动发放当月的会员专属优惠券，请注意查收。'
-              }
-            ]
-          },
-          {
-            id: 5,
-            name: '退款问题',
-            icon: 'Refund',
-            list: [
-              {
-                id: 501,
-                question: '哪些情况可以申请全额退款？',
-                answer: '符合以下任一情况的订单，用户可申请全额退款：1.订单支付成功后，24小时内无服务人员接单；2.订单被接单后，服务人员明确表示无法提供服务，且无其他合适服务人员可匹配；3.因平台系统故障、支付异常等平台原因导致订单无法正常履行；4.服务人员未在约定时间内提供服务，且未提前与用户协商一致的。'
-              },
-              {
-                id: 502,
-                question: '退款申请提交后多久到账？',
-                answer: '退款申请审核通过后，平台将在1-3个工作日内将退款金额原路退回至您的支付账户。退款到账时间取决于支付渠道和银行处理时效，通常微信/支付宝支付退款实时到账，银行卡支付退款1-7个工作日到账，若超时未到账，请联系支付渠道客服或平台客服查询。'
-              },
-              {
-                id: 503,
-                question: '订单完成后还能申请退款吗？',
-                answer: '订单确认完成后，若无证据证明服务存在严重质量问题，平台将不予退款。若您有明确证据证明服务未达到约定标准，可在订单完成后7天内提交退款申请，平台将介入核实处理。'
-              }
-            ]
-          }
-        ]
-
-        // 工单表单
         const ticketForm = Vue.reactive({
           type: '',
           title: '',
           content: '',
           contact: ''
         })
-
-        // 工单校验规则
         const ticketRules = {
-          type: [
-            { required: true, message: '请选择问题类型', trigger: 'change' }
-          ],
-          title: [
-            { required: true, message: '请输入问题标题', trigger: 'blur' },
-            { min: 5, max: 50, message: '问题标题长度为5-50字', trigger: 'blur' }
-          ],
-          content: [
-            { required: true, message: '请输入问题详情', trigger: 'blur' },
-            { min: 10, message: '问题详情不能少于10字', trigger: 'blur' }
-          ],
-          contact: [
-            { required: true, message: '请输入你的联系方式', trigger: 'blur' }
-          ]
+          type: [{ required: true, message: '请选择问题类型', trigger: 'change' }],
+          title: [{ required: true, message: '请输入问题标题', trigger: 'blur' }],
+          content: [{ required: true, message: '请输入问题详情', trigger: 'blur' }],
+          contact: [{ required: true, message: '请输入你的联系方式', trigger: 'blur' }]
         }
 
-        // 搜索功能
-        const handleSearch = () => {
-          if (!searchKeyword.value.trim()) {
-            ElMessage.warning('请输入搜索关键词')
-            return
+        const menuList = [
+          {
+            id: 'account',
+            title: '账号相关',
+            list: [
+              { id: 1, title: '如何注册账号？', content: '您可以点击首页右上角的「登录/注册」按钮，选择「注册」，输入手机号、验证码、设置密码即可完成注册，注册成功后即可使用平台所有功能。' },
+              { id: 2, title: '忘记密码怎么办？', content: '您可以在登录页面点击「忘记密码」，输入注册手机号、验证码，设置新密码即可完成重置，重置成功后即可使用新密码登录。' },
+              { id: 3, title: '如何修改个人信息？', content: '登录后，点击左侧导航栏的「个人中心」，即可修改头像、昵称、个性签名等个人信息，修改完成后点击「保存修改」即可生效。' },
+              { id: 4, title: '账号可以注销吗？', content: '可以的，如需注销账号，请联系我们的客服，提交注销申请，我们会在3个工作日内为您处理，注销后账号所有数据将被清空且不可恢复。' },
+              { id: 5, title: '一个手机号可以注册多个账号吗？', content: '不可以，一个手机号只能注册一个账号，确保账号的安全性和唯一性。' }
+            ]
+          },
+          {
+            id: 'order',
+            title: '订单相关',
+            list: [
+              { id: 6, title: '如何发布派单需求？', content: '登录后，点击左侧导航栏的「我要派单」，选择服务类型，填写需求标题、详情、服务时长、联系方式等信息，提交订单并完成支付即可发布成功，我们会为您匹配对应的服务人员。' },
+              { id: 7, title: '订单发布后可以修改吗？', content: '订单支付成功后，未接单状态下可以联系客服修改需求信息；如果服务人员已经接单，需要和服务人员协商修改，协商一致后可进行调整。' },
+              { id: 8, title: '如何取消订单？', content: '您可以在「订单管理」页面，找到对应的订单，点击「取消」按钮即可取消订单。待支付订单可直接取消；待接单订单取消后会自动退款；服务中的订单需要申请退款，审核通过后会按规则退款。' },
+              { id: 9, title: '订单完成后可以申请售后吗？', content: '订单确认完成后7天内，如对服务不满意，可联系客服申请售后，我们会根据实际情况进行处理，保障您的权益。' },
+              { id: 10, title: '如何查看订单进度？', content: '您可以在「订单管理」页面，点击对应订单的「查看详情」，即可查看订单的实时进度、服务人员信息、订单时间线等内容。' }
+            ]
+          },
+          {
+            id: 'pay',
+            title: '支付相关',
+            list: [
+              { id: 11, title: '平台支持哪些支付方式？', content: '目前平台支持微信支付、支付宝支付两种主流支付方式，后续会陆续开通更多支付渠道，敬请期待。' },
+              { id: 12, title: '支付成功但订单状态未更新怎么办？', content: '由于网络延迟，可能会出现状态更新延迟的情况，您可以等待1-3分钟后刷新页面查看；如果仍未更新，请联系客服提供支付截图，我们会为您手动处理。' },
+              { id: 13, title: '订单取消后多久可以收到退款？', content: '待接单订单取消后，退款会立即原路退回；退款申请审核通过后，微信/支付宝退款一般会在1-3个工作日内到账，具体到账时间以支付渠道为准。' },
+              { id: 14, title: '支付时可以使用优惠券吗？', content: '可以的，下单时可以选择您账户中可用的优惠券，抵扣对应金额，优惠券可与会员折扣叠加使用。' },
+              { id: 15, title: '发票如何申请？', content: '您可以在订单完成后，联系客服提供发票信息（抬头、税号、邮箱等），我们会在3个工作日内为您开具电子发票并发送到您的邮箱。' }
+            ]
+          },
+          {
+            id: 'vip',
+            title: '会员相关',
+            list: [
+              { id: 16, title: '会员有哪些特权？', content: '会员可享受下单专属折扣、优先接单匹配、1v1专属客服、每月免费咨询次数、专属优惠券礼包等特权，不同等级的会员特权不同，等级越高特权越多。' },
+              { id: 17, title: '会员开通后立即生效吗？', content: '是的，会员支付成功后立即生效，有效期从开通当日开始计算，到期后自动失效。' },
+              { id: 18, title: '会员可以叠加开通吗？', content: '可以，叠加开通后，会员有效期会自动顺延，不会覆盖原有有效期，您可以放心续费。' },
+              { id: 19, title: '会员开通后可以退款吗？', content: '会员属于虚拟商品，开通后不支持退款，请您确认后再进行购买。如有特殊问题，请联系客服处理。' },
+              { id: 20, title: '会员到期后特权还能使用吗？', content: '会员到期后，所有会员专属特权将无法使用，包括会员折扣、优先匹配等，续费后即可恢复所有特权。' }
+            ]
+          },
+          {
+            id: 'service',
+            title: '服务相关',
+            list: [
+              { id: 21, title: '服务人员是如何匹配的？', content: '我们会根据您的需求类型、需求详情，为您匹配对应领域、经验丰富的服务人员，会员用户可享受优先匹配特权。' },
+              { id: 22, title: '接单时效是多久？', content: '订单支付成功后，我们会立即为您匹配服务人员，一般会在1小时内接单，高峰期可能会有延迟，加急订单会优先匹配，30分钟内必接单。' },
+              { id: 23, title: '对服务人员不满意可以更换吗？', content: '服务人员接单后，如您对服务不满意，可联系客服申请更换服务人员，我们会根据实际情况为您重新匹配，保障您的服务体验。' },
+              { id: 24, title: '服务过程中出现纠纷怎么办？', content: '如服务过程中出现纠纷，您可以先和服务人员协商解决；协商无果的话，可联系平台客服介入，我们会公平公正地进行处理，保障双方的合法权益。' },
+              { id: 25, title: '服务内容会保密吗？', content: '我们严格保护用户的隐私，所有服务内容、个人信息都会严格保密，服务人员也会签署保密协议，绝不会泄露您的任何信息，请您放心。' }
+            ]
           }
-          // 遍历所有问题，匹配关键词
-          let findResult = false
-          for (let category of faqCategory) {
-            for (let faq of category.list) {
-              if (faq.question.includes(searchKeyword.value) || faq.answer.includes(searchKeyword.value)) {
-                activeTab.value = category.id
-                activeFaqNames.value = [faq.id]
-                findResult = true
-                break
+        ]
+
+        const handleMenuSelect = (index) => {
+          activeMenu.value = index
+          document.getElementById(index).scrollIntoView({ behavior: 'smooth' })
+        }
+        const handleSearch = () => {
+          if (!searchKeyword.value) return
+          activeCollapse.value = []
+          menuList.forEach(menu => {
+            menu.list.forEach(item => {
+              if (item.title.includes(searchKeyword.value) || item.content.includes(searchKeyword.value)) {
+                activeMenu.value = menu.id
+                activeCollapse.value.push(item.id)
+                setTimeout(() => {
+                  document.getElementById(menu.id).scrollIntoView({ behavior: 'smooth' })
+                }, 100)
+              }
+            })
+          })
+        }
+        const handleSubmitTicket = async () => {
+          if (!ticketFormRef.value) return
+          await ticketFormRef.value.validate(async (valid) => {
+            if (valid) {
+              ticketLoading.value = true
+              try {
+                await YARA_API_LIST.createTicket(ticketForm)
+                ElMessage.success('工单提交成功，我们会尽快为您处理')
+                handleResetTicket()
+              } catch (error) {
+                console.error('工单提交失败', error)
+              } finally {
+                ticketLoading.value = false
               }
             }
-            if (findResult) break
-          }
-          if (!findResult) {
-            ElMessage.info('未找到相关问题
+          })
+        }
+        const handleResetTicket = () => {
+          ticketFormRef.value.resetFields()
+        }
 
+        onMounted(() => {
+          YARA_STAT.pageView('帮助中心页')
+        })
+
+        return {
+          CONFIG,
+          activeMenu,
+          activeCollapse,
+          searchKeyword,
+          ticketFormRef,
+          ticketLoading,
+          ticketForm,
+          ticketRules,
+          menuList,
+          handleMenuSelect,
+          handleSearch,
+          handleSubmitTicket,
+          handleResetTicket
+        }
+      }
+    }).use(ElementPlus).mount('#yara-help-app')
+  </script>
+</body>
+</html>
