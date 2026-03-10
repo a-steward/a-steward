@@ -27,7 +27,7 @@ window.YARA_CONFIG = {
   },
 
   // ========== 3. 支付配置【已安全改造，无硬编码敏感信息，无需修改此处】 ==========
-  // 敏感商户信息已移至独立安全配置文件，绝不提交到Git仓库，彻底杜绝泄漏风险
+  // 敏感商户信息已移至env-config.js，绝不提交到Git仓库，彻底杜绝泄漏风险
   pay: {
     wechat: {
       mchId: window.ENV_CONFIG?.WECHAT_MCH_ID || '',
@@ -57,7 +57,6 @@ window.YARA_CONFIG = {
 
   // ========== 5. 运营配置【需自定义替换为你的正式内容】 ==========
   operation: {
-    // 【需替换】banner图片替换为你的正式图片链接，解决原占位图解析问题
     banners: [
       { img: 'https://picsum.photos/1200/180?random=1', title: '新人首单立减50元', url: 'yara-price.html' },
       { img: 'https://picsum.photos/1200/180?random=2', title: '会员年卡限时299元', url: 'yara-price.html' },
